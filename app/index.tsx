@@ -97,7 +97,7 @@ export default function Index() {
             setShowError(false);
           }}
         />
-        {!showLoading && !isComplete && (
+        {!showLoading && (
           <Question
             question={currentQuestion.question}
             currentStep={currentStep}
@@ -108,7 +108,7 @@ export default function Index() {
           visible={showLoading}
           feedback={currentQuestion?.feedback}
         />
-        {!isComplete && !showLoading && (
+        {!showLoading && (
           <View style={styles.choicesContainer}>
             {currentQuestion.choices.map((choice, index) => (
               <ChoiceButton

@@ -1,3 +1,6 @@
+-x Use native headers and buttons (Liquid Glass)
+- Improve responsiveness of survey page especially on small screens
+- Scope to iOS
 - Swipe interface
 - Filter interface
 - Scrape places via Google Maps

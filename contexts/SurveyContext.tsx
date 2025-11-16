@@ -1,5 +1,5 @@
-import { initialCategoryQuestion, Question } from "@/data/survey";
-import { generateQuestion } from "@/services/openai";
+import { generateInitialQuestion, Question } from "@/data/survey";
+import { generateNextQuestion } from "@/services/openai";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface SurveyContextType {
@@ -25,7 +25,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [choices, setChoices] = useState<string[]>([]);
   const [questions, setQuestions] = useState<Question[]>([
-    initialCategoryQuestion,
+    generateInitialQuestion(),
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState<boolean>(false);
@@ -34,17 +34,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
 
   const currentQuestion = questions[currentStep];
 
-  const getCategory = (): string | null => {
-    return choices[0] || null;
-  };
-
-  const handleChoicePress = async (value: string) => {
-    const newChoices = [...choices, value];
-    setChoices(newChoices);
-
-    const category = getCategory();
-    const currentQuestion = questions[currentStep];
-
+  const handleChoicePress = async (choice: string) => {
     // Start exit animation
     setIsAnimatingOut(true);
 
@@ -56,63 +46,30 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
     setIsLoading(true);
     setError(null);
 
-    if (!category) {
-      try {
-        const previousQuestions = questions
-          .slice(1) // Skip initial category question
-          .map((q) => q.question);
-        const previousFeedback = questions
-          .slice(1) // Skip initial category question
-          .map((q) => q.feedback)
-          .filter((f) => f); // Filter out empty feedback
-        const nextQuestion = await generateQuestion(
-          value,
-          [],
-          previousQuestions,
-          previousFeedback
-        );
-        setQuestions((prev) => [...prev, nextQuestion]);
-        setCurrentStep(currentStep + 1);
-
-        if (nextQuestion.end) {
-          setIsComplete(true);
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to generate question"
-        );
-        console.error("Error generating question:", err);
-      } finally {
-        setIsLoading(false);
-      }
-      return;
-    }
-
     try {
-      const previousQuestions = questions
-        .slice(1) // Skip initial category question
-        .map((q) => q.question);
-      const previousFeedback = questions
-        .slice(1) // Skip initial category question
-        .map((q) => q.feedback)
-        .filter((f) => f); // Filter out empty feedback
-      const nextQuestion = await generateQuestion(
-        category,
-        newChoices.slice(1),
-        previousQuestions,
-        previousFeedback
+      const updatedChoices = [...choices, choice];
+      const nextQuestion = await generateNextQuestion(
+        questions,
+        updatedChoices
       );
-      setQuestions((prev) => [...prev, nextQuestion]);
-      setCurrentStep(currentStep + 1);
+
+      if (!nextQuestion) {
+        setError("Failed to generate question");
+        return;
+      }
 
       if (nextQuestion.end) {
         setIsComplete(true);
+        return;
       }
+
+      setQuestions((prev) => [...prev, nextQuestion]);
+      setChoices(updatedChoices);
+      setCurrentStep(currentStep + 1);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to generate question"
       );
-      console.error("Error generating question:", err);
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +78,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
   const handleStartOver = () => {
     setCurrentStep(0);
     setChoices([]);
-    setQuestions([initialCategoryQuestion]);
+    setQuestions([generateInitialQuestion()]);
     setIsLoading(false);
     setIsAnimatingOut(false);
     setError(null);

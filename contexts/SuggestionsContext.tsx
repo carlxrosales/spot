@@ -28,14 +28,14 @@ interface SuggestionsProviderProps {
 }
 
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
-  const { choices, isComplete } = useSurvey();
+  const { answers, isComplete } = useSurvey();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(async () => {
-    if (!isComplete || choices.length === 0) {
+    if (!isComplete || answers.length === 0) {
       return;
     }
 
@@ -45,7 +45,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const dummySuggestions = generateSuggestions(choices);
+      const dummySuggestions = generateSuggestions(answers);
       setSuggestions(dummySuggestions);
       setCurrentIndex(0);
     } catch (err) {
@@ -53,7 +53,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [choices, isComplete]);
+  }, [answers, isComplete]);
 
   const handleSkip = useCallback(() => {
     setCurrentIndex((prev) => {
@@ -70,11 +70,11 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   }, [suggestions.length]);
 
   useEffect(() => {
-    if (choices.length === 0) {
+    if (answers.length === 0) {
       setSuggestions([]);
       setCurrentIndex(0);
     }
-  }, [choices]);
+  }, [answers]);
 
   return (
     <SuggestionsContext.Provider

@@ -13,7 +13,7 @@ export interface Question {
   question: string;
   choices: Choice[];
   feedback: ChoiceFeedback;
-  end: boolean;
+  isLast: boolean;
 }
 
 export const ImFeelingSpontyChoice: Choice = {
@@ -52,6 +52,6 @@ export const generateInitialQuestion = (): Question => {
     ],
     feedback:
       initialFeedbacks[Math.floor(Math.random() * initialFeedbacks.length)],
-    end: false,
+    isLast: false,
   };
 };

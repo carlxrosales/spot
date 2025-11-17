@@ -14,19 +14,30 @@ interface QuestionProps {
 }
 
 export function Question({ question, isAnimatingOut }: QuestionProps) {
-  const questionScale = useSharedValue(0);
-  const questionOpacity = useSharedValue(0);
-  const translateY = useSharedValue(20);
+  const questionScale = useSharedValue<number>(Animation.scale.hidden);
+  const questionOpacity = useSharedValue<number>(Animation.opacity.hidden);
+  const translateY = useSharedValue<number>(Animation.translate.question.down);
 
   useEffect(() => {
     if (isAnimatingOut) {
-      questionScale.value = withTiming(0.8, { duration: 300 });
-      questionOpacity.value = withTiming(0, { duration: 300 });
-      translateY.value = withTiming(-20, { duration: 300 });
+      questionScale.value = withTiming(Animation.scale.medium, {
+        duration: Animation.duration.normal,
+      });
+      questionOpacity.value = withTiming(Animation.opacity.hidden, {
+        duration: Animation.duration.normal,
+      });
+      translateY.value = withTiming(Animation.translate.question.up, {
+        duration: Animation.duration.normal,
+      });
     } else {
-      questionScale.value = withSpring(1, Animation.spring);
-      questionOpacity.value = withTiming(1, { duration: 300 });
-      translateY.value = withTiming(0, { duration: 300 });
+      questionScale.value = withSpring(
+        Animation.scale.normal,
+        Animation.spring
+      );
+      questionOpacity.value = withTiming(Animation.opacity.visible, {
+        duration: Animation.duration.normal,
+      });
+      translateY.value = withTiming(0, { duration: Animation.duration.normal });
     }
   }, [isAnimatingOut]);
 

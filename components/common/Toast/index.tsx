@@ -21,27 +21,41 @@ interface ToastProps {
 export function Toast({
   message,
   visible,
-  duration = 3000,
+  duration = Animation.duration.toast,
   position = "top",
 }: ToastProps) {
   const insets = useSafeAreaInsets();
-  const translateY = useSharedValue(position === "top" ? -100 : 100);
-  const opacity = useSharedValue(0);
+  const translateY = useSharedValue<number>(
+    position === "top"
+      ? Animation.translate.toast.top
+      : Animation.translate.toast.bottom
+  );
+  const opacity = useSharedValue<number>(Animation.opacity.hidden);
 
   useEffect(() => {
     if (visible) {
       translateY.value = withSpring(0, Animation.spring);
-      opacity.value = withTiming(1, { duration: 200 });
+      opacity.value = withTiming(Animation.opacity.visible, {
+        duration: Animation.duration.fast,
+      });
       const timer = setTimeout(() => {
-        translateY.value = withTiming(position === "top" ? -100 : 100, {
-          duration: 200,
+        translateY.value = withTiming(
+          position === "top"
+            ? Animation.translate.toast.top
+            : Animation.translate.toast.bottom,
+          { duration: Animation.duration.fast }
+        );
+        opacity.value = withTiming(Animation.opacity.hidden, {
+          duration: Animation.duration.fast,
         });
-        opacity.value = withTiming(0, { duration: 200 });
       }, duration);
       return () => clearTimeout(timer);
     } else {
-      translateY.value = position === "top" ? -100 : 100;
-      opacity.value = 0;
+      translateY.value =
+        position === "top"
+          ? Animation.translate.toast.top
+          : Animation.translate.toast.bottom;
+      opacity.value = Animation.opacity.hidden;
     }
   }, [visible, duration, position]);
 

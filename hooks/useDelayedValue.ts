@@ -1,6 +1,10 @@
+import { Animation } from "@/constants/theme";
 import { useEffect, useRef, useState } from "react";
 
-export function useDelayedValue<T>(value: T, delay: number = 300): T {
+export function useDelayedValue<T>(
+  value: T,
+  delay: number = Animation.duration.normal
+): T {
   const [delayedValue, setDelayedValue] = useState<T>(value);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

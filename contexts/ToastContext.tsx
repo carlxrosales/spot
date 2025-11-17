@@ -1,4 +1,5 @@
 import { Toast } from "@/components/common/Toast";
+import { Animation } from "@/constants/theme";
 import {
   createContext,
   ReactNode,
@@ -28,12 +29,12 @@ interface ToastProviderProps {
 export function ToastProvider({ children }: ToastProviderProps) {
   const [message, setMessage] = useState<string>("");
   const [visible, setVisible] = useState<boolean>(false);
-  const [duration, setDuration] = useState<number>(3000);
+  const [duration, setDuration] = useState<number>(Animation.duration.toast);
   const [position, setPosition] = useState<ToastPosition>("top");
 
   const displayToast = ({
     message: toastMessage,
-    duration: toastDuration = 3000,
+    duration: toastDuration = Animation.duration.toast,
     position: toastPosition = "top",
   }: DisplayToastOptions) => {
     setMessage(toastMessage);

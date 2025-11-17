@@ -1,4 +1,3 @@
-- Swipe interface
-- Filter interface
+- Fix swipe on mobile
 - Scrape places via Google Maps
 - Suggest places based on choices/tags from survey

@@ -1,5 +1,5 @@
 import { IndicatorBar } from "@/components/common/IndicatorBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, LayoutChangeEvent, Pressable, View } from "react-native";
 
 interface ImageCarouselProps {
@@ -19,8 +19,16 @@ export function ImageCarousel({
   indicatorClassName = "absolute top-4 left-4 right-4 z-10",
   className = "w-full h-full",
 }: ImageCarouselProps) {
-  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
   const hasMultipleImages = images.length > 1;
+
+  useEffect(() => {
+    images.forEach((uri) => {
+      Image.prefetch(uri).catch(() => {
+        // Silently fail if prefetch fails
+      });
+    });
+  }, [images]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
@@ -33,12 +41,10 @@ export function ImageCarousel({
     const isLeftSide = tapX < containerWidth / 2;
 
     if (isLeftSide) {
-      // Go to previous image
       const prevIndex =
         currentIndex === 0 ? images.length - 1 : currentIndex - 1;
       onIndexChange(prevIndex);
     } else {
-      // Go to next image
       const nextIndex = (currentIndex + 1) % images.length;
       onIndexChange(nextIndex);
     }
@@ -58,7 +64,7 @@ export function ImageCarousel({
             key={index}
             source={{ uri: photo }}
             className={`w-full h-full absolute inset-0 ${
-              currentIndex === index ? "block" : "hidden"
+              currentIndex === index ? "opacity-100" : "opacity-0"
             }`}
             resizeMode='cover'
           />

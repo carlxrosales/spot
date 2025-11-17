@@ -1,9 +1,10 @@
 import { ImageCarousel } from "@/components/common/ImageCarousel";
-import { Animation } from "@/constants/theme";
+import { SCREEN_WIDTH } from "@/constants/dimensions";
+import { Animation, Overlay } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/SuggestionsContext";
 import { Suggestion, suggestionFeedbacks } from "@/data/suggestions";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import { Dimensions, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
@@ -13,8 +14,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { SwipeFeedback } from "../SwipeFeedback";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
+const copy = {
+  kmAway: "km away",
+  opensAt: "Opens at",
+  closesAt: "Closes at",
+};
+
+const SWIPE_THRESHOLD = SCREEN_WIDTH * Animation.threshold.swipeCard;
 
 interface SwipeableCardProps {
   suggestion: Suggestion;
@@ -28,71 +34,76 @@ export interface SwipeableCardRef {
 export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
   ({ suggestion }, ref) => {
     const { handleSkip, handleProceed } = useSuggestions();
-    const translateX = useSharedValue(0);
-    const translateY = useSharedValue(0);
-    const scale = useSharedValue(0.8);
-    const opacity = useSharedValue(0);
-    const swipeProgress = useSharedValue(0);
+    const translateX = useSharedValue<number>(0);
+    const translateY = useSharedValue<number>(0);
+    const scale = useSharedValue<number>(Animation.scale.hidden);
+    const opacity = useSharedValue<number>(Animation.opacity.hidden);
+    const swipeProgress = useSharedValue<number>(0);
     const [selectedFeedback, setSelectedFeedback] = useState<{
       text: string;
       emoji: string;
     } | null>(null);
-    const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+    const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
 
     useEffect(() => {
-      // Choose feedback on render
       const randomIndex = Math.floor(
         Math.random() * suggestionFeedbacks.length
       );
       setSelectedFeedback(suggestionFeedbacks[randomIndex]);
 
-      // Reset all values
       translateX.value = 0;
       translateY.value = 0;
       swipeProgress.value = 0;
       setCurrentPhotoIndex(0);
 
-      // Set initial state for animation
-      scale.value = 0.8;
-      opacity.value = 0;
+      scale.value = Animation.scale.hidden;
+      opacity.value = Animation.opacity.hidden;
 
-      // Trigger pop in animation
-      scale.value = withSpring(1, Animation.spring);
-      opacity.value = withTiming(1, { duration: 300 });
+      scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
+      opacity.value = withTiming(Animation.opacity.visible, {
+        duration: Animation.duration.normal,
+      });
     }, [suggestion.id]);
 
     const performSwipeLeft = () => {
-      // Set swipeProgress to 1 immediately for button-triggered swipes
-      // This allows feedback to show immediately
-      swipeProgress.value = 1;
-      translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 });
-      opacity.value = withTiming(0, { duration: 300 });
+      swipeProgress.value = Animation.opacity.visible;
+      translateX.value = withTiming(
+        -SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
+        { duration: Animation.duration.normal }
+      );
+      opacity.value = withTiming(Animation.opacity.hidden, {
+        duration: Animation.duration.normal,
+      });
 
-      // Call callback after animation completes and feedback is shown longer
       setTimeout(() => {
         handleSkip();
-      }, 600);
+      }, Animation.duration.slow);
     };
 
     const performSwipeRight = () => {
-      translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 });
-      opacity.value = withTiming(0, { duration: 300 });
-      swipeProgress.value = withTiming(0, { duration: 300 });
+      translateX.value = withTiming(
+        SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
+        { duration: Animation.duration.normal }
+      );
+      opacity.value = withTiming(Animation.opacity.hidden, {
+        duration: Animation.duration.normal,
+      });
+      swipeProgress.value = withTiming(0, {
+        duration: Animation.duration.normal,
+      });
 
-      // Call callback after animation completes and feedback is shown longer
       setTimeout(() => {
         handleProceed();
-      }, 600);
+      }, Animation.duration.slow);
     };
 
     const cardStyle = useAnimatedStyle(() => {
-      const rotation = translateX.value / 20;
+      const rotation = translateX.value / Animation.swipe.rotationDivisor;
       const cardScale = scale.value;
 
-      // Decrease card opacity as swipe progress increases
-      // Fade to 30% opacity at full swipe progress
-      const fadeAmount = 0.6;
-      const cardOpacity = 1 - swipeProgress.value * fadeAmount;
+      const cardOpacity =
+        Animation.opacity.visible -
+        swipeProgress.value * Animation.swipe.fadeAmount;
 
       return {
         transform: [
@@ -104,17 +115,20 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
         opacity: cardOpacity,
         height: "100%",
         width: "100%",
-        zIndex: 1000,
+        zIndex: Animation.zIndex.card,
       };
     });
 
     const panGesture = Gesture.Pan()
-      .activeOffsetX([-10, 10])
+      .activeOffsetX([
+        -Animation.swipe.activeOffset,
+        Animation.swipe.activeOffset,
+      ])
       .onUpdate((event) => {
         translateX.value = event.translationX;
-        translateY.value = event.translationY * 0.1;
+        translateY.value =
+          event.translationY * Animation.swipe.translateYMultiplier;
 
-        // Calculate swipe progress for left swipe (0 to 1)
         if (event.translationX < 0) {
           swipeProgress.value = Math.min(
             Math.abs(event.translationX) / SWIPE_THRESHOLD,
@@ -165,7 +179,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                   <View
                     className='absolute bottom-0 left-0 right-0 p-6 gap-6'
                     style={{
-                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      backgroundColor: Overlay.backgroundColor,
                     }}
                   >
                     <Text className='text-5xl font-bold font-groen text-white'>
@@ -177,7 +191,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                       </Text>
                       {suggestion.distanceInKm && (
                         <Text className='text-xl text-white opacity-90 text-right'>
-                          {suggestion.distanceInKm.toFixed(1)} km away
+                          {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                         </Text>
                       )}
                     </View>
@@ -186,12 +200,12 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                       <View className='flex-row items-center justify-between'>
                         {suggestion.openingHours?.opensAt && (
                           <Text className='text-lg text-white opacity-90 text-left'>
-                            Opens at {suggestion.openingHours.opensAt}
+                            {copy.opensAt} {suggestion.openingHours.opensAt}
                           </Text>
                         )}
                         {suggestion.openingHours?.closesAt && (
                           <Text className='text-lg text-white opacity-90 text-right'>
-                            Closes at {suggestion.openingHours.closesAt}
+                            {copy.closesAt} {suggestion.openingHours.closesAt}
                           </Text>
                         )}
                       </View>

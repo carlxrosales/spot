@@ -1,5 +1,7 @@
 import { IconButton } from "@/components/common/IconButton";
+import { Inputs } from "@/constants/inputs";
 import { Shadows } from "@/constants/theme";
+import { Timeouts } from "@/constants/timeouts";
 import { useSurvey } from "@/contexts/SurveyContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -11,20 +13,26 @@ import {
   View,
 } from "react-native";
 
+const copy = {
+  charactersOnly: "characters only",
+};
+
 export default function CustomInputScreen() {
   const router = useRouter();
   const { question } = useLocalSearchParams<{ question: string }>();
   const { handleChoicePress, isLoading } = useSurvey();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<string>("");
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     setTimeout(() => {
       inputRef.current?.focus();
-    }, 100);
+    }, Timeouts.inputFocus);
   }, []);
 
-  const isValid = value.trim().length >= 3 && value.trim().length <= 12;
+  const isValid =
+    value.trim().length >= Inputs.answer.validation.minLength &&
+    value.trim().length <= Inputs.answer.validation.maxLength;
 
   const handleCancel = () => {
     router.back();
@@ -32,7 +40,11 @@ export default function CustomInputScreen() {
 
   const handleSubmit = () => {
     const trimmedInput = value.trim();
-    if (trimmedInput.length >= 3 && trimmedInput.length <= 12 && !isLoading) {
+    if (
+      trimmedInput.length >= Inputs.answer.validation.minLength &&
+      trimmedInput.length <= Inputs.answer.validation.maxLength &&
+      !isLoading
+    ) {
       handleChoicePress(trimmedInput);
       router.back();
     }
@@ -61,21 +73,22 @@ export default function CustomInputScreen() {
 
         <TextInput
           ref={inputRef}
-          className='w-full max-w-[400px] py-4 px-8 rounded-2xl bg-white text-xl font-medium text-black text-center outline-none'
+          className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black text-center outline-none'
+          style={[{ maxWidth: Inputs.answer.style.maxWidth }, Shadows.neonPink]}
           value={value}
           onChangeText={setValue}
-          placeholder='Type your answer'
-          placeholderTextColor='rgb(100, 100, 100)'
-          maxLength={12}
+          placeholder={Inputs.answer.placeholder}
+          placeholderTextColor={Inputs.answer.style.placeholderColor}
+          maxLength={Inputs.answer.validation.maxLength}
           returnKeyType='done'
           onSubmitEditing={isValid ? handleSubmit : undefined}
           autoFocus={true}
-          style={Shadows.neonPink}
           editable={!isLoading}
         />
 
         <Text className='mt-8 text-base text-black opacity-50'>
-          3-12 characters only
+          {Inputs.answer.validation.minLength}-
+          {Inputs.answer.validation.maxLength} {copy.charactersOnly}
         </Text>
       </View>
     </KeyboardAvoidingView>

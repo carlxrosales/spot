@@ -1,5 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
+import { IconButton } from "@/components/common/IconButton";
 
 interface StartOverButtonProps {
   onPress: () => void;
@@ -8,13 +7,12 @@ interface StartOverButtonProps {
 
 export function StartOverButton({ onPress, disabled }: StartOverButtonProps) {
   return (
-    <TouchableOpacity onPress={onPress} disabled={disabled}>
-      <MaterialCommunityIcons
-        name='reload'
-        size={24}
-        color='black'
-        style={{ opacity: disabled ? 0.5 : 1 }}
-      />
-    </TouchableOpacity>
+    <IconButton
+      onPress={onPress}
+      icon='reload'
+      variant='white'
+      size='md'
+      disabled={disabled}
+    />
   );
 }

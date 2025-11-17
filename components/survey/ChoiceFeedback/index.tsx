@@ -14,16 +14,25 @@ interface ChoiceFeedbackProps {
 }
 
 export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
-  const feedbackOpacity = useSharedValue(0);
-  const feedbackScale = useSharedValue(0.8);
+  const feedbackOpacity = useSharedValue<number>(Animation.opacity.hidden);
+  const feedbackScale = useSharedValue<number>(Animation.scale.medium);
 
   useEffect(() => {
     if (visible) {
-      feedbackOpacity.value = withTiming(1, { duration: 300 });
-      feedbackScale.value = withSpring(1, Animation.spring);
+      feedbackOpacity.value = withTiming(Animation.opacity.visible, {
+        duration: Animation.duration.normal,
+      });
+      feedbackScale.value = withSpring(
+        Animation.scale.normal,
+        Animation.spring
+      );
     } else {
-      feedbackOpacity.value = withTiming(0, { duration: 200 });
-      feedbackScale.value = withTiming(0.8, { duration: 200 });
+      feedbackOpacity.value = withTiming(Animation.opacity.hidden, {
+        duration: Animation.duration.fast,
+      });
+      feedbackScale.value = withTiming(Animation.scale.medium, {
+        duration: Animation.duration.fast,
+      });
     }
   }, [visible]);
 

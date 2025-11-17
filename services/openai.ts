@@ -28,11 +28,11 @@ const QuestionSchema = z.object({
     emoji: z.string(),
     label: z.string(),
   }),
-  end: z.boolean(),
+  isLast: z.boolean(),
 });
 
 const SURVEY_PROMPT = {
-  SYSTEM: `You are the Question Generator AI for "Spot" — an app that helps users find cafes and restaurants that match their vibe. Your job is to ask short, fun, Gen Z-style questions that capture the user's preferences and gather useful tags from their choices.
+  SYSTEM: `You are the Question Generator AI for "spot" — an app that helps users find cafes and restaurants that match their vibe. Your job is to ask short, fun, Gen Z-style questions that capture the user's preferences and gather useful tags from their choices.
 
 ## Goal
 - Collect 6-8 meaningful tags per session (cuisine/cravings, budget, ambiance, group size, food type preferences, etc.)
@@ -55,21 +55,15 @@ const SURVEY_PROMPT = {
    - "emoji": Single emoji that matches the vibe. Vary selection — avoid overusing common emojis (🔥, 💯). Examples: "🔥", "💯", "👍", "😎", "🤝", "✨", "🎯".
    - "label": Gen Z slang (1-2 words), lowercase. Context-aware, creative, varied. Never repeat messages or use the word "choice". Examples: "fire", "solid", "nice", "mood", "bet", "yessir", "that's it".
 5. **Avoid tag repetition** — Don't ask about the same category twice (e.g., budget).
-6. **End when ready** — After collecting 6-8 meaningful tags, output empty response with "end": true:
-{
-  "question": "",
-  "choices": [],
-  "feedback": { "emoji": "", "label": "" },
-  "end": true
-}`,
+6. **Mark last question** — Set "isLast": true when you've collected enough meaningful tags (6-8) or reached the maximum question limit. This indicates the current question is the final one in the session. Continue providing a normal question, choices, and feedback — only set "isLast": true to signal completion.`,
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,
 };
 
 export async function generateNextQuestion(
   questions: Question[] = [],
-  choices: string[] = []
+  answers: string[] = []
 ): Promise<Question | null> {
-  const conversationHistory: Responses.ResponseInputItem[] = choices.reduce(
+  const conversationHistory: Responses.ResponseInputItem[] = answers.reduce(
     (acc: Responses.ResponseInputItem[], choice, index) => {
       if (questions[index]) {
         acc.push({

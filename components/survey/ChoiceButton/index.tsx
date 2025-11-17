@@ -1,4 +1,4 @@
-import { Button } from "@/components/common/Button";
+import { NeonButton } from "@/components/common/NeonButton";
 import { Animation } from "@/constants/theme";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
@@ -29,39 +29,47 @@ export function ChoiceButton({
   onPress,
   isAnimatingOut,
 }: ChoiceButtonProps) {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  const translateY = useSharedValue(0);
+  const scale = useSharedValue<number>(1);
+  const opacity = useSharedValue<number>(1);
+  const translateY = useSharedValue<number>(0);
 
   useEffect(() => {
     if (isAnimatingOut) {
       scale.value = withDelay(
         index * Animation.delay.choiceStagger,
-        withTiming(0.8, { duration: 300 })
+        withTiming(Animation.scale.medium, {
+          duration: Animation.duration.normal,
+        })
       );
       opacity.value = withDelay(
         index * Animation.delay.choiceStagger,
-        withTiming(0, { duration: 300 })
+        withTiming(Animation.opacity.hidden, {
+          duration: Animation.duration.normal,
+        })
       );
       translateY.value = withDelay(
         index * Animation.delay.choiceStagger,
-        withTiming(-10, { duration: 300 })
+        withTiming(Animation.translate.choice.up, {
+          duration: Animation.duration.normal,
+        })
       );
     } else {
-      scale.value = 0;
-      opacity.value = 0;
-      translateY.value = 10;
+      scale.value = Animation.scale.hidden;
+      opacity.value = Animation.opacity.hidden;
+      translateY.value = Animation.translate.choice.down;
       scale.value = withDelay(
         index * Animation.delay.choiceStagger,
-        withSpring(1, Animation.spring)
+        withSpring(Animation.scale.normal, Animation.spring)
       );
       opacity.value = withDelay(
         index * Animation.delay.choiceStagger,
-        withTiming(1, { duration: 300 })
+        withTiming(Animation.opacity.visible, {
+          duration: Animation.duration.normal,
+        })
       );
       translateY.value = withDelay(
         index * Animation.delay.choiceStagger,
-        withTiming(0, { duration: 300 })
+        withTiming(0, { duration: Animation.duration.normal })
       );
     }
   }, [index, isAnimatingOut]);
@@ -75,14 +83,14 @@ export function ChoiceButton({
 
   return (
     <Animated.View style={animatedStyle}>
-      <Button onPress={onPress}>
+      <NeonButton onPress={onPress}>
         <View className='flex-row items-center gap-3'>
           <Text className='text-3xl'>{choice.emoji}</Text>
           <Text className='text-xl text-left font-semibold text-black'>
             {choice.label}
           </Text>
         </View>
-      </Button>
+      </NeonButton>
     </Animated.View>
   );
 }

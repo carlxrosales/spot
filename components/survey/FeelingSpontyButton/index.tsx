@@ -1,4 +1,8 @@
-import { Text, TouchableOpacity } from "react-native";
+import { TextButton } from "@/components/common/TextButton";
+
+const copy = {
+  feelingSponty: "I'm feeling sponty",
+};
 
 interface FeelingSpontyButtonProps {
   onPress: () => void;
@@ -7,11 +11,9 @@ interface FeelingSpontyButtonProps {
 
 export function FeelingSpontyButton({
   onPress,
-  label = "I'm feeling sponty",
+  label = copy.feelingSponty,
 }: FeelingSpontyButtonProps) {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <Text className='text-xl font-semibold text-black'>{label}</Text>
-    </TouchableOpacity>
+    <TextButton onPress={onPress} label={label} variant='black' size='md' />
   );
 }

@@ -87,7 +87,7 @@ const getClosingTimeForToday = (weekdayText: string[]): string => {
   return match ? match[1] : "";
 };
 
-export const generateSuggestions = (choices: string[]): Suggestion[] => {
+export const generateSuggestions = (answers: string[]): Suggestion[] => {
   const dummyData: Suggestion[] = [
     {
       id: "1",

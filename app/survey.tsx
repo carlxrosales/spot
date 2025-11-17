@@ -7,12 +7,19 @@ import { ChoiceFeedback } from "@/components/survey/ChoiceFeedback";
 import { FeelingSpontyButton } from "@/components/survey/FeelingSpontyButton";
 import { Question } from "@/components/survey/Question";
 import { StartOverButton } from "@/components/survey/StartOverButton";
+import { Routes } from "@/constants/routes";
 import { useSurvey } from "@/contexts/SurveyContext";
 import { useToast } from "@/contexts/ToastContext";
 import { ImFeelingSpontyChoice } from "@/data/survey";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { View } from "react-native";
+
+const copy = {
+  typeInput: "Type...",
+  showSpots: "Show my spots rn",
+  feelingSponty: "I'm feeling sponty",
+};
 
 export default function Survey() {
   const {
@@ -21,8 +28,8 @@ export default function Survey() {
     error,
     isComplete,
     setIsComplete,
-    choices,
-    setChoices,
+    answers,
+    setAnswers,
     handleChoicePress,
     handleStartOver,
   } = useSurvey();
@@ -37,7 +44,7 @@ export default function Survey() {
 
   useEffect(() => {
     if (isComplete) {
-      router.navigate("/swipe");
+      router.navigate(Routes.swipe);
     }
   }, [isComplete]);
 
@@ -46,7 +53,7 @@ export default function Survey() {
   }
 
   const handleFeelingSponty = useCallback(() => {
-    setChoices([ImFeelingSpontyChoice.value]);
+    setAnswers([ImFeelingSpontyChoice.value]);
     setIsComplete(true);
   }, []);
 
@@ -60,7 +67,7 @@ export default function Survey() {
 
   const handleCustomInputPress = useCallback(() => {
     router.navigate({
-      pathname: "/custom-input",
+      pathname: Routes.customInput,
       params: { question: currentQuestion?.question || "" },
     });
   }, [currentQuestion]);
@@ -99,7 +106,7 @@ export default function Survey() {
                 key={`custom-input-${currentQuestion.question}`}
                 choice={{
                   emoji: "💬",
-                  label: "Type...",
+                  label: copy.typeInput,
                   value: "custom-input",
                 }}
                 index={currentQuestion.choices.length}
@@ -112,18 +119,16 @@ export default function Survey() {
         {!isComplete && (
           <AbsoluteView
             bottom={32}
-            left={32}
-            className='flex-row items-center gap-8'
+            right={32}
+            className='flex-row items-center justify-end gap-4'
           >
-            <StartOverButton
-              onPress={handleStartOver}
-              disabled={choices.length === 0}
-            />
             <FeelingSpontyButton
               onPress={handleFeelingSponty}
-              label={
-                choices.length > 0 ? "Show my spots rn" : "I'm feeling sponty"
-              }
+              label={answers.length > 0 ? copy.showSpots : copy.feelingSponty}
+            />
+            <StartOverButton
+              onPress={handleStartOver}
+              disabled={answers.length === 0}
             />
           </AbsoluteView>
         )}

@@ -10,8 +10,8 @@ import {
 } from "react";
 
 interface SurveyContextType {
-  choices: string[];
-  setChoices: (choices: string[]) => void;
+  answers: string[];
+  setAnswers: (answers: string[]) => void;
   currentQuestion: Question | undefined;
   questions: Question[];
   isLoading: boolean;
@@ -29,7 +29,7 @@ interface SurveyProviderProps {
 }
 
 export function SurveyProvider({ children }: SurveyProviderProps) {
-  const [choices, setChoices] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<string[]>([]);
   const [questions, setQuestions] = useState<Question[]>([
     generateInitialQuestion(),
   ]);
@@ -48,10 +48,17 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
       setError(null);
 
       try {
-        const updatedChoices = [...choices, choice];
+        const updatedAnswers = [...answers, choice];
+
+        if (currentQuestion?.isLast) {
+          setAnswers(updatedAnswers);
+          setIsComplete(true);
+          return;
+        }
+
         const nextQuestion = await generateNextQuestion(
           questions,
-          updatedChoices
+          updatedAnswers
         );
 
         if (!nextQuestion) {
@@ -59,24 +66,19 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
           return;
         }
 
-        if (nextQuestion.end) {
-          setIsComplete(true);
-          return;
-        }
-
         setQuestions((prev) => [...prev, nextQuestion]);
-        setChoices(updatedChoices);
+        setAnswers(updatedAnswers);
       } catch {
         setError("Failed to generate question, please start over.");
       } finally {
         setIsLoading(false);
       }
     },
-    [choices, questions]
+    [answers, currentQuestion, questions]
   );
 
   const handleStartOver = useCallback(() => {
-    setChoices([]);
+    setAnswers([]);
     setQuestions([generateInitialQuestion()]);
     setIsLoading(false);
     setError(null);
@@ -86,8 +88,8 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
   return (
     <SurveyContext.Provider
       value={{
-        choices,
-        setChoices,
+        answers,
+        setAnswers,
         currentQuestion,
         questions,
         isLoading,

@@ -12,28 +12,27 @@ spot uses vector embeddings and similarity search to match your preferences with
 
 ```mermaid
 flowchart TD
-    Start([User Starts]) --> Q&A[Q&A Survey<br/>Get 5-8 tags from user<br/>AI-generated questions]
+    Start([User Starts]) --> Q&A[Q&A Survey<br/>Capture 5-8 preference tags<br/>via AI-generated questions]
 
-    Q&A --> ConvertQuery[Convert to single sentence<br/>or paragraph query]
-    ConvertQuery --> UserVectors[Convert to vectors<br/>/ embeddings]
+    Q&A --> ConvertQuery[Convert to query<br/>Single sentence or paragraph]
+    ConvertQuery --> UserVectors[Generate vector<br/>embeddings]
 
-    Scrape[Scrape places from Google<br/>One-time initial scrape + monthly updates] --> Filter[Places with:<br/>• Minimum 2 reviews<br/>• 2.5+ stars]
-    Filter --> GetReviews[Get reviews and about]
-    GetReviews --> ConvertDocs[Convert to documents]
-    ConvertDocs --> PlaceVectors[Convert to vectors<br/>/ embeddings]
+    Scrape[Scrape places from Google<br/>One-time initial + monthly updates] --> Filter[Filter places:<br/>• Minimum 2 reviews<br/>• 2.5+ star rating]
+    Filter --> GetReviews[Extract reviews<br/>and descriptions]
+    GetReviews --> ConvertDocs[Convert to<br/>searchable documents]
+    ConvertDocs --> PlaceVectors[Generate vector<br/>embeddings]
 
     UserVectors --> Similarity[Similarity Search]
     PlaceVectors --> Similarity
 
     Similarity --> UI[Tinder-like UI/UX]
-    UI --> SwipeLeft[Swipe Left<br/>Skip]
-    UI --> SwipeRight[Swipe Right<br/>Save or Share]
-    UI --> Maps[Open in Google Maps<br/>or Waze]
+    UI --> SwipeLeft[Swipe Left<br/>Skip place]
+    UI --> SwipeRight[Swipe Right<br/>Save, Share, or<br/>Open in Maps/Waze]
     SwipeRight --> Share[Share with branding<br/>for virality]
 
-    style Start fill:#e1f5ff
-    style Similarity fill:#fff4e1
-    style UI fill:#e8f5e9
+    style Start fill:#e1ff5b
+    style Similarity fill:#ff2d9b
+    style UI fill:#e1ff5b
 ```
 
 ## How It Works

@@ -1,4 +1,4 @@
-import { Fonts, Spacing } from "@/constants/theme";
+import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -10,14 +10,13 @@ export const styles = StyleSheet.create({
     zIndex: 1000,
   },
   toast: {
-    backgroundColor: "#ff6b6b",
-    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.black,
+    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    borderRadius: 8,
-    maxWidth: "90%",
+    borderRadius: BorderRadius.md,
   },
   text: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: Fonts.size.sm,
     textAlign: "center",
   },

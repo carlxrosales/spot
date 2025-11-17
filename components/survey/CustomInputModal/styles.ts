@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     maxWidth: 400,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
-    borderRadius: BorderRadius.button,
+    borderRadius: BorderRadius.lg,
     backgroundColor: Colors.white,
     fontSize: Fonts.size.base,
     fontWeight: Fonts.weight.medium,

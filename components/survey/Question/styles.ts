@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     fontFamily: Fonts.family.groen,
     fontSize: Fonts.size.xxl,
     textAlign: "left",
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
     color: Colors.black,
   },
 });

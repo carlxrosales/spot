@@ -1,7 +1,7 @@
 import { AbsoluteView } from "@/components/common/AbsoluteView";
 import { AnimatedBackground } from "@/components/common/AnimatedBackground";
+import { FixedView } from "@/components/common/FixedView";
 import { Logo } from "@/components/common/Logo";
-import { SafeView } from "@/components/common/SafeView";
 import { Toast } from "@/components/common/Toast";
 import { ChoiceButton } from "@/components/survey/ChoiceButton";
 import { ChoiceFeedback } from "@/components/survey/ChoiceFeedback";
@@ -9,7 +9,8 @@ import { CustomInputModal } from "@/components/survey/CustomInputModal";
 import { FeelingSpontyButton } from "@/components/survey/FeelingSpontyButton";
 import { Question } from "@/components/survey/Question";
 import { StartOverButton } from "@/components/survey/StartOverButton";
-import { Colors, Fonts, Spacing } from "@/constants/theme";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
+import { Colors, Spacing } from "@/constants/theme";
 import { useSurveyContext } from "@/contexts/SurveyContext";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -20,7 +21,6 @@ export default function Index() {
     currentStep,
     currentQuestion,
     isLoading,
-    isAnimatingOut,
     error,
     isComplete,
     choices,
@@ -62,14 +62,14 @@ export default function Index() {
   };
 
   const handleChoice = async (value: string) => {
-    if (isLoading || isAnimatingOut) return;
+    if (isLoading) return;
     await handleChoicePress(value);
   };
 
   const handleCustomInputSubmit = async () => {
     const trimmedInput = customInput.trim();
     if (trimmedInput.length >= 3 && trimmedInput.length <= 12) {
-      if (isLoading || isAnimatingOut) return;
+      if (isLoading) return;
       setShowCustomInputModal(false);
       await handleChoice(trimmedInput);
       setCustomInput("");
@@ -81,11 +81,9 @@ export default function Index() {
     setCustomInput("");
   };
 
-  const showLoading = isLoading;
-
   return (
     <>
-      <SafeView style={styles.container}>
+      <FixedView top={0} left={0} right={0} bottom={0} style={styles.container}>
         <AnimatedBackground />
         <AbsoluteView top={Spacing.lg} style={styles.logoContainer}>
           <Logo />
@@ -97,51 +95,63 @@ export default function Index() {
             setShowError(false);
           }}
         />
-        {!showLoading && (
-          <Question
-            question={currentQuestion.question}
-            currentStep={currentStep}
-            isAnimatingOut={isAnimatingOut}
-          />
-        )}
-        <ChoiceFeedback
-          visible={showLoading}
-          feedback={currentQuestion?.feedback}
-        />
-        {!showLoading && (
-          <View style={styles.choicesContainer}>
-            {currentQuestion.choices.map((choice, index) => (
-              <ChoiceButton
-                key={`${choice.value}-${index}`}
-                choice={choice}
-                index={index}
-                onPress={() => handleChoice(choice.value)}
-                currentStep={currentStep}
-                isAnimatingOut={isAnimatingOut}
-              />
-            ))}
-            <ChoiceButton
-              key='custom-input'
-              choice={{
-                emoji: "💬",
-                label: "Type...",
-                value: "custom-input",
-              }}
-              index={currentQuestion.choices.length}
-              onPress={() => setShowCustomInputModal(true)}
+        <View style={styles.contentContainer}>
+          {!isLoading && (
+            <Question
+              key={`question-${currentStep}`}
+              question={currentQuestion.question}
               currentStep={currentStep}
-              isAnimatingOut={isAnimatingOut}
+              isAnimatingOut={isLoading}
             />
-          </View>
-        )}
-        <FeelingSpontyButton
-          onPress={handleFeelingSponty}
-          label={
-            choices.length > 0 ? "Show my spots now" : "I'm feeling sponty"
-          }
-        />
-        <StartOverButton onPress={handleStartOver} />
-      </SafeView>
+          )}
+          <ChoiceFeedback
+            visible={isLoading}
+            feedback={currentQuestion?.feedback}
+          />
+          {!isLoading && (
+            <View style={styles.choicesContainer}>
+              {currentQuestion.choices.map((choice, index) => (
+                <ChoiceButton
+                  key={`${choice.value}-${index}`}
+                  choice={choice}
+                  index={index}
+                  onPress={() => handleChoice(choice.value)}
+                  currentStep={currentStep}
+                  isAnimatingOut={isLoading}
+                />
+              ))}
+              <ChoiceButton
+                key='custom-input'
+                choice={{
+                  emoji: "💬",
+                  label: "Type...",
+                  value: "custom-input",
+                }}
+                index={currentQuestion.choices.length}
+                onPress={() => setShowCustomInputModal(true)}
+                currentStep={currentStep}
+                isAnimatingOut={isLoading}
+              />
+            </View>
+          )}
+        </View>
+        <AbsoluteView
+          bottom={Spacing.lg}
+          left={Spacing.lg}
+          style={styles.buttonsContainer}
+        >
+          <StartOverButton
+            onPress={handleStartOver}
+            disabled={currentStep === 0}
+          />
+          <FeelingSpontyButton
+            onPress={handleFeelingSponty}
+            label={
+              choices.length > 0 ? "Show my spots rn" : "I'm feeling sponty"
+            }
+          />
+        </AbsoluteView>
+      </FixedView>
 
       <CustomInputModal
         visible={showCustomInputModal}
@@ -154,11 +164,11 @@ export default function Index() {
     </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     backgroundColor: Colors.neonGreen,
   },
   logoContainer: {
@@ -166,24 +176,23 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: "center",
   },
+  contentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-start",
+    gap: Spacing.lg,
+  },
   choicesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
     gap: Spacing.lg,
     minHeight: 100,
   },
-  completeContainer: {
-    padding: Spacing.lg,
-    marginHorizontal: Spacing.lg,
+  buttonsContainer: {
+    flexDirection: "row",
     alignItems: "center",
-  },
-  completeText: {
-    fontSize: Fonts.size.xxl,
-    color: Colors.black,
-    textAlign: "center",
-    fontFamily: Fonts.family.groen,
+    gap: Spacing.lg,
   },
 });

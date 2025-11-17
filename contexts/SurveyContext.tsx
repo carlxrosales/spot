@@ -8,7 +8,6 @@ interface SurveyContextType {
   currentQuestion: Question | undefined;
   questions: Question[];
   isLoading: boolean;
-  isAnimatingOut: boolean;
   error: string | null;
   isComplete: boolean;
   handleChoicePress: (value: string) => Promise<void>;
@@ -28,21 +27,12 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
     generateInitialQuestion(),
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isAnimatingOut, setIsAnimatingOut] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState<boolean>(false);
 
   const currentQuestion = questions[currentStep];
 
   const handleChoicePress = async (choice: string) => {
-    // Start exit animation
-    setIsAnimatingOut(true);
-
-    // Wait for exit animation to complete
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    // Clear exit animation state and start loading
-    setIsAnimatingOut(false);
     setIsLoading(true);
     setError(null);
 
@@ -66,10 +56,8 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
       setQuestions((prev) => [...prev, nextQuestion]);
       setChoices(updatedChoices);
       setCurrentStep(currentStep + 1);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to generate question"
-      );
+    } catch {
+      setError("Failed to generate question, please start over.");
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +68,6 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
     setChoices([]);
     setQuestions([generateInitialQuestion()]);
     setIsLoading(false);
-    setIsAnimatingOut(false);
     setError(null);
     setIsComplete(false);
   };
@@ -93,7 +80,6 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         currentQuestion,
         questions,
         isLoading,
-        isAnimatingOut,
         error,
         isComplete,
         handleChoicePress,

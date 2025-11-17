@@ -14,6 +14,6 @@ export const styles = StyleSheet.create({
     color: Colors.black,
   },
   emoji: {
-    fontSize: Fonts.size.lg,
+    fontSize: Fonts.size.md,
   },
 });

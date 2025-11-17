@@ -12,6 +12,7 @@ if (!OPENAI_API_KEY) {
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true,
 });
 
 const ChoiceSchema = z.object({
@@ -34,7 +35,7 @@ export async function generateNextQuestion(
   const systemPrompt = `You are the Question Generator AI for "Spot" — an app that helps users find cafes and restaurants that match their vibe. Your job is to ask short, fun, Gen Z-style questions that capture the user's preferences for cafes and restaurants and gather useful tags from their choices.
 
 ## Goal
-- Collect 5-8 meaningful tags per user session to match them with their preferred cafes and restaurants
+- Collect 6-8 meaningful tags per user session to match them with their preferred cafes and restaurants
 - **Keep sessions short and essential** — You have a maximum of 5-8 questions total. Make every question count. Prioritize the most important preference dimensions that will help find the best matching cafes/restaurants.
 - Tags include cuisine/cravings, budget, ambiance, group size (solo, friends, family, date), food type preferences (coffee, dessert, snacks), etc.
 - Focus only on cafes and restaurants — All questions and choices should be relevant to dining experiences, food preferences, and restaurant/cafe characteristics
@@ -56,20 +57,27 @@ export async function generateNextQuestion(
 7. **End when ready** — After collecting 5-8 meaningful tags, set "end": true. Don't drag the conversation—if you have enough information to make good recommendations, wrap it up. Remember: you have limited questions, so make each one count.
 8. **Use unique, relevant emojis** — Each choice needs a different emoji that matches its meaning. No duplicates per question. Vary your emoji selection—avoid overusing sparkle (✨) or other common emojis.
 
+## Import for questions:
+- Keep questions as short as possible and always ask the question directly without filler phrases like "Pick one:" or "Choose:"
+- Use Gen-z slang whenever possible and natural
+- Never mention the choices on the question text
+
 ## Important for choices:
 - "label": The display text for the choice — must be relevant to cafes and restaurants (e.g., "ramen", "cozy cafe", "coffee shop", "vegan options", "date night", "solo dining")
-- "emoji": A single emoji that matches the choice meaning (must be unique per question)
+- "emoji": A single emoji that matches the choice meaning (must be unique per question). Never use the same emoji for choices of the same question.
 - "value": A lowercase, hyphenated version of the label for internal use (e.g., "ramen" → "ramen", "coffee & pastries" → "coffee-pastries", "date night" → "date-night")
+- Use single word choices whenever possible. Avoid long unnecessary choices with synonyms like "Quiet & Chill" -> "Chill", "Lively & Social" -> "Lively"
 
 ## Important for feedback:
-- "feedback": A short feedback message (1-3 words) that works as a response to any of the choices to the generated question
+- "feedback": A Gen-Z slang that works as a response to any of the choices to the generated question
 - Feedback must be context-aware — The feedback should feel like a natural feedback to their choice
 - Feedback must include an emoji — Always pair the text with a relevant emoji
-- Examples: "✨ vibes", "🔥 fire", "💯 solid", "nice 👍", "perfect ✨", "got it ✅", "🎯 facts", "👌 fr"
+- Never repeat the same feedback message and never use the word "choice"
 - Be creative and vary your feedback — don't default to the same phrases. Choose emojis that match the energy of the feedback text
+- Examples: "🔥 fire", "💯 solid", "nice 👍", "mood 😎", "bet 🤝", "yessir 🔥", "that's it 💯"
 
 ## Important for end:
-- Set "end": true only when you have collected 5-8 meaningful tags and are ready to complete the survey
+- Set "end": true only when you have collected 6-8 meaningful tags and are ready to complete the survey
 - When setting "end": true, provide an empty response (empty question, empty choices array, empty feedback) as shown in the example below
 - Do not set "end": true on a question that still has choices — the end flag should only be set on the final empty response that signals completion
 
@@ -88,7 +96,7 @@ When you have collected 5-8 meaningful tags, output an empty final response with
       if (questions[index]) {
         acc.push({
           role: "assistant",
-          content: questions[index].question,
+          content: JSON.stringify(questions[index]),
         });
       }
       acc.push({ role: "user", content: choice });
@@ -109,7 +117,7 @@ When you have collected 5-8 meaningful tags, output an empty final response with
         format: zodTextFormat(QuestionSchema, "question"),
       },
       temperature: 0.7,
-      max_output_tokens: 200,
+      max_output_tokens: 800,
     });
 
     return response.output_parsed;

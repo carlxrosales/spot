@@ -11,19 +11,30 @@ export interface Choice {
   value: string;
 }
 
+const initialQuestions: string[] = [
+  "What's your vibe rn?",
+  "What's the move?",
+  "What you feeling?",
+  "What's the energy?",
+  "What's good?",
+  "What's the plan?",
+  "What you on?",
+];
+
 const initialFeedbacks: string[] = [
   "🔥 fire",
   "💯 solid",
   "nice 👍",
-  "perfect ✨",
-  "got it ✅",
-  "love it ❤️",
   "mood 😎",
+  "bet 🤝",
+  "yessir 🔥",
+  "that's it 💯",
 ];
 
 export const generateInitialQuestion = (): Question => {
   return {
-    question: "What's your vibe today?",
+    question:
+      initialQuestions[Math.floor(Math.random() * initialQuestions.length)],
     choices: [
       { label: "Eat", emoji: "🍔", value: "eat" },
       { label: "Drink", emoji: "🥂", value: "drink" },

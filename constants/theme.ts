@@ -19,7 +19,8 @@ export const Fonts = {
     md: 24,
     lg: 32,
     xl: 42,
-    xxl: 60,
+    xxl: 48,
+    xxxl: 60,
   },
   weight: {
     medium: 500 as const,
@@ -36,7 +37,11 @@ export const Spacing = {
 };
 
 export const BorderRadius = {
-  button: 24,
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 24,
+  xl: 32,
 };
 
 export const Shadows = {

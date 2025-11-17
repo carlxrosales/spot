@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
-    borderRadius: BorderRadius.button,
+    borderRadius: BorderRadius.lg,
     ...Shadows.neonPink,
     backgroundColor: Colors.white,
   },

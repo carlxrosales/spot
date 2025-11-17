@@ -20,9 +20,9 @@ export function Question({
   currentStep,
   isAnimatingOut,
 }: QuestionProps) {
-  const questionScale = useSharedValue(1);
-  const questionOpacity = useSharedValue(1);
-  const translateY = useSharedValue(0);
+  const questionScale = useSharedValue(0);
+  const questionOpacity = useSharedValue(0);
+  const translateY = useSharedValue(20);
 
   useEffect(() => {
     if (isAnimatingOut) {
@@ -30,9 +30,6 @@ export function Question({
       questionOpacity.value = withTiming(0, { duration: 300 });
       translateY.value = withTiming(-20, { duration: 300 });
     } else {
-      questionScale.value = 0;
-      questionOpacity.value = 0;
-      translateY.value = 20;
       questionScale.value = withSpring(1, Animation.spring);
       questionOpacity.value = withTiming(1, { duration: 300 });
       translateY.value = withTiming(0, { duration: 300 });

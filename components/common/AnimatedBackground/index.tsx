@@ -1,4 +1,5 @@
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
+import { AbsoluteView } from "../AbsoluteView";
 import { Sparkle, SparkleProps } from "./Sparkle";
 
 export function AnimatedBackground() {
@@ -13,10 +14,16 @@ export function AnimatedBackground() {
   }
 
   return (
-    <>
+    <AbsoluteView
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }}
+    >
       {sparkles.map((sparkle, index) => (
         <Sparkle key={index} {...sparkle} />
       ))}
-    </>
+    </AbsoluteView>
   );
 }

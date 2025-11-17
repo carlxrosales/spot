@@ -1,18 +1,21 @@
-import { AbsoluteView } from "@/components/common/AbsoluteView";
-import { Spacing } from "@/constants/theme";
-import { Text, TouchableOpacity } from "react-native";
-import { styles } from "./styles";
+import { Fonts } from "@/constants/theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
 
 interface StartOverButtonProps {
   onPress: () => void;
+  disabled: boolean;
 }
 
-export function StartOverButton({ onPress }: StartOverButtonProps) {
+export function StartOverButton({ onPress, disabled }: StartOverButtonProps) {
   return (
-    <AbsoluteView bottom={Spacing.lg} left={Spacing.lg}>
-      <TouchableOpacity onPress={onPress}>
-        <Text style={styles.startOverText}>Start over</Text>
-      </TouchableOpacity>
-    </AbsoluteView>
+    <TouchableOpacity onPress={onPress} disabled={disabled}>
+      <MaterialCommunityIcons
+        name='reload'
+        size={Fonts.size.md}
+        color='black'
+        style={{ opacity: disabled ? 0.5 : 1 }}
+      />
+    </TouchableOpacity>
   );
 }

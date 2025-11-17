@@ -1,4 +1,4 @@
-import { useFonts } from "expo-font";
+import { useFonts as useExpoFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { createContext, ReactNode, useContext, useEffect } from "react";
 
@@ -15,7 +15,7 @@ interface FontsProviderProps {
 }
 
 export function FontsProvider({ children }: FontsProviderProps) {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded] = useExpoFonts({
     Groen: require("../assets/fonts/Groen.ttf"),
   });
 
@@ -36,7 +36,7 @@ export function FontsProvider({ children }: FontsProviderProps) {
   );
 }
 
-export function useFontsContext() {
+export function useFonts() {
   const context = useContext(FontsContext);
   if (context === undefined) {
     throw new Error("useFontsContext must be used within a FontsProvider");

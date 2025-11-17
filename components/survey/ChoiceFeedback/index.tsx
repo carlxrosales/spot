@@ -10,7 +10,7 @@ import Animated, {
 
 interface ChoiceFeedbackProps {
   visible: boolean;
-  feedback: string;
+  feedback: { emoji: string; label: string };
 }
 
 export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
@@ -34,14 +34,17 @@ export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
     };
   });
 
-  if (!visible || !feedback) return null;
+  if (!visible || !feedback || !feedback.emoji || !feedback.label) return null;
 
   return (
-    <View className='items-center justify-center min-h-[60px] w-screen'>
+    <View className='items-center justify-center h-screen w-screen overflow-visible'>
       <Animated.View style={feedbackAnimatedStyle}>
-        <Text className='font-groen text-4xl text-black text-center lowercase'>
-          {feedback}
-        </Text>
+        <View className='items-center justify-center flex-row gap-4'>
+          <Text className='text-5xl'>{feedback.emoji}</Text>
+          <Text className='font-groen text-5xl text-black text-center lowercase'>
+            {feedback.label}
+          </Text>
+        </View>
       </Animated.View>
     </View>
   );

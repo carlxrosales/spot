@@ -19,7 +19,7 @@ export function AnimatedBackground() {
       left={0}
       right={0}
       bottom={0}
-      style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }}
+      className='h-screen w-screen'
     >
       {sparkles.map((sparkle, index) => (
         <Sparkle key={index} {...sparkle} />

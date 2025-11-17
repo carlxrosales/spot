@@ -91,7 +91,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
   );
 }
 
-export function useSurveyContext() {
+export function useSurvey() {
   const context = useContext(SurveyContext);
   if (context === undefined) {
     throw new Error("useSurveyContext must be used within a SurveyProvider");

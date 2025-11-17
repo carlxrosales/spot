@@ -10,6 +10,7 @@ interface AbsoluteViewProps {
   left?: number;
   right?: number;
   style?: StyleProp<ViewStyle>;
+  withSafeAreaInsets?: boolean;
 }
 
 export function AbsoluteView({
@@ -20,15 +21,24 @@ export function AbsoluteView({
   left,
   right,
   style,
+  withSafeAreaInsets = true,
 }: AbsoluteViewProps) {
   const insets = useSafeAreaInsets();
 
   const positionStyle: ViewStyle = {
     position: "absolute",
-    ...(top !== undefined && { top: top + insets.top }),
-    ...(bottom !== undefined && { bottom: bottom + insets.bottom }),
-    ...(left !== undefined && { left: left + insets.left }),
-    ...(right !== undefined && { right: right + insets.right }),
+    ...(top !== undefined && {
+      top: top + (withSafeAreaInsets ? insets.top : 0),
+    }),
+    ...(bottom !== undefined && {
+      bottom: bottom + (withSafeAreaInsets ? insets.bottom : 0),
+    }),
+    ...(left !== undefined && {
+      left: left + (withSafeAreaInsets ? insets.left : 0),
+    }),
+    ...(right !== undefined && {
+      right: right + (withSafeAreaInsets ? insets.right : 0),
+    }),
   };
 
   return (

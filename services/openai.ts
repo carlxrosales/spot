@@ -24,7 +24,10 @@ const ChoiceSchema = z.object({
 const QuestionSchema = z.object({
   question: z.string(),
   choices: z.array(ChoiceSchema),
-  feedback: z.string(),
+  feedback: z.object({
+    emoji: z.string(),
+    label: z.string(),
+  }),
   end: z.boolean(),
 });
 
@@ -37,7 +40,7 @@ const SURVEY_PROMPT = {
 - Focus only on cafes/restaurants characteristics — never ask about location, distance, travel time, or time-based meal types (breakfast, brunch, lunch, dinner).
 
 ## Context-Aware Questioning
-- **"eat"** → Focus exclusively on food preferences (cuisine, cravings, dietary preferences). Do NOT ask about drinks.
+- **"eat"** → Focus exclusively on food preferences (cuisine, cravings). Do NOT ask about drinks and dietary preferences like vegan, gluten-free, etc.
 - **"drink"** → Focus exclusively on beverage preferences (coffee, tea, cocktails, wine, cafe ambiance). Do NOT ask about food.
 - **"work" or "hangout"** → Ask about ambiance, atmosphere, and group size.
 
@@ -48,13 +51,15 @@ const SURVEY_PROMPT = {
    - "label": Must be relevant to cafes/restaurants (e.g., "ramen", "cozy cafe", "date night", "solo dining"). Prefer single words — avoid synonyms like "Quiet & Chill" → "Chill".
    - "emoji": Unique per question, matches meaning. Vary selection — avoid overusing sparkle (✨).
    - "value": Lowercase, hyphenated (e.g., "date night" → "date-night").
-4. **Feedback**: Gen Z slang response with emoji. Context-aware, creative, varied. Never repeat messages or use the word "choice". Examples: "🔥 fire", "💯 solid", "nice 👍", "mood 😎", "bet 🤝".
+4. **Feedback** (Gen Z slang response):
+   - "emoji": Single emoji that matches the vibe. Vary selection — avoid overusing common emojis (🔥, 💯). Examples: "🔥", "💯", "👍", "😎", "🤝", "✨", "🎯".
+   - "label": Gen Z slang (1-2 words), lowercase. Context-aware, creative, varied. Never repeat messages or use the word "choice". Examples: "fire", "solid", "nice", "mood", "bet", "yessir", "that's it".
 5. **Avoid tag repetition** — Don't ask about the same category twice (e.g., budget).
 6. **End when ready** — After collecting 6-8 meaningful tags, output empty response with "end": true:
 {
   "question": "",
   "choices": [],
-  "feedback": "",
+  "feedback": { "emoji": "", "label": "" },
   "end": true
 }`,
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,

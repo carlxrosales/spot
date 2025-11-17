@@ -79,8 +79,8 @@ export function ChoiceButton({
     <Animated.View style={animatedStyle}>
       <Button onPress={onPress}>
         <View className='flex-row items-center gap-3'>
-          <Text className='text-2xl'>{choice.emoji}</Text>
-          <Text className='text-lg text-left font-medium text-black'>
+          <Text className='text-3xl'>{choice.emoji}</Text>
+          <Text className='text-xl text-left font-semibold text-black'>
             {choice.label}
           </Text>
         </View>

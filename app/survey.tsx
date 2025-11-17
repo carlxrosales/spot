@@ -7,8 +7,7 @@ import { ChoiceFeedback } from "@/components/survey/ChoiceFeedback";
 import { FeelingSpontyButton } from "@/components/survey/FeelingSpontyButton";
 import { Question } from "@/components/survey/Question";
 import { StartOverButton } from "@/components/survey/StartOverButton";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
-import { useSurveyContext } from "@/contexts/SurveyContext";
+import { useSurvey } from "@/contexts/SurveyContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
@@ -24,7 +23,7 @@ export default function Survey() {
     choices,
     handleChoicePress,
     handleStartOver,
-  } = useSurveyContext();
+  } = useSurvey();
   const { displayToast } = useToast();
   const router = useRouter();
 
@@ -45,11 +44,7 @@ export default function Survey() {
   }
 
   const handleFeelingSponty = () => {
-    if (choices.length > 0) {
-      router.push("/swipe");
-    } else {
-      router.push("/swipe");
-    }
+    router.push("/swipe");
   };
 
   const handleChoice = async (value: string) => {
@@ -66,10 +61,7 @@ export default function Survey() {
 
   return (
     <>
-      <FixedView
-        className='bg-neonGreen'
-        style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }}
-      >
+      <FixedView className='bg-neonGreen h-screen w-screen'>
         <AnimatedBackground />
         <AbsoluteView top={32} className='left-0 right-0 items-center'>
           <Logo />

@@ -1,14 +1,19 @@
-export interface Question {
-  question: string;
-  choices: Choice[];
-  feedback: string;
-  end: boolean;
-}
-
 export interface Choice {
   label: string;
   emoji: string;
   value: string;
+}
+
+interface ChoiceFeedback {
+  emoji: string;
+  label: string;
+}
+
+export interface Question {
+  question: string;
+  choices: Choice[];
+  feedback: ChoiceFeedback;
+  end: boolean;
 }
 
 const initialQuestions: string[] = [
@@ -19,14 +24,14 @@ const initialQuestions: string[] = [
   "What you on?",
 ];
 
-const initialFeedbacks: string[] = [
-  "🔥 fire",
-  "💯 solid",
-  "nice 👍",
-  "mood 😎",
-  "bet 🤝",
-  "yessir 🔥",
-  "that's it 💯",
+const initialFeedbacks: ChoiceFeedback[] = [
+  { emoji: "🔥", label: "fire" },
+  { emoji: "💯", label: "solid" },
+  { emoji: "👍", label: "nice" },
+  { emoji: "😎", label: "mood" },
+  { emoji: "🤝", label: "bet" },
+  { emoji: "🔥", label: "yessir" },
+  { emoji: "💯", label: "that's it" },
 ];
 
 export const generateInitialQuestion = (): Question => {

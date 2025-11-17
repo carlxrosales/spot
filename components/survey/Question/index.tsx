@@ -48,7 +48,7 @@ export function Question({
   return (
     <View className='items-center'>
       <Animated.View style={questionAnimatedStyle}>
-        <Text className='font-groen text-5xl text-left px-8 text-black'>
+        <Text className='font-groen text-6xl text-left px-8 text-black'>
           {question}
         </Text>
       </Animated.View>

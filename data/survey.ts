@@ -15,8 +15,6 @@ const initialQuestions: string[] = [
   "What's your vibe rn?",
   "What's the move?",
   "What you feeling?",
-  "What's the energy?",
-  "What's good?",
   "What's the plan?",
   "What you on?",
 ];

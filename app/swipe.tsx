@@ -1,18 +1,18 @@
-import { AbsoluteView } from "@/components/common/AbsoluteView";
-import { AnimatedBackground } from "@/components/common/AnimatedBackground";
-import { FixedView } from "@/components/common/FixedView";
-import { IconButton } from "@/components/common/IconButton";
-import { SafeView } from "@/components/common/SafeView";
+import { AbsoluteView } from "@/components/common/absolute-view";
+import { AnimatedBackground } from "@/components/common/animated-background";
+import { FixedView } from "@/components/common/fixed-view";
+import { IconButton } from "@/components/common/icon-button";
+import { SafeView } from "@/components/common/safe-view";
+import { SwipeModal } from "@/components/swipe/swipe-modal";
 import {
   SwipeableCard,
   SwipeableCardRef,
-} from "@/components/swipe/SwipeableCard";
-import { SwipeModal } from "@/components/swipe/SwipeModal";
+} from "@/components/swipe/swipeable-card";
 import { Routes } from "@/constants/routes";
 import { Colors } from "@/constants/theme";
-import { useSuggestions } from "@/contexts/SuggestionsContext";
-import { useSurvey } from "@/contexts/SurveyContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useSuggestions } from "@/contexts/suggestions-context";
+import { useSurvey } from "@/contexts/survey-context";
+import { useToast } from "@/contexts/toast-context";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -32,6 +32,10 @@ export default function Swipe() {
   const cardRef = useRef<SwipeableCardRef>(null);
 
   useEffect(() => {
+    if (!router) {
+      return;
+    }
+
     if (answers.length === 0) {
       router.navigate(Routes.survey);
       return;
@@ -70,12 +74,12 @@ export default function Swipe() {
   };
 
   return (
-    <FixedView className='h-screen w-screen bg-neonGreen'>
+    <FixedView className='h-screen w-screen bg-neonGreen' withSafeAreaInsets>
       <AnimatedBackground />
       <SafeView className='h-full w-full justify-center items-center'>
         {isLoading ? (
           <>
-            <AbsoluteView top={16} left={16}>
+            <AbsoluteView top={16} left={16} withSafeAreaInsets>
               <IconButton
                 onPress={handleBack}
                 icon='arrow-back'

@@ -1,15 +1,15 @@
-import { AbsoluteView } from "@/components/common/AbsoluteView";
-import { AnimatedBackground } from "@/components/common/AnimatedBackground";
-import { FixedView } from "@/components/common/FixedView";
-import { Logo } from "@/components/common/Logo";
-import { ChoiceButton } from "@/components/survey/ChoiceButton";
-import { ChoiceFeedback } from "@/components/survey/ChoiceFeedback";
-import { FeelingSpontyButton } from "@/components/survey/FeelingSpontyButton";
-import { Question } from "@/components/survey/Question";
-import { StartOverButton } from "@/components/survey/StartOverButton";
+import { AbsoluteView } from "@/components/common/absolute-view";
+import { AnimatedBackground } from "@/components/common/animated-background";
+import { FixedView } from "@/components/common/fixed-view";
+import { Logo } from "@/components/common/logo";
+import { ChoiceButton } from "@/components/survey/choice-button";
+import { ChoiceFeedback } from "@/components/survey/choice-feedback";
+import { FeelingSpontyButton } from "@/components/survey/feeling-sponty-button";
+import { Question } from "@/components/survey/question";
+import { StartOverButton } from "@/components/survey/start-over-button";
 import { Routes } from "@/constants/routes";
-import { useSurvey } from "@/contexts/SurveyContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useSurvey } from "@/contexts/survey-context";
+import { useToast } from "@/contexts/toast-context";
 import { ImFeelingSpontyChoice } from "@/data/survey";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect } from "react";
@@ -74,53 +74,60 @@ export default function Survey() {
 
   return (
     <>
-      <FixedView className='bg-neonGreen h-screen w-screen'>
+      <FixedView className='bg-neonGreen h-screen w-screen' withSafeAreaInsets>
         <AnimatedBackground />
-        <AbsoluteView top={32} className='left-0 right-0 items-center'>
+        <AbsoluteView
+          top={32}
+          left={0}
+          right={0}
+          className='items-center'
+          withSafeAreaInsets
+        >
           <Logo />
         </AbsoluteView>
         <View className='flex-1 justify-center items-start gap-8'>
-          {!isLoading && !isComplete && currentQuestion && (
-            <Question
-              key={`question-${currentQuestion.question}`}
-              question={currentQuestion.question}
-              isAnimatingOut={isLoading}
-            />
-          )}
           <ChoiceFeedback
             visible={isLoading && !isComplete}
             feedback={currentQuestion?.feedback}
           />
           {!isLoading && !isComplete && currentQuestion && (
-            <View className='flex-row flex-wrap justify-start px-8 gap-8 min-h-[100px]'>
-              {currentQuestion.choices.map((choice, index) => (
+            <>
+              <Question
+                key={`question-${currentQuestion.question}`}
+                question={currentQuestion.question}
+                isAnimatingOut={isLoading}
+              />
+              <View className='flex-row flex-wrap justify-start px-8 gap-8 min-h-[100px]'>
+                {currentQuestion.choices.map((choice, index) => (
+                  <ChoiceButton
+                    key={`${choice.value}-${index}-${currentQuestion.question}`}
+                    choice={choice}
+                    index={index}
+                    onPress={() => handleChoice(choice.value)}
+                    isAnimatingOut={isLoading && !isComplete}
+                  />
+                ))}
                 <ChoiceButton
-                  key={`${choice.value}-${index}-${currentQuestion.question}`}
-                  choice={choice}
-                  index={index}
-                  onPress={() => handleChoice(choice.value)}
+                  key={`custom-input-${currentQuestion.question}`}
+                  choice={{
+                    emoji: "💬",
+                    label: copy.typeInput,
+                    value: "custom-input",
+                  }}
+                  index={currentQuestion.choices.length}
+                  onPress={handleCustomInputPress}
                   isAnimatingOut={isLoading && !isComplete}
                 />
-              ))}
-              <ChoiceButton
-                key={`custom-input-${currentQuestion.question}`}
-                choice={{
-                  emoji: "💬",
-                  label: copy.typeInput,
-                  value: "custom-input",
-                }}
-                index={currentQuestion.choices.length}
-                onPress={handleCustomInputPress}
-                isAnimatingOut={isLoading && !isComplete}
-              />
-            </View>
+              </View>
+            </>
           )}
         </View>
-        {!isComplete && (
+        {!isLoading && !isComplete && (
           <AbsoluteView
             bottom={32}
             right={32}
             className='flex-row items-center justify-end gap-4'
+            withSafeAreaInsets
           >
             <FeelingSpontyButton
               onPress={handleFeelingSponty}

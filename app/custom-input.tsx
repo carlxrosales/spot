@@ -1,8 +1,8 @@
-import { IconButton } from "@/components/common/IconButton";
+import { IconButton } from "@/components/common/icon-button";
 import { Inputs } from "@/constants/inputs";
 import { Shadows } from "@/constants/theme";
 import { Timeouts } from "@/constants/timeouts";
-import { useSurvey } from "@/contexts/SurveyContext";
+import { useSurvey } from "@/contexts/survey-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {

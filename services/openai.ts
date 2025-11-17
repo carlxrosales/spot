@@ -94,7 +94,7 @@ export async function generateNextQuestion(
     });
 
     return response.output_parsed;
-  } catch (error) {
-    throw new Error(`Failed to generate question: ${error}`);
+  } catch {
+    throw new Error(`Failed to generate question`);
   }
 }

@@ -1,50 +1,123 @@
-# Welcome to your Expo app 👋
+# spot
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**find places that match your vibe**
 
-## Get started
+spot is a mobile app that helps you discover places (restaurants, cafes, venues, etc.) that align with your preferences through an AI-powered matching system and an intuitive Tinder-like interface.
 
-1. Install dependencies
+## Overview
+
+spot uses vector embeddings and similarity search to match your preferences with places based on their reviews and descriptions. The app presents results in a swipeable card interface, making it easy to discover and save places you'll love.
+
+## System Architecture
+
+```mermaid
+flowchart TD
+    Start([User Starts]) --> Q&A[Q&A Survey<br/>Get 5-8 tags from user<br/>AI-generated questions]
+
+    Q&A --> ConvertQuery[Convert to single sentence<br/>or paragraph query]
+    ConvertQuery --> UserVectors[Convert to vectors<br/>/ embeddings]
+
+    Scrape[Scrape places from Google<br/>One-time initial scrape + monthly updates] --> Filter[Places with:<br/>• Minimum 2 reviews<br/>• 2.5+ stars]
+    Filter --> GetReviews[Get reviews and about]
+    GetReviews --> ConvertDocs[Convert to documents]
+    ConvertDocs --> PlaceVectors[Convert to vectors<br/>/ embeddings]
+
+    UserVectors --> Similarity[Similarity Search]
+    PlaceVectors --> Similarity
+
+    Similarity --> UI[Tinder-like UI/UX]
+    UI --> SwipeLeft[Swipe Left<br/>Skip]
+    UI --> SwipeRight[Swipe Right<br/>Save or Share]
+    UI --> Maps[Open in Google Maps<br/>or Waze]
+    SwipeRight --> Share[Share with branding<br/>for virality]
+
+    style Start fill:#e1f5ff
+    style Similarity fill:#fff4e1
+    style UI fill:#e8f5e9
+```
+
+## How It Works
+
+### 1. User Input & Query Generation
+
+- **Q&A Survey**: Answer AI-generated questions to capture 5-8 preference tags
+- **Query Conversion**: Transform your answers into a single sentence or paragraph
+- **Vectorization**: Convert the query into embeddings for semantic search
+
+### 2. Place Data Ingestion
+
+- **Data Collection**: Scrape places from Google Maps (one-time initial scrape + monthly updates)
+  - Minimum 2 reviews required
+  - 2.5+ star rating threshold
+- **Content Extraction**: Gather reviews and "about" information for each place
+- **Document Processing**: Convert place information into searchable documents
+- **Vectorization**: Generate embeddings for each place
+
+### 3. Matching & Results
+
+- **Similarity Search**: Match your query embeddings with place embeddings
+- **Tinder-like UI**: Browse results through an intuitive swipe interface
+  - **Swipe left**: Skip a place
+  - **Swipe right**: Save or share a place
+  - **Open in Maps**: Launch in Google Maps or Waze for directions
+- **Sharing**: Share places with built-in branding for virality
+
+## Tech Stack
+
+- **Framework**: Expo (React Native)
+- **AI/ML**: OpenAI for embeddings and query generation
+- **Vector Search**: Similarity matching for place recommendations
+- **UI**: Custom swipe interface with native gestures
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm or bun
+- Expo CLI
+
+### Installation
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Start the development server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Open the app on your device:
+   - Scan the QR code with Expo Go (iOS/Android)
+   - Press `i` for iOS simulator
+   - Press `a` for Android emulator
+   - Press `w` for web browser
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+spot/
+├── app/              # Expo Router screens
+├── components/       # Reusable UI components
+│   ├── common/      # Shared components
+│   └── survey/      # Survey-specific components
+├── contexts/        # React contexts (Survey, Fonts)
+├── data/            # Survey questions and data
+├── services/        # API services (OpenAI)
+├── constants/       # Theme and dimension constants
+└── hooks/           # Custom React hooks
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Development
 
-## Learn more
+This project uses [Expo Router](https://docs.expo.dev/router/introduction/) for file-based routing. Edit files in the `app` directory to modify screens and navigation.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Learn More
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo documentation](https://docs.expo.dev/)
+- [Expo Router documentation](https://docs.expo.dev/router/introduction/)
+- [React Native documentation](https://reactnative.dev/)

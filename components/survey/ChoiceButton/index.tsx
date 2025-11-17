@@ -9,7 +9,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { styles } from "./styles";
 
 interface Choice {
   label: string;
@@ -79,9 +78,11 @@ export function ChoiceButton({
   return (
     <Animated.View style={animatedStyle}>
       <Button onPress={onPress}>
-        <View style={styles.choiceContent}>
-          <Text style={styles.emoji}>{choice.emoji}</Text>
-          <Text style={styles.choiceText}>{choice.label}</Text>
+        <View className='flex-row items-center gap-3'>
+          <Text className='text-2xl'>{choice.emoji}</Text>
+          <Text className='text-lg text-left font-medium text-black'>
+            {choice.label}
+          </Text>
         </View>
       </Button>
     </Animated.View>

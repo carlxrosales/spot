@@ -1,4 +1,3 @@
-import { Fonts } from "@/constants/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 
@@ -12,7 +11,7 @@ export function StartOverButton({ onPress, disabled }: StartOverButtonProps) {
     <TouchableOpacity onPress={onPress} disabled={disabled}>
       <MaterialCommunityIcons
         name='reload'
-        size={Fonts.size.md}
+        size={24}
         color='black'
         style={{ opacity: disabled ? 0.5 : 1 }}
       />

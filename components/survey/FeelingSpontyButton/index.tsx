@@ -1,5 +1,4 @@
 import { Text, TouchableOpacity } from "react-native";
-import { styles } from "./styles";
 
 interface FeelingSpontyButtonProps {
   onPress: () => void;
@@ -12,7 +11,7 @@ export function FeelingSpontyButton({
 }: FeelingSpontyButtonProps) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <Text style={styles.feelingSpontyText}>{label}</Text>
+      <Text className='text-lg font-bold text-black'>{label}</Text>
     </TouchableOpacity>
   );
 }

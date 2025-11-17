@@ -1,6 +1,5 @@
 import { Text } from "react-native";
-import { styles } from "./styles";
 
 export function Logo() {
-  return <Text style={styles.logo}>spot</Text>;
+  return <Text className='font-groen text-3xl text-black'>spot</Text>;
 }

@@ -1,6 +1,6 @@
+import { Shadows } from "@/constants/theme";
 import { ReactNode } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { styles } from "./styles";
 
 interface ButtonProps {
   onPress: () => void;
@@ -18,14 +18,16 @@ export function Button({
   return (
     <TouchableOpacity onPress={onPress} style={style}>
       <View
-        style={[styles.button, variant === "primary" && styles.buttonPrimary]}
+        className={`flex-row items-center justify-center py-1 px-4 gap-3 rounded-2xl bg-white ${
+          variant === "primary" ? "bg-neonPink" : ""
+        }`}
+        style={variant === "default" ? Shadows.neonPink : undefined}
       >
         {typeof children === "string" ? (
           <Text
-            style={[
-              styles.buttonText,
-              variant === "primary" && styles.buttonTextPrimary,
-            ]}
+            className={`text-lg font-medium ${
+              variant === "primary" ? "text-white" : "text-neonPink"
+            }`}
           >
             {children}
           </Text>

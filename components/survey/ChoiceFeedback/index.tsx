@@ -7,7 +7,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { styles } from "./styles";
 
 interface ChoiceFeedbackProps {
   visible: boolean;
@@ -38,9 +37,11 @@ export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
   if (!visible || !feedback) return null;
 
   return (
-    <View style={styles.feedbackContainer}>
+    <View className='items-center justify-center min-h-[60px] w-screen'>
       <Animated.View style={feedbackAnimatedStyle}>
-        <Text style={styles.feedbackText}>{feedback}</Text>
+        <Text className='font-groen text-4xl text-black text-center lowercase'>
+          {feedback}
+        </Text>
       </Animated.View>
     </View>
   );

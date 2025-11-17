@@ -10,11 +10,10 @@ import { FeelingSpontyButton } from "@/components/survey/FeelingSpontyButton";
 import { Question } from "@/components/survey/Question";
 import { StartOverButton } from "@/components/survey/StartOverButton";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
-import { Colors, Spacing } from "@/constants/theme";
 import { useSurveyContext } from "@/contexts/SurveyContext";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 
 export default function Index() {
   const {
@@ -83,9 +82,16 @@ export default function Index() {
 
   return (
     <>
-      <FixedView top={0} left={0} right={0} bottom={0} style={styles.container}>
+      <FixedView
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        className='bg-neonGreen'
+        style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }}
+      >
         <AnimatedBackground />
-        <AbsoluteView top={Spacing.lg} style={styles.logoContainer}>
+        <AbsoluteView top={32} className='left-0 right-0 items-center'>
           <Logo />
         </AbsoluteView>
         <Toast
@@ -95,7 +101,7 @@ export default function Index() {
             setShowError(false);
           }}
         />
-        <View style={styles.contentContainer}>
+        <View className='flex-1 justify-center items-start gap-8'>
           {!isLoading && (
             <Question
               key={`question-${currentStep}`}
@@ -109,7 +115,7 @@ export default function Index() {
             feedback={currentQuestion?.feedback}
           />
           {!isLoading && (
-            <View style={styles.choicesContainer}>
+            <View className='flex-row flex-wrap justify-start px-8 gap-8 min-h-[100px]'>
               {currentQuestion.choices.map((choice, index) => (
                 <ChoiceButton
                   key={`${choice.value}-${index}`}
@@ -136,9 +142,9 @@ export default function Index() {
           )}
         </View>
         <AbsoluteView
-          bottom={Spacing.lg}
-          left={Spacing.lg}
-          style={styles.buttonsContainer}
+          bottom={32}
+          left={32}
+          className='flex-row items-center gap-8'
         >
           <StartOverButton
             onPress={handleStartOver}
@@ -164,35 +170,3 @@ export default function Index() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-    backgroundColor: Colors.neonGreen,
-  },
-  logoContainer: {
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  contentContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
-    gap: Spacing.lg,
-  },
-  choicesContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.lg,
-    minHeight: 100,
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.lg,
-  },
-});

@@ -7,7 +7,6 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import { styles } from "./styles";
 
 export interface SparkleProps {
   startX: number;
@@ -78,10 +77,13 @@ export function Sparkle({ startX, startY, duration }: SparkleProps) {
   return (
     <Animated.Text
       style={[
-        styles.sparkle,
         {
           left: startX,
           top: startY,
+        },
+        {
+          position: "absolute",
+          fontSize: 72,
         },
         animatedStyle,
       ]}

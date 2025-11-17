@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface FixedViewProps {
   children: ReactNode;
+  className?: string;
   top?: number;
   bottom?: number;
   left?: number;
@@ -13,6 +14,7 @@ interface FixedViewProps {
 
 export function FixedView({
   children,
+  className,
   top,
   bottom,
   left,
@@ -29,5 +31,9 @@ export function FixedView({
     ...(right !== undefined && { right: right + insets.right }),
   };
 
-  return <View style={[positionStyle, style]}>{children}</View>;
+  return (
+    <View className={className} style={[positionStyle, style]}>
+      {children}
+    </View>
+  );
 }

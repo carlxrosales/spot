@@ -1,4 +1,4 @@
-import { Animation, Spacing } from "@/constants/theme";
+import { Animation } from "@/constants/theme";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import Animated, {
@@ -8,7 +8,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { styles } from "./styles";
 
 interface ToastProps {
   message: string;
@@ -46,14 +45,11 @@ export function Toast({ message, visible, onHide }: ToastProps) {
 
   return (
     <Animated.View
-      style={[
-        styles.container,
-        { top: insets.top + Spacing.md },
-        animatedStyle,
-      ]}
+      className='absolute left-0 right-0 items-center z-[1000]'
+      style={[{ top: insets.top + 16 }, animatedStyle]}
     >
-      <View style={styles.toast}>
-        <Text style={styles.text}>{message}</Text>
+      <View className='bg-black px-4 py-4 rounded-2xl'>
+        <Text className='text-white text-lg text-center'>{message}</Text>
       </View>
     </Animated.View>
   );

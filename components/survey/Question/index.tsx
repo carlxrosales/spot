@@ -7,7 +7,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { styles } from "./styles";
 
 interface QuestionProps {
   question: string;
@@ -47,9 +46,11 @@ export function Question({
   });
 
   return (
-    <View style={styles.questionContainer}>
+    <View className='items-center'>
       <Animated.View style={questionAnimatedStyle}>
-        <Text style={styles.questionText}>{question}</Text>
+        <Text className='font-groen text-5xl text-left px-8 text-black'>
+          {question}
+        </Text>
       </Animated.View>
     </View>
   );

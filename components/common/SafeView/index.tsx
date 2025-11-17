@@ -4,11 +4,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface SafeViewProps {
   children: ReactNode;
+  className?: string;
   style?: StyleProp<ViewStyle>;
   edges?: ("top" | "bottom" | "left" | "right")[];
 }
 
-export function SafeView({ children, style, edges }: SafeViewProps) {
+export function SafeView({ children, className, style, edges }: SafeViewProps) {
   const insets = useSafeAreaInsets();
 
   const safeAreaStyle: ViewStyle = {
@@ -18,5 +19,9 @@ export function SafeView({ children, style, edges }: SafeViewProps) {
     paddingRight: !edges || edges.includes("right") ? insets.right : 0,
   };
 
-  return <View style={[safeAreaStyle, style]}>{children}</View>;
+  return (
+    <View className={className} style={[safeAreaStyle, style]}>
+      {children}
+    </View>
+  );
 }

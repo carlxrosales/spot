@@ -9,15 +9,23 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+type ToastPosition = "top" | "bottom";
+
 interface ToastProps {
   message: string;
   visible: boolean;
-  onHide: () => void;
+  duration?: number;
+  position?: ToastPosition;
 }
 
-export function Toast({ message, visible, onHide }: ToastProps) {
+export function Toast({
+  message,
+  visible,
+  duration = 3000,
+  position = "top",
+}: ToastProps) {
   const insets = useSafeAreaInsets();
-  const translateY = useSharedValue(-100);
+  const translateY = useSharedValue(position === "top" ? -100 : 100);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -25,14 +33,17 @@ export function Toast({ message, visible, onHide }: ToastProps) {
       translateY.value = withSpring(0, Animation.spring);
       opacity.value = withTiming(1, { duration: 200 });
       const timer = setTimeout(() => {
-        translateY.value = withTiming(-100, { duration: 200 });
-        opacity.value = withTiming(0, { duration: 200 }, () => {
-          onHide();
+        translateY.value = withTiming(position === "top" ? -100 : 100, {
+          duration: 200,
         });
-      }, 3000);
+        opacity.value = withTiming(0, { duration: 200 });
+      }, duration);
       return () => clearTimeout(timer);
+    } else {
+      translateY.value = position === "top" ? -100 : 100;
+      opacity.value = 0;
     }
-  }, [visible]);
+  }, [visible, duration, position]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -43,10 +54,15 @@ export function Toast({ message, visible, onHide }: ToastProps) {
 
   if (!visible) return null;
 
+  const positionStyle =
+    position === "top"
+      ? { top: insets.top + 16 }
+      : { bottom: insets.bottom + 16 };
+
   return (
     <Animated.View
       className='absolute left-0 right-0 items-center z-[1000]'
-      style={[{ top: insets.top + 16 }, animatedStyle]}
+      style={[positionStyle, animatedStyle]}
     >
       <View className='bg-black px-4 py-4 rounded-2xl'>
         <Text className='text-white text-lg text-center'>{message}</Text>

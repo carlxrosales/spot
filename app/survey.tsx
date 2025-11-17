@@ -2,7 +2,6 @@ import { AbsoluteView } from "@/components/common/AbsoluteView";
 import { AnimatedBackground } from "@/components/common/AnimatedBackground";
 import { FixedView } from "@/components/common/FixedView";
 import { Logo } from "@/components/common/Logo";
-import { Toast } from "@/components/common/Toast";
 import { ChoiceButton } from "@/components/survey/ChoiceButton";
 import { ChoiceFeedback } from "@/components/survey/ChoiceFeedback";
 import { FeelingSpontyButton } from "@/components/survey/FeelingSpontyButton";
@@ -10,8 +9,9 @@ import { Question } from "@/components/survey/Question";
 import { StartOverButton } from "@/components/survey/StartOverButton";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
 import { useSurveyContext } from "@/contexts/SurveyContext";
+import { useToast } from "@/contexts/ToastContext";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { View } from "react-native";
 
 export default function Survey() {
@@ -25,14 +25,14 @@ export default function Survey() {
     handleChoicePress,
     handleStartOver,
   } = useSurveyContext();
-  const [showError, setShowError] = useState(false);
+  const { displayToast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
     if (error) {
-      setShowError(true);
+      displayToast({ message: error });
     }
-  }, [error]);
+  }, [error, displayToast]);
 
   useEffect(() => {
     if (isComplete) {
@@ -74,13 +74,6 @@ export default function Survey() {
         <AbsoluteView top={32} className='left-0 right-0 items-center'>
           <Logo />
         </AbsoluteView>
-        <Toast
-          message={error || ""}
-          visible={showError}
-          onHide={() => {
-            setShowError(false);
-          }}
-        />
         <View className='flex-1 justify-center items-start gap-8'>
           {!isLoading && (
             <Question

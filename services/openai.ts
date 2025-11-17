@@ -107,7 +107,7 @@ When you have collected 5-8 meaningful tags, output an empty final response with
 
   try {
     const response = await openai.responses.parse({
-      model: "gpt-4o-2024-08-06",
+      model: "gpt-4o-mini",
       input: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },

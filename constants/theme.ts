@@ -1,3 +1,12 @@
+export const Colors = {
+  neonGreen: "rgb(225, 255, 91)",
+  white: "rgb(248, 248, 248)",
+  neonPink: "rgb(255, 45, 155)",
+  gray: "rgb(100, 100, 100)",
+  black: "rgb(30, 30, 30)",
+  shadow: "rgba(240, 46, 170, 0.4)",
+};
+
 export const Shadows = {
   neonPink: {
     boxShadow:

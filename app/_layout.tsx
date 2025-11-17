@@ -11,7 +11,15 @@ export default function RootLayout() {
   return (
     <FontsProvider>
       <SurveyProvider>
-        <Stack screenOptions={screenOptions} />
+        <Stack screenOptions={screenOptions}>
+          <Stack.Screen
+            name='custom-input'
+            options={{
+              headerShown: false,
+              presentation: "modal",
+            }}
+          />
+        </Stack>
       </SurveyProvider>
     </FontsProvider>
   );

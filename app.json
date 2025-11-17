@@ -8,6 +8,9 @@
     "scheme": "spot",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "android": {
+      "package": "com.carlrosales.spot"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.carlrosales.spot"

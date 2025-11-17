@@ -11,7 +11,7 @@ export function FeelingSpontyButton({
 }: FeelingSpontyButtonProps) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <Text className='text-lg font-bold text-black'>{label}</Text>
+      <Text className='text-xl font-semibold text-black'>{label}</Text>
     </TouchableOpacity>
   );
 }

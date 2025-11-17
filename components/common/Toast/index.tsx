@@ -65,7 +65,9 @@ export function Toast({
       style={[positionStyle, animatedStyle]}
     >
       <View className='bg-black px-4 py-4 rounded-2xl'>
-        <Text className='text-white text-lg text-center'>{message}</Text>
+        <Text className='text-white text-lg text-center font-semibold'>
+          {message}
+        </Text>
       </View>
     </Animated.View>
   );

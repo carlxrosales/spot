@@ -4,6 +4,7 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import { useSurvey } from "./SurveyContext";
@@ -14,8 +15,8 @@ interface SuggestionsContextType {
   currentIndex: number;
   fetchSuggestions: () => void;
   error: string | null;
-  handleSwipeLeft: () => void;
-  handleSwipeRight: () => void;
+  handleSkip: () => void;
+  handleProceed: () => void;
 }
 
 const SuggestionsContext = createContext<SuggestionsContextType | undefined>(
@@ -34,9 +35,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(async () => {
-    // if (!isComplete || choices.length === 0) {
-    //   return;
-    // }
+    if (!isComplete || choices.length === 0) {
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -54,19 +55,26 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     }
   }, [choices, isComplete]);
 
-  const handleSwipeLeft = useCallback(() => {
+  const handleSkip = useCallback(() => {
     setCurrentIndex((prev) => {
       const next = prev + 1;
       return next >= suggestions.length ? 0 : next;
     });
   }, [suggestions.length]);
 
-  const handleSwipeRight = useCallback(() => {
+  const handleProceed = useCallback(() => {
     setCurrentIndex((prev) => {
       const next = prev + 1;
       return next >= suggestions.length ? 0 : next;
     });
   }, [suggestions.length]);
+
+  useEffect(() => {
+    if (choices.length === 0) {
+      setSuggestions([]);
+      setCurrentIndex(0);
+    }
+  }, [choices]);
 
   return (
     <SuggestionsContext.Provider
@@ -76,8 +84,8 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         currentIndex,
         fetchSuggestions,
         error,
-        handleSwipeLeft,
-        handleSwipeRight,
+        handleSkip,
+        handleProceed,
       }}
     >
       {children}

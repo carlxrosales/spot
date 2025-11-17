@@ -20,7 +20,6 @@ interface ChoiceButtonProps {
   choice: Choice;
   index: number;
   onPress: () => void;
-  currentStep: number;
   isAnimatingOut: boolean;
 }
 
@@ -28,7 +27,6 @@ export function ChoiceButton({
   choice,
   index,
   onPress,
-  currentStep,
   isAnimatingOut,
 }: ChoiceButtonProps) {
   const scale = useSharedValue(1);
@@ -66,7 +64,7 @@ export function ChoiceButton({
         withTiming(0, { duration: 300 })
       );
     }
-  }, [currentStep, index, isAnimatingOut]);
+  }, [index, isAnimatingOut]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {

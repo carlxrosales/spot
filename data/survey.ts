@@ -16,6 +16,12 @@ export interface Question {
   end: boolean;
 }
 
+export const ImFeelingSpontyChoice: Choice = {
+  label: "I'm feeling sponty",
+  emoji: "🚀",
+  value: "im-feeling-sponty",
+};
+
 const initialQuestions: string[] = [
   "What's your vibe rn?",
   "What's the move?",

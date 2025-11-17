@@ -10,15 +10,10 @@ import Animated, {
 
 interface QuestionProps {
   question: string;
-  currentStep: number;
   isAnimatingOut: boolean;
 }
 
-export function Question({
-  question,
-  currentStep,
-  isAnimatingOut,
-}: QuestionProps) {
+export function Question({ question, isAnimatingOut }: QuestionProps) {
   const questionScale = useSharedValue(0);
   const questionOpacity = useSharedValue(0);
   const translateY = useSharedValue(20);
@@ -33,7 +28,7 @@ export function Question({
       questionOpacity.value = withTiming(1, { duration: 300 });
       translateY.value = withTiming(0, { duration: 300 });
     }
-  }, [currentStep, isAnimatingOut]);
+  }, [isAnimatingOut]);
 
   const questionAnimatedStyle = useAnimatedStyle(() => {
     return {

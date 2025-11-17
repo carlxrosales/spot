@@ -1,5 +1,6 @@
+import { IconButton } from "@/components/common/IconButton";
 import { Shadows } from "@/constants/theme";
-import { useSurveyContext } from "@/contexts/SurveyContext";
+import { useSurvey } from "@/contexts/SurveyContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -7,14 +8,13 @@ import {
   Platform,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 
 export default function CustomInputScreen() {
   const router = useRouter();
   const { question } = useLocalSearchParams<{ question: string }>();
-  const { handleChoicePress, isLoading } = useSurveyContext();
+  const { handleChoicePress, isLoading } = useSurvey();
   const [value, setValue] = useState("");
   const inputRef = useRef<TextInput>(null);
 
@@ -44,22 +44,14 @@ export default function CustomInputScreen() {
       className='flex-1 bg-neonGreen'
     >
       <View className='flex-row justify-between items-center p-8'>
-        <TouchableOpacity onPress={handleCancel} className='py-1 px-1'>
-          <Text className='text-xl font-medium text-black'>Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        <IconButton onPress={handleCancel} icon='close' size='md' />
+        <IconButton
           onPress={handleSubmit}
-          className='py-1 px-1'
+          icon='checkmark'
+          variant='black'
+          size='md'
           disabled={!isValid || isLoading}
-        >
-          <Text
-            className={`text-xl font-bold text-black ${
-              !isValid || isLoading ? "opacity-50" : ""
-            }`}
-          >
-            Submit
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
       <View className='flex-1 px-8 pt-12 items-center'>

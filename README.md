@@ -64,7 +64,9 @@ flowchart TD
 ## Tech Stack
 
 - **Framework**: Expo (React Native)
-- **AI/ML**: OpenAI for embeddings and query generation
+- **Styling**: Tailwind CSS (NativeWind)
+- **Backend/Database**: Supabase
+- **AI/ML**: OpenAI for embeddings, query, and questions generation
 - **Vector Search**: Similarity matching for place recommendations
 - **UI**: Custom swipe interface with native gestures
 

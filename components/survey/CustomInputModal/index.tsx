@@ -1,4 +1,5 @@
 import { SafeView } from "@/components/common/SafeView";
+import { Shadows } from "@/constants/theme";
 import { useEffect, useRef } from "react";
 import {
   KeyboardAvoidingView,
@@ -51,8 +52,8 @@ export function CustomInputModal({
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className='flex-1'
         >
-          <View className='flex-1 pt-8'>
-            <View className='flex-row justify-between items-center px-8 py-4'>
+          <View className='flex-1'>
+            <View className='flex-row justify-between items-center p-8'>
               <TouchableOpacity onPress={onCancel} className='py-1 px-1'>
                 <Text className='text-xl font-medium text-black'>Cancel</Text>
               </TouchableOpacity>
@@ -71,14 +72,14 @@ export function CustomInputModal({
               </TouchableOpacity>
             </View>
 
-            <View className='flex-1 px-8 pt-16 items-center'>
+            <View className='flex-1 px-8 pt-12 items-center'>
               <Text className='text-4xl font-bold text-black text-center font-groen mb-8 px-4'>
                 {question}
               </Text>
 
               <TextInput
                 ref={inputRef}
-                className='w-full max-w-[400px] py-4 px-8 rounded-2xl bg-white text-xl font-medium text-black text-center'
+                className='w-full max-w-[400px] py-4 px-8 rounded-2xl bg-white text-xl font-medium text-black text-center outline-none'
                 value={value}
                 onChangeText={onChangeText}
                 placeholder='Type your answer'
@@ -87,16 +88,10 @@ export function CustomInputModal({
                 returnKeyType='done'
                 onSubmitEditing={isValid ? onSubmit : undefined}
                 autoFocus={true}
-                style={{
-                  shadowColor: "rgba(240, 46, 170, 0.4)",
-                  shadowOffset: { width: 5, height: 5 },
-                  shadowOpacity: 0.4,
-                  shadowRadius: 5,
-                  elevation: 5,
-                }}
+                style={Shadows.neonPink}
               />
 
-              <Text className='mt-8 text-lg text-neonPink'>
+              <Text className='mt-8 text-base text-black opacity-50'>
                 3-12 characters only
               </Text>
             </View>

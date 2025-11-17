@@ -30,9 +30,9 @@ flowchart TD
     UI --> SwipeRight[Swipe Right<br/>Save, Share, or<br/>Open in Maps/Waze]
     SwipeRight --> Share[Share with branding<br/>for virality]
 
-    style Start fill:#e1ff5b,color:#fff
-    style Similarity fill:#ff2d9b,color:#fff
-    style UI fill:#e1ff5b,color:#fff
+    style Start fill:#e1ff5b,color:#1e1e1e
+    style Similarity fill:#ff2d9b,color:#f8f8f8
+    style UI fill:#e1ff5b,color:#1e1e1e
 ```
 
 ## How It Works

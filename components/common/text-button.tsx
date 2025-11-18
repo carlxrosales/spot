@@ -3,7 +3,7 @@ import {
   ButtonSizeType,
   ButtonVariant,
   ButtonVariantType,
-} from "@/constants/button";
+} from "@/constants/buttons";
 import { Colors, Shadows } from "@/constants/theme";
 import { Text, TouchableOpacity } from "react-native";
 

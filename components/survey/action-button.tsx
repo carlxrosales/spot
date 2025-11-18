@@ -6,7 +6,7 @@ import {
   ButtonSizeType,
   ButtonVariant,
   ButtonVariantType,
-} from "@/constants/button";
+} from "@/constants/buttons";
 import { Animation } from "@/constants/theme";
 import { useEffect } from "react";
 import Animated, {

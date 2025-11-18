@@ -6,7 +6,7 @@ import { ActionButton } from "@/components/survey/action-button";
 import { ChoiceButton } from "@/components/survey/choice-button";
 import { ChoiceFeedback } from "@/components/survey/choice-feedback";
 import { Question } from "@/components/survey/question";
-import { ButtonVariant } from "@/constants/button";
+import { ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";

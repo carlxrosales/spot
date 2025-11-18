@@ -1,6 +1,6 @@
 import { IconButton } from "@/components/common/icon-button";
 import { TextButton } from "@/components/common/text-button";
-import { ButtonSize, ButtonVariant } from "@/constants/button";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Shadows } from "@/constants/theme";
 import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";

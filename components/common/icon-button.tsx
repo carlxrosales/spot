@@ -4,7 +4,7 @@ import {
   ButtonSizeType,
   ButtonVariant,
   ButtonVariantType,
-} from "@/constants/button";
+} from "@/constants/buttons";
 import { Colors, Shadows } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, TouchableOpacity } from "react-native";

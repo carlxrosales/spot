@@ -1,5 +1,5 @@
 import { IconButton } from "@/components/common/icon-button";
-import { ButtonSize, ButtonVariant } from "@/constants/button";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Inputs } from "@/constants/inputs";
 import { Shadows } from "@/constants/theme";
 import { Timeouts } from "@/constants/timeouts";

@@ -8,7 +8,7 @@ import {
   SwipeableCard,
   SwipeableCardRef,
 } from "@/components/swipe/swipeable-card";
-import { ButtonSize, ButtonVariant } from "@/constants/button";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";

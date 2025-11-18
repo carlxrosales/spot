@@ -1,5 +1,5 @@
 import { generateInitialQuestion, Question } from "@/data/survey";
-import { generateNextQuestion } from "@/services/openai";
+import { generateNextQuestion } from "@/services/gemini";
 import {
   createContext,
   ReactNode,
@@ -62,14 +62,14 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         );
 
         if (!nextQuestion) {
-          setError("Failed to generate question");
+          setError("Yo! Somethin' went wrong");
           return;
         }
 
         setQuestions((prev) => [...prev, nextQuestion]);
         setAnswers(updatedAnswers);
       } catch {
-        setError("Failed to generate question, please start over.");
+        setError("Yo! Somethin' went wrong, let's start over.");
       } finally {
         setIsLoading(false);
       }
@@ -112,4 +112,3 @@ export function useSurvey() {
   }
   return context;
 }
-

@@ -87,7 +87,7 @@ export default function Swipe() {
 
   const handleBack = () => {
     handleStartOver();
-    router.navigate("/survey");
+    router.navigate(Routes.survey);
   };
 
   return (

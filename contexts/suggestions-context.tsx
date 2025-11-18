@@ -48,7 +48,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       const dummySuggestions = generateSuggestions(answers);
       setSuggestions(dummySuggestions);
       setCurrentIndex(0);
-    } catch (err) {
+    } catch {
       setError("Failed to load suggestions");
     } finally {
       setIsLoading(false);
@@ -102,4 +102,3 @@ export function useSuggestions() {
   }
   return context;
 }
-

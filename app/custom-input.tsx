@@ -66,8 +66,8 @@ export default function CustomInputScreen() {
         />
       </View>
 
-      <View className='flex-1 px-8 pt-12 items-center'>
-        <Text className='text-4xl font-bold text-black text-center font-groen mb-8 px-4'>
+      <View className='flex-1 px-8 pt-8 items-center'>
+        <Text className='text-5xl font-bold text-black text-center font-groen mb-8 px-4'>
           {question || ""}
         </Text>
 

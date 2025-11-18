@@ -49,7 +49,12 @@ export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
     <View className='items-center justify-center h-screen w-screen overflow-visible'>
       <Animated.View style={feedbackAnimatedStyle}>
         <View className='items-center justify-center flex-row gap-3'>
-          <Text className='text-5xl'>{feedback.emoji}</Text>
+          <Text
+            className='text-5xl'
+            style={{ lineHeight: 60, includeFontPadding: false }}
+          >
+            {feedback.emoji}
+          </Text>
           <Text className='font-groen text-5xl text-black text-center lowercase'>
             {feedback.label}
           </Text>
@@ -58,4 +63,3 @@ export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
     </View>
   );
 }
-

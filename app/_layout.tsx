@@ -7,7 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
 export default function RootLayout() {
-  const screenOptions = {
+  const commonScreenOptions = {
     headerShown: false,
   };
 
@@ -17,11 +17,20 @@ export default function RootLayout() {
         <ToastProvider>
           <SurveyProvider>
             <SuggestionsProvider>
-              <Stack screenOptions={screenOptions}>
+              <Stack screenOptions={commonScreenOptions}>
+                <Stack.Screen name='survey' options={commonScreenOptions} />
+                <Stack.Screen name='swipe' options={commonScreenOptions} />
                 <Stack.Screen
                   name='custom-input'
                   options={{
-                    headerShown: false,
+                    ...commonScreenOptions,
+                    presentation: "modal",
+                  }}
+                />
+                <Stack.Screen
+                  name='lazy-mode'
+                  options={{
+                    ...commonScreenOptions,
                     presentation: "modal",
                   }}
                 />

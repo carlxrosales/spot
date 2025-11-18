@@ -63,7 +63,12 @@ export function SwipeFeedback({ feedback, swipeProgress }: SwipeFeedbackProps) {
     >
       <Animated.View style={feedbackAnimatedStyle}>
         <View className='items-center justify-center flex-row gap-4'>
-          <Text className='text-4xl'>{feedback.emoji}</Text>
+          <Text
+            className='text-4xl'
+            style={{ lineHeight: 48, includeFontPadding: false }}
+          >
+            {feedback.emoji}
+          </Text>
           <Text className='font-groen text-4xl text-black text-center lowercase'>
             {feedback.text}
           </Text>
@@ -72,4 +77,3 @@ export function SwipeFeedback({ feedback, swipeProgress }: SwipeFeedbackProps) {
     </View>
   );
 }
-

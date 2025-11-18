@@ -56,9 +56,9 @@ export function IconButton({
   const getButtonPadding = () => {
     switch (size) {
       case "md":
-        return "p-3";
+        return loading ? "p-[14px]" : "p-3";
       case "sm":
-        return "p-2";
+        return loading ? "p-[9px]" : "p-2";
       case "lg":
         return loading ? "p-[20px]" : "p-4";
       default:

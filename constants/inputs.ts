@@ -6,9 +6,15 @@ export const Inputs = {
       maxLength: 12,
     },
     style: {
-      maxWidth: 400,
+      maxWidth: 360,
       borderRadius: 24,
       placeholderColor: "rgb(100, 100, 100)",
+    },
+  },
+  lazyMode: {
+    style: {
+      maxWidth: 360,
+      minHeight: 160,
     },
   },
 };

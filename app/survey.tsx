@@ -2,6 +2,7 @@ import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { FixedView } from "@/components/common/fixed-view";
 import { Logo } from "@/components/common/logo";
+import { TextButton } from "@/components/common/text-button";
 import { ChoiceButton } from "@/components/survey/choice-button";
 import { ChoiceFeedback } from "@/components/survey/choice-feedback";
 import { FeelingSpontyButton } from "@/components/survey/feeling-sponty-button";
@@ -19,6 +20,7 @@ const copy = {
   typeInput: "Type...",
   showSpots: "Show my spots rn",
   feelingSponty: "I'm feeling sponty",
+  lazyMode: "Lazy af mode",
 };
 
 export default function Survey() {
@@ -71,6 +73,10 @@ export default function Survey() {
       params: { question: currentQuestion?.question || "" },
     });
   }, [currentQuestion]);
+
+  const handleLazyModePress = useCallback(() => {
+    router.navigate(Routes.lazyMode);
+  }, [router]);
 
   return (
     <>
@@ -133,10 +139,16 @@ export default function Survey() {
               onPress={handleFeelingSponty}
               label={answers.length > 0 ? copy.showSpots : copy.feelingSponty}
             />
-            <StartOverButton
-              onPress={handleStartOver}
-              disabled={answers.length === 0}
-            />
+            {answers.length === 0 ? (
+              <TextButton
+                onPress={handleLazyModePress}
+                label={copy.lazyMode}
+                variant='white'
+                size='md'
+              />
+            ) : (
+              <StartOverButton onPress={handleStartOver} disabled={false} />
+            )}
           </AbsoluteView>
         )}
       </FixedView>

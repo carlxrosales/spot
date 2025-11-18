@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/common/icon-button";
+import { ButtonSize, ButtonVariant } from "@/constants/button";
 import { Inputs } from "@/constants/inputs";
 import { Shadows } from "@/constants/theme";
 import { Timeouts } from "@/constants/timeouts";
@@ -76,12 +77,12 @@ export default function LazyModeScreen() {
       className='flex-1 bg-neonGreen'
     >
       <View className='flex-row justify-between items-center p-8'>
-        <IconButton onPress={handleCancel} icon='close' size='md' />
+        <IconButton onPress={handleCancel} icon='close' size={ButtonSize.md} />
         <IconButton
           onPress={handleSubmit}
           icon='checkmark'
-          variant='black'
-          size='md'
+          variant={ButtonVariant.black}
+          size={ButtonSize.md}
           disabled={!isValid}
           loading={isLoading}
         />

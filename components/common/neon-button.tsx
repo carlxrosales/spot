@@ -5,35 +5,18 @@ import { Text, TouchableOpacity, View } from "react-native";
 interface NeonButtonProps {
   onPress: () => void;
   children: ReactNode;
-  variant?: "pink" | "green";
   style?: object;
 }
 
-export function NeonButton({
-  onPress,
-  children,
-  variant = "pink",
-  style,
-}: NeonButtonProps) {
-  const getTextColor = () => {
-    return variant === "pink" ? Colors.neonPink : Colors.neonGreen;
-  };
-
-  const getShadow = () => {
-    return variant === "pink" ? Shadows.neonPink : Shadows.neonGreen;
-  };
-
+export function NeonButton({ onPress, children, style }: NeonButtonProps) {
   return (
     <TouchableOpacity onPress={onPress} style={style}>
       <View
         className={`flex-row items-center justify-center py-2 px-5 gap-3 rounded-[24px] bg-white`}
-        style={getShadow()}
+        style={Shadows.neonPink}
       >
         {typeof children === "string" ? (
-          <Text
-            className='text-lg font-medium'
-            style={{ color: getTextColor() }}
-          >
+          <Text className='text-lg font-medium' style={{ color: Colors.black }}>
             {children}
           </Text>
         ) : (
@@ -43,4 +26,3 @@ export function NeonButton({
     </TouchableOpacity>
   );
 }
-

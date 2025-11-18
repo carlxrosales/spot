@@ -1,11 +1,17 @@
+import {
+  ButtonSize,
+  ButtonSizeType,
+  ButtonVariant,
+  ButtonVariantType,
+} from "@/constants/button";
 import { Colors, Shadows } from "@/constants/theme";
 import { Text, TouchableOpacity } from "react-native";
 
 interface TextButtonProps {
   onPress: () => void;
   label: string;
-  variant?: "pink" | "white" | "black";
-  size?: "sm" | "md" | "lg";
+  variant?: ButtonVariantType;
+  size?: ButtonSizeType;
   disabled?: boolean;
   fullWidth?: boolean;
   loading?: boolean;
@@ -14,8 +20,8 @@ interface TextButtonProps {
 export function TextButton({
   onPress,
   label,
-  variant = "white",
-  size = "lg",
+  variant = ButtonVariant.white,
+  size = ButtonSize.lg,
   disabled = false,
   fullWidth = false,
   loading = false,
@@ -75,4 +81,3 @@ export function TextButton({
     </TouchableOpacity>
   );
 }
-

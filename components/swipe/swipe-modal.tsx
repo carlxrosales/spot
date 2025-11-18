@@ -1,5 +1,6 @@
 import { IconButton } from "@/components/common/icon-button";
 import { TextButton } from "@/components/common/text-button";
+import { ButtonSize, ButtonVariant } from "@/constants/button";
 import { Shadows } from "@/constants/theme";
 import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
@@ -56,7 +57,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
       <View className='flex-1 bg-neonGreen'>
         <View className='flex-row justify-between items-center p-8'>
           <View className='flex-1' />
-          <IconButton onPress={onClose} icon='close' size='md' />
+          <IconButton onPress={onClose} icon='close' size={ButtonSize.md} />
         </View>
         <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
           {suggestion && (
@@ -121,7 +122,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 <TextButton
                   label={copy.viewGoogleMaps}
                   onPress={openGoogleMaps}
-                  variant='white'
+                  variant={ButtonVariant.white}
                   fullWidth
                   loading={isGoogleMapsLoading}
                 />
@@ -129,7 +130,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                   <TextButton
                     label={copy.viewAppleMaps}
                     onPress={openAppleMaps}
-                    variant='black'
+                    variant={ButtonVariant.black}
                     fullWidth
                     loading={isAppleMapsLoading}
                   />

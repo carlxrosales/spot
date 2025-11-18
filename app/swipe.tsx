@@ -8,6 +8,7 @@ import {
   SwipeableCard,
   SwipeableCardRef,
 } from "@/components/swipe/swipeable-card";
+import { ButtonSize, ButtonVariant } from "@/constants/button";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";
@@ -100,8 +101,8 @@ export default function Swipe() {
               <IconButton
                 onPress={handleBack}
                 icon='arrow-back'
-                variant='white'
-                size='sm'
+                variant={ButtonVariant.white}
+                size={ButtonSize.sm}
               />
             </AbsoluteView>
             <View className='items-center gap-6'>
@@ -118,7 +119,7 @@ export default function Swipe() {
                 <View className='flex-row justify-start items-center gap-6 px-4 pt-4'>
                   <IconButton
                     onPress={handleBack}
-                    size='sm'
+                    size={ButtonSize.sm}
                     icon='arrow-back'
                   />
                 </View>
@@ -133,20 +134,20 @@ export default function Swipe() {
                   <IconButton
                     onPress={handleSkip}
                     icon='close'
-                    variant='pink'
+                    variant={ButtonVariant.pink}
                     loading={isSkipLoading}
                     disabled={isSkipLoading || isProceedLoading}
                   />
                   <IconButton
                     onPress={handleViewMore}
                     icon='eye'
-                    variant='white'
+                    variant={ButtonVariant.white}
                     disabled={isSkipLoading || isProceedLoading}
                   />
                   <IconButton
                     onPress={handleProceed}
                     icon='checkmark'
-                    variant='black'
+                    variant={ButtonVariant.black}
                     loading={isProceedLoading}
                     disabled={isSkipLoading || isProceedLoading}
                   />

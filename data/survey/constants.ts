@@ -1,9 +1,9 @@
 import { Choice, ChoiceFeedback } from "./types";
 
-export const ImFeelingSpontyChoice: Choice = {
-  label: "I'm feeling sponty",
+export const SpontyChoice: Choice = {
+  label: "sponty",
   emoji: "🚀",
-  value: "im-feeling-sponty",
+  value: "sponty",
 };
 
 export const initialQuestions: string[] = [

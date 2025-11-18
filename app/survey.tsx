@@ -2,16 +2,15 @@ import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { FixedView } from "@/components/common/fixed-view";
 import { Logo } from "@/components/common/logo";
-import { TextButton } from "@/components/common/text-button";
+import { ActionButton } from "@/components/survey/action-button";
 import { ChoiceButton } from "@/components/survey/choice-button";
 import { ChoiceFeedback } from "@/components/survey/choice-feedback";
-import { FeelingSpontyButton } from "@/components/survey/feeling-sponty-button";
 import { Question } from "@/components/survey/question";
-import { StartOverButton } from "@/components/survey/start-over-button";
+import { ButtonVariant } from "@/constants/button";
 import { Routes } from "@/constants/routes";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
-import { ImFeelingSpontyChoice } from "@/data/survey";
+import { SpontyChoice } from "@/data/survey";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { View } from "react-native";
@@ -55,9 +54,13 @@ export default function Survey() {
   }
 
   const handleFeelingSponty = useCallback(() => {
-    setAnswers([ImFeelingSpontyChoice.value]);
+    setAnswers([SpontyChoice.value]);
     setIsComplete(true);
-  }, []);
+  }, [setAnswers, setIsComplete]);
+
+  const handleShowSpots = useCallback(() => {
+    setIsComplete(true);
+  }, [setIsComplete]);
 
   const handleChoice = useCallback(
     async (value: string) => {
@@ -131,23 +134,44 @@ export default function Survey() {
         {!isLoading && !isComplete && (
           <AbsoluteView
             bottom={32}
+            left={answers.length > 0 ? 0 : 32}
             right={32}
-            className='flex-row items-center justify-end gap-4'
             withSafeAreaInsets
           >
-            <FeelingSpontyButton
-              onPress={handleFeelingSponty}
-              label={answers.length > 0 ? copy.showSpots : copy.feelingSponty}
-            />
-            {answers.length === 0 ? (
-              <TextButton
-                onPress={handleLazyModePress}
-                label={copy.lazyMode}
-                variant='white'
-                size='md'
-              />
+            {answers.length > 0 ? (
+              <View className='flex-row items-center justify-end gap-4'>
+                <ActionButton
+                  label={copy.showSpots}
+                  variant={ButtonVariant.black}
+                  onPress={handleShowSpots}
+                  index={0}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+                <ActionButton
+                  icon='reload'
+                  variant={ButtonVariant.white}
+                  onPress={handleStartOver}
+                  index={1}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+              </View>
             ) : (
-              <StartOverButton onPress={handleStartOver} disabled={false} />
+              <View className='w-full flex-1 flex-col items-center justify-center gap-4'>
+                <ActionButton
+                  label={copy.feelingSponty}
+                  variant={ButtonVariant.black}
+                  onPress={handleFeelingSponty}
+                  index={0}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+                <ActionButton
+                  label={copy.lazyMode}
+                  variant={ButtonVariant.white}
+                  onPress={handleLazyModePress}
+                  index={1}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+              </View>
             )}
           </AbsoluteView>
         )}

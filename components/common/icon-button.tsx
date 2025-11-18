@@ -1,12 +1,19 @@
+import {
+  ButtonIcon,
+  ButtonSize,
+  ButtonSizeType,
+  ButtonVariant,
+  ButtonVariantType,
+} from "@/constants/button";
 import { Colors, Shadows } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, TouchableOpacity } from "react-native";
 
 interface IconButtonProps {
   onPress: () => void;
-  icon: keyof typeof Ionicons.glyphMap;
-  variant?: "pink" | "white" | "black";
-  size?: "sm" | "md" | "lg";
+  icon: ButtonIcon;
+  variant?: ButtonVariantType;
+  size?: ButtonSizeType;
   disabled?: boolean;
   loading?: boolean;
 }
@@ -14,8 +21,8 @@ interface IconButtonProps {
 export function IconButton({
   onPress,
   icon,
-  variant = "white",
-  size = "lg",
+  variant = ButtonVariant.white,
+  size = ButtonSize.lg,
   disabled = false,
   loading = false,
 }: IconButtonProps) {

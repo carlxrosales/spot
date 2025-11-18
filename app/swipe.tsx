@@ -9,7 +9,7 @@ import {
   SwipeableCardRef,
 } from "@/components/swipe/swipeable-card";
 import { Routes } from "@/constants/routes";
-import { Colors } from "@/constants/theme";
+import { Animation, Colors } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
@@ -29,6 +29,8 @@ export default function Swipe() {
     useSuggestions();
   const { displayToast } = useToast();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
+  const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
   const cardRef = useRef<SwipeableCardRef>(null);
 
   useEffect(() => {
@@ -53,15 +55,30 @@ export default function Swipe() {
     }
   }, [error]);
 
+  useEffect(() => {
+    setIsSkipLoading(false);
+    setIsProceedLoading(false);
+  }, [currentIndex]);
+
   const currentSuggestion =
     suggestions.length > 0 ? suggestions[currentIndex] : null;
 
   const handleSkip = () => {
+    if (isSkipLoading || isProceedLoading) return;
+    setIsSkipLoading(true);
     cardRef.current?.swipeLeft();
+    setTimeout(() => {
+      setIsSkipLoading(false);
+    }, Animation.duration.slow);
   };
 
   const handleProceed = () => {
+    if (isSkipLoading || isProceedLoading) return;
+    setIsProceedLoading(true);
     cardRef.current?.swipeRight();
+    setTimeout(() => {
+      setIsProceedLoading(false);
+    }, Animation.duration.slow);
   };
 
   const handleViewMore = () => {
@@ -117,16 +134,21 @@ export default function Swipe() {
                     onPress={handleSkip}
                     icon='close'
                     variant='pink'
+                    loading={isSkipLoading}
+                    disabled={isSkipLoading || isProceedLoading}
                   />
                   <IconButton
                     onPress={handleViewMore}
                     icon='eye'
                     variant='white'
+                    disabled={isSkipLoading || isProceedLoading}
                   />
                   <IconButton
                     onPress={handleProceed}
                     icon='checkmark'
                     variant='black'
+                    loading={isProceedLoading}
+                    disabled={isSkipLoading || isProceedLoading}
                   />
                 </View>
               </>

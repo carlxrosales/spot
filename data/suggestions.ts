@@ -24,7 +24,7 @@ export interface SuggestionFeedback {
   emoji: string;
 }
 
-export const suggestionFeedbacks: SuggestionFeedback[] = [
+export const suggestionSkipFeedbacks: SuggestionFeedback[] = [
   { text: "nah", emoji: "😒" },
   { text: "mid", emoji: "😐" },
   { text: "pass", emoji: "👋" },
@@ -38,18 +38,48 @@ export const suggestionFeedbacks: SuggestionFeedback[] = [
   { text: "no thanks", emoji: "🙅‍♂️" },
   { text: "not today", emoji: "📅" },
   { text: "maybe later", emoji: "⏰" },
-  { text: "not feeling it", emoji: "😕" },
-  { text: "pass on this", emoji: "✋" },
+  { text: "not feelin' it", emoji: "😕" },
   { text: "nah fam", emoji: "🙄" },
   { text: "not my vibe", emoji: "🎵" },
   { text: "skip it", emoji: "⏩" },
-  { text: "no way", emoji: "🙅‍♀️" },
-  { text: "not interested", emoji: "😑" },
   { text: "naw", emoji: "👀" },
   { text: "not it", emoji: "👎" },
   { text: "pass for now", emoji: "⏸️" },
   { text: "not my thing", emoji: "🎯" },
+  { text: "sus", emoji: "🤔" },
+  { text: "cringe", emoji: "😬" },
+  { text: "oof", emoji: "😮" },
+  { text: "yikes", emoji: "😳" },
+  { text: "bruh", emoji: "😑" },
+  { text: "L", emoji: "💀" },
+  { text: "rip", emoji: "⚰️" },
+  { text: "dead", emoji: "☠️" },
+  { text: "cap", emoji: "🎩" },
+  { text: "nahhh", emoji: "😤" },
+  { text: "nvm", emoji: "🤐" },
+  { text: "ratio", emoji: "📉" },
+  { text: "fr?", emoji: "🤨" },
+  { text: "negats", emoji: "🙅‍♀️" },
 ];
+
+let usedFeedbackIndices = new Set<number>();
+
+export const getRandomUnusedFeedback = (): SuggestionFeedback => {
+  if (usedFeedbackIndices.size >= suggestionSkipFeedbacks.length) {
+    usedFeedbackIndices.clear();
+  }
+
+  const availableIndices = suggestionSkipFeedbacks
+    .map((_, index) => index)
+    .filter((index) => !usedFeedbackIndices.has(index));
+
+  const randomIndex =
+    availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+  usedFeedbackIndices.add(randomIndex);
+
+  return suggestionSkipFeedbacks[randomIndex];
+};
 
 const getOpeningTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();

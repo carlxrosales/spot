@@ -1,6 +1,7 @@
 import { IconButton } from "@/components/common/icon-button";
 import { TextButton } from "@/components/common/text-button";
 import { Shadows } from "@/constants/theme";
+import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
 import { useState } from "react";
 import { Linking, Modal, Platform, ScrollView, Text, View } from "react-native";
@@ -20,27 +21,29 @@ interface SwipeModalProps {
 }
 
 export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { displayToast } = useToast();
+  const [isGoogleMapsLoading, setIsGoogleMapsLoading] =
+    useState<boolean>(false);
+  const [isAppleMapsLoading, setIsAppleMapsLoading] = useState<boolean>(false);
+
   const openGoogleMaps = async () => {
-    setIsLoading(true);
-    if (!suggestion) return;
+    if (!suggestion || isGoogleMapsLoading) return;
+    setIsGoogleMapsLoading(true);
     const { lat, lng } = suggestion.location;
     const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    Linking.openURL(url).catch((err) =>
-      console.error("Failed to open Google Maps:", err)
-    );
-    setIsLoading(false);
+    Linking.openURL(url)
+      .catch(() => displayToast({ message: "Failed to open Google Maps" }))
+      .finally(() => setIsGoogleMapsLoading(false));
   };
 
   const openAppleMaps = () => {
-    setIsLoading(true);
-    if (!suggestion) return;
+    if (!suggestion || isAppleMapsLoading) return;
+    setIsAppleMapsLoading(true);
     const { lat, lng } = suggestion.location;
     const url = `http://maps.apple.com/?ll=${lat},${lng}`;
-    Linking.openURL(url).catch((err) =>
-      console.error("Failed to open Apple Maps:", err)
-    );
-    setIsLoading(false);
+    Linking.openURL(url)
+      .catch(() => displayToast({ message: "Failed to open Apple Maps" }))
+      .finally(() => setIsAppleMapsLoading(false));
   };
 
   return (
@@ -120,7 +123,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                   onPress={openGoogleMaps}
                   variant='white'
                   fullWidth
-                  loading={isLoading}
+                  loading={isGoogleMapsLoading}
                 />
                 {Platform.OS === "ios" && (
                   <TextButton
@@ -128,7 +131,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                     onPress={openAppleMaps}
                     variant='black'
                     fullWidth
-                    loading={isLoading}
+                    loading={isAppleMapsLoading}
                   />
                 )}
               </View>

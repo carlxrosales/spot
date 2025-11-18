@@ -60,11 +60,12 @@ export function IconButton({
       case "sm":
         return "p-2";
       case "lg":
-        return "p-4";
+        return loading ? "p-[20px]" : "p-4";
       default:
         return "p-4";
     }
   };
+
   return (
     <TouchableOpacity
       onPress={onPress}

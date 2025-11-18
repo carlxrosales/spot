@@ -5,9 +5,9 @@ import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
+  getRandomUnusedFeedback,
   isCurrentlyOpen,
   Suggestion,
-  suggestionFeedbacks,
 } from "@/data/suggestions";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Text, View } from "react-native";
@@ -53,10 +53,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     const [countdown, setCountdown] = useState<string>("");
 
     useEffect(() => {
-      const randomIndex = Math.floor(
-        Math.random() * suggestionFeedbacks.length
-      );
-      setSelectedFeedback(suggestionFeedbacks[randomIndex]);
+      setSelectedFeedback(getRandomUnusedFeedback());
 
       translateX.value = 0;
       translateY.value = 0;

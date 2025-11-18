@@ -3,6 +3,7 @@ import { AnimatedBackground } from "@/components/common/animated-background";
 import { FixedView } from "@/components/common/fixed-view";
 import { IconButton } from "@/components/common/icon-button";
 import { SafeView } from "@/components/common/safe-view";
+import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
 import { SwipeModal } from "@/components/swipe/swipe-modal";
 import {
   SwipeableCard,
@@ -11,6 +12,7 @@ import {
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
+import { useLocation } from "@/contexts/location-context";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
@@ -26,6 +28,7 @@ export default function Swipe() {
   const router = useRouter();
   const { answers } = useSurvey();
   const { handleStartOver } = useSurvey();
+  const { location, hasPermission } = useLocation();
   const { isLoading, suggestions, currentIndex, fetchSuggestions, error } =
     useSuggestions();
   const { displayToast } = useToast();
@@ -44,10 +47,10 @@ export default function Swipe() {
       return;
     }
 
-    if (suggestions.length === 0) {
+    if (hasPermission && location && suggestions.length === 0) {
       fetchSuggestions();
     }
-  }, [suggestions.length]);
+  }, [hasPermission, location, suggestions.length, fetchSuggestions]);
 
   useEffect(() => {
     if (error) {
@@ -162,6 +165,7 @@ export default function Swipe() {
         onClose={() => setIsModalVisible(false)}
         suggestion={currentSuggestion}
       />
+      <LocationPermissionModal />
     </FixedView>
   );
 }

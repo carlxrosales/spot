@@ -24,7 +24,7 @@ export function AppleMapsButton({ suggestion }: AppleMapsButtonProps) {
     const url = `http://maps.apple.com/?ll=${lat},${lng}`;
     Linking.openURL(url)
       .catch(() =>
-        displayToast({ message: "Yo! We failed to open Apple Maps." })
+        displayToast({ message: "Yikes! We failed to open Apple Maps." })
       )
       .finally(() => setIsLoading(false));
   };

@@ -1,3 +1,5 @@
+import { UserLocation } from "@/constants/location";
+
 export interface Suggestion {
   id: string;
   name: string;
@@ -6,10 +8,7 @@ export interface Suggestion {
   priceLevel?: number;
   photos: string[];
   types: string[];
-  location: {
-    lat: number;
-    lng: number;
-  };
+  location: UserLocation;
   openingHours?: {
     opensAt?: string;
     closesAt?: string;

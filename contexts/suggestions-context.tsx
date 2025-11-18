@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLocation } from "./location-context";
 import { useSurvey } from "./survey-context";
 
 interface SuggestionsContextType {
@@ -30,16 +31,17 @@ interface SuggestionsProviderProps {
 
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { answers, isComplete } = useSurvey();
+  const { location } = useLocation();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
     []
   );
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(async () => {
-    if (!isComplete || answers.length === 0) {
+    if (!isComplete || answers.length === 0 || !location) {
       return;
     }
 
@@ -49,7 +51,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const dummySuggestions = generateSuggestions(answers);
+      const dummySuggestions = generateSuggestions(answers, location);
       setSuggestions(dummySuggestions);
       setCurrentIndex(0);
     } catch {
@@ -57,7 +59,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [answers, isComplete]);
+  }, [answers, isComplete, location]);
 
   const handleSkip = useCallback(() => {
     setCurrentIndex((prev) => {
@@ -75,6 +77,8 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setSuggestions([]);
       setCurrentIndex(0);
       setSelectedSuggestionIds([]);
+      setIsLoading(true);
+      setError(null);
     }
   }, [answers]);
 

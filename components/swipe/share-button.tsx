@@ -35,7 +35,7 @@ export function ShareButton({ suggestion }: ShareButtonProps) {
         displayToast({ message: "Cancelled" });
       }
     } catch {
-      displayToast({ message: "Yo! We failed to share." });
+      displayToast({ message: "Oof! Share faield" });
     } finally {
       setIsLoading(false);
     }

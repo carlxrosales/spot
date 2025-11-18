@@ -55,7 +55,7 @@ export default function LazyModeScreen() {
       router.back();
     } catch {
       displayToast({
-        message: "Yo! Failed to extract tags. Try again.",
+        message: "Oof! Somethin' went wrong, let's start over",
       });
     } finally {
       setValue("");

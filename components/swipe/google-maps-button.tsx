@@ -23,7 +23,7 @@ export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
     const url = `https://www.google.com/maps/place/?q=place_id:${suggestion.id}`;
     Linking.openURL(url)
       .catch(() =>
-        displayToast({ message: "Yo! We failed to open Google Maps." })
+        displayToast({ message: "Yikes! We failed to open Google Maps." })
       )
       .finally(() => setIsLoading(false));
   };

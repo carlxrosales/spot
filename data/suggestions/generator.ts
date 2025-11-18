@@ -1,7 +1,15 @@
+import { UserLocation } from "@/constants/location";
 import { Suggestion } from "./types";
-import { getClosingTimeForToday, getOpeningTimeForToday } from "./utils";
+import {
+  getClosingTimeForToday,
+  getDistanceInKm,
+  getOpeningTimeForToday,
+} from "./utils";
 
-export const generateSuggestions = (answers: string[]): Suggestion[] => {
+export const generateSuggestions = (
+  answers: string[],
+  userLocation: UserLocation
+): Suggestion[] => {
   const dummyData: Suggestion[] = [
     {
       id: "1",
@@ -26,7 +34,6 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
         ],
       },
       description: "Cozy neighborhood cafe with great pastries and coffee",
-      distanceInKm: 0.5,
     },
     {
       id: "2",
@@ -52,7 +59,6 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
         ],
       },
       description: "Authentic Italian cuisine in a romantic setting",
-      distanceInKm: 1.2,
     },
     {
       id: "3",
@@ -78,7 +84,6 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
         ],
       },
       description: "Fresh, healthy vegetarian and vegan options",
-      distanceInKm: 0.8,
     },
     {
       id: "4",
@@ -104,7 +109,6 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
         ],
       },
       description: "Local craft beers and pub food",
-      distanceInKm: 1.5,
     },
     {
       id: "5",
@@ -130,7 +134,6 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
         ],
       },
       description: "Best breakfast spot in the neighborhood",
-      distanceInKm: 0.9,
     },
   ];
 
@@ -142,6 +145,12 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
       const closesAt = getClosingTimeForToday(
         suggestion.openingHours.weekdayText
       );
+      const distanceInKm = getDistanceInKm(
+        userLocation.lat,
+        userLocation.lng,
+        suggestion.location.lat,
+        suggestion.location.lng
+      );
       return {
         ...suggestion,
         openingHours: {
@@ -149,6 +158,7 @@ export const generateSuggestions = (answers: string[]): Suggestion[] => {
           opensAt,
           closesAt,
         },
+        distanceInKm,
       };
     }
     return suggestion;

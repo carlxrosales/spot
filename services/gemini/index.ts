@@ -35,7 +35,7 @@ async function generateQuestion(
 
   const text = response.text;
   if (!text) {
-    throw new Error("Yo! We failed to generate the next question fr");
+    throw new Error("Yo! Somethin' went wrong, let's start over");
   }
 
   const parsed = JSON.parse(text);
@@ -87,7 +87,7 @@ export async function generateNextQuestion(
     }
   }
 
-  throw new Error(`Yo! We failed to generate the next question fr`);
+  throw new Error("Yo! Somethin' went wrong, let's start over");
 }
 
 export async function generateTags(input: string): Promise<string[]> {
@@ -109,7 +109,7 @@ export async function generateTags(input: string): Promise<string[]> {
 
   const text = response.text;
   if (!text) {
-    throw new Error("Yo! We failed to extract tags fr");
+    throw new Error("Yikes! Tags extraction failed fr");
   }
 
   const parsed = JSON.parse(text);

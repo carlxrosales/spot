@@ -1,5 +1,6 @@
 import { NeonButton } from "@/components/common/neon-button";
 import { Animation } from "@/constants/theme";
+import { useChoiceFeedback } from "@/hooks/use-choice-feedback";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import Animated, {
@@ -29,6 +30,7 @@ export function ChoiceButton({
   onPress,
   isAnimatingOut,
 }: ChoiceButtonProps) {
+  const { onChoicePress } = useChoiceFeedback();
   const scale = useSharedValue<number>(1);
   const opacity = useSharedValue<number>(1);
   const translateY = useSharedValue<number>(0);
@@ -81,9 +83,14 @@ export function ChoiceButton({
     };
   });
 
+  const handlePress = () => {
+    onChoicePress();
+    onPress();
+  };
+
   return (
     <Animated.View style={animatedStyle}>
-      <NeonButton onPress={onPress}>
+      <NeonButton onPress={handlePress}>
         <View className='flex-row items-center gap-3'>
           <Text className='text-3xl'>{choice.emoji}</Text>
           <Text className='text-xl text-left font-semibold text-black'>

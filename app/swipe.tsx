@@ -18,6 +18,7 @@ import { useSuggestions } from "@/contexts/suggestions-context";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
+import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -35,6 +36,7 @@ export default function Swipe() {
   const { isLoading, suggestions, currentIndex, fetchSuggestions, error } =
     useSuggestions();
   const { displayToast } = useToast();
+  const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const swipeModal = useModal();
   const distanceModal = useModal();
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
@@ -73,6 +75,7 @@ export default function Swipe() {
 
   const handleSkip = () => {
     if (isSkipLoading || isProceedLoading) return;
+    onSwipeSkip();
     setIsSkipLoading(true);
     cardRef.current?.swipeLeft();
     setTimeout(() => {
@@ -82,6 +85,7 @@ export default function Swipe() {
 
   const handleProceed = () => {
     if (isSkipLoading || isProceedLoading) return;
+    onSwipeSelect();
     setIsProceedLoading(true);
     cardRef.current?.swipeRight();
     setTimeout(() => {

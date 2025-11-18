@@ -10,6 +10,7 @@ import {
   isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
+import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -45,11 +46,14 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
   ({ suggestion }, ref) => {
     const { selectedSuggestionIds, handleSkip, handleSelect } =
       useSuggestions();
+    const { onSwipeStart, onSwipeThreshold, onSwipeSkip, onSwipeSelect } =
+      useSwipeFeedback();
     const translateX = useSharedValue<number>(0);
     const translateY = useSharedValue<number>(0);
     const scale = useSharedValue<number>(Animation.scale.hidden);
     const opacity = useSharedValue<number>(Animation.opacity.hidden);
     const swipeProgress = useSharedValue<number>(0);
+    const hasTriggeredThreshold = useSharedValue<boolean>(false);
     const [selectedFeedback, setSelectedFeedback] = useState<{
       text: string;
       emoji: string;
@@ -65,6 +69,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       translateX.value = 0;
       translateY.value = 0;
       swipeProgress.value = 0;
+      hasTriggeredThreshold.value = false;
 
       scale.value = Animation.scale.hidden;
       opacity.value = Animation.opacity.hidden;
@@ -107,6 +112,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     }, [suggestion.openingHours?.opensAt, suggestion.openingHours?.closesAt]);
 
     const performSwipeLeft = () => {
+      scheduleOnRN(onSwipeSkip);
       setSelectedFeedback(skipFeedback);
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
@@ -123,6 +129,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     };
 
     const performSwipeRight = () => {
+      scheduleOnRN(onSwipeSelect);
       setSelectedFeedback(selectFeedback);
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
@@ -167,25 +174,37 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
         -Animation.swipe.activeOffset,
         Animation.swipe.activeOffset,
       ])
+      .onBegin(() => {
+        scheduleOnRN(onSwipeStart);
+        hasTriggeredThreshold.value = false;
+      })
       .onUpdate((event) => {
         translateX.value = event.translationX;
         translateY.value =
           event.translationY * Animation.swipe.translateYMultiplier;
 
+        const absTranslationX = Math.abs(event.translationX);
+        const progress = Math.min(absTranslationX / SWIPE_THRESHOLD, 1);
+
         if (event.translationX < 0) {
           scheduleOnRN(setSelectedFeedback, skipFeedback);
-          swipeProgress.value = Math.min(
-            Math.abs(event.translationX) / SWIPE_THRESHOLD,
-            1
-          );
+          swipeProgress.value = progress;
+
+          if (progress >= 1 && !hasTriggeredThreshold.value) {
+            hasTriggeredThreshold.value = true;
+            scheduleOnRN(onSwipeThreshold);
+          }
         } else if (event.translationX > 0) {
           scheduleOnRN(setSelectedFeedback, selectFeedback);
-          swipeProgress.value = Math.min(
-            event.translationX / SWIPE_THRESHOLD,
-            1
-          );
+          swipeProgress.value = progress;
+
+          if (progress >= 1 && !hasTriggeredThreshold.value) {
+            hasTriggeredThreshold.value = true;
+            scheduleOnRN(onSwipeThreshold);
+          }
         } else {
           swipeProgress.value = 0;
+          hasTriggeredThreshold.value = false;
         }
       })
       .onEnd((event) => {
@@ -200,6 +219,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
           translateX.value = withSpring(0, Animation.spring);
           translateY.value = withSpring(0, Animation.spring);
           swipeProgress.value = withSpring(0, Animation.spring);
+          hasTriggeredThreshold.value = false;
           scheduleOnRN(setSelectedFeedback, null);
         }
       });

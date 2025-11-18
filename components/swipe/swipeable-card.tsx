@@ -19,6 +19,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { SwipeFeedback } from "./swipe-feedback";
 
 const copy = {
@@ -162,13 +163,13 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
           event.translationY * Animation.swipe.translateYMultiplier;
 
         if (event.translationX < 0) {
-          setSelectedFeedback(skipFeedback);
+          scheduleOnRN(setSelectedFeedback, skipFeedback);
           swipeProgress.value = Math.min(
             Math.abs(event.translationX) / SWIPE_THRESHOLD,
             1
           );
         } else if (event.translationX > 0) {
-          setSelectedFeedback(proceedFeedback);
+          scheduleOnRN(setSelectedFeedback, proceedFeedback);
           swipeProgress.value = Math.min(
             event.translationX / SWIPE_THRESHOLD,
             1
@@ -182,14 +183,14 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
         const shouldSwipeRight = event.translationX > SWIPE_THRESHOLD;
 
         if (shouldSwipeLeft) {
-          performSwipeLeft();
+          scheduleOnRN(performSwipeLeft);
         } else if (shouldSwipeRight) {
-          performSwipeRight();
+          scheduleOnRN(performSwipeRight);
         } else {
           translateX.value = withSpring(0, Animation.spring);
           translateY.value = withSpring(0, Animation.spring);
           swipeProgress.value = withSpring(0, Animation.spring);
-          setSelectedFeedback(null);
+          scheduleOnRN(setSelectedFeedback, null);
         }
       });
 

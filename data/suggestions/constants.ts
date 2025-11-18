@@ -1,5 +1,11 @@
 import { SuggestionFeedback } from "./types";
 
+export const DEFAULT_MAX_DISTANCE_IN_KM: number = 30;
+
+export const DISTANCE_OPTIONS = [
+  5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250,
+] as const;
+
 export const suggestionSkipFeedbacks: SuggestionFeedback[] = [
   { text: "nah", emoji: "😒" },
   { text: "mid", emoji: "😐" },

@@ -1,4 +1,5 @@
-import { UserLocation } from "@/constants/location";
+import { UserLocation } from "@/data/location";
+import { DEFAULT_MAX_DISTANCE_IN_KM } from "./constants";
 import { Suggestion } from "./types";
 import {
   getClosingTimeForToday,
@@ -8,7 +9,8 @@ import {
 
 export const generateSuggestions = (
   answers: string[],
-  userLocation: UserLocation
+  userLocation: UserLocation,
+  maxDistanceInKm: number = DEFAULT_MAX_DISTANCE_IN_KM
 ): Suggestion[] => {
   const dummyData: Suggestion[] = [
     {
@@ -161,6 +163,15 @@ export const generateSuggestions = (
         distanceInKm,
       };
     }
-    return suggestion;
+    const distanceInKm = getDistanceInKm(
+      userLocation.lat,
+      userLocation.lng,
+      suggestion.location.lat,
+      suggestion.location.lng
+    );
+    return {
+      ...suggestion,
+      distanceInKm,
+    };
   });
 };

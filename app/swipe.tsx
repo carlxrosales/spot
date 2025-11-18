@@ -3,6 +3,7 @@ import { AnimatedBackground } from "@/components/common/animated-background";
 import { FixedView } from "@/components/common/fixed-view";
 import { IconButton } from "@/components/common/icon-button";
 import { SafeView } from "@/components/common/safe-view";
+import { DistanceFilterModal } from "@/components/swipe/distance-filter-modal";
 import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
 import { SwipeModal } from "@/components/swipe/swipe-modal";
 import {
@@ -16,12 +17,14 @@ import { useLocation } from "@/contexts/location-context";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
+import { useModal } from "@/hooks/use-modal";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
 const copy = {
   findingSpots: "Finding yo' spots...",
+  noSuggestions: "Oof! No spots found",
 };
 
 export default function Swipe() {
@@ -32,7 +35,8 @@ export default function Swipe() {
   const { isLoading, suggestions, currentIndex, fetchSuggestions, error } =
     useSuggestions();
   const { displayToast } = useToast();
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const swipeModal = useModal();
+  const distanceModal = useModal();
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
   const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
   const cardRef = useRef<SwipeableCardRef>(null);
@@ -85,10 +89,6 @@ export default function Swipe() {
     }, Animation.duration.slow);
   };
 
-  const handleViewMore = () => {
-    setIsModalVisible(true);
-  };
-
   const handleBack = () => {
     handleStartOver();
     router.navigate(Routes.survey);
@@ -117,15 +117,20 @@ export default function Swipe() {
           </>
         ) : (
           <View className='h-full w-full flex-1 flex-col'>
-            {currentSuggestion && (
-              <>
-                <View className='flex-row justify-start items-center gap-6 px-4 pt-4'>
-                  <IconButton
-                    onPress={handleBack}
-                    size={ButtonSize.sm}
-                    icon='arrow-back'
-                  />
-                </View>
+            <>
+              <View className='flex-row justify-between items-center gap-6 px-4 pt-4'>
+                <IconButton
+                  onPress={handleBack}
+                  size={ButtonSize.sm}
+                  icon='arrow-back'
+                />
+                <IconButton
+                  onPress={distanceModal.handleOpen}
+                  size={ButtonSize.sm}
+                  icon='filter'
+                />
+              </View>
+              {currentSuggestion ? (
                 <View className='flex-1'>
                   <SwipeableCard
                     ref={cardRef}
@@ -133,37 +138,47 @@ export default function Swipe() {
                     suggestion={currentSuggestion}
                   />
                 </View>
-                <View className='flex-row justify-center items-center gap-6 px-8 pt-4 pb-8'>
-                  <IconButton
-                    onPress={handleSkip}
-                    icon='close'
-                    variant={ButtonVariant.pink}
-                    loading={isSkipLoading}
-                    disabled={isSkipLoading || isProceedLoading}
-                  />
-                  <IconButton
-                    onPress={handleViewMore}
-                    icon='eye'
-                    variant={ButtonVariant.white}
-                    disabled={isSkipLoading || isProceedLoading}
-                  />
-                  <IconButton
-                    onPress={handleProceed}
-                    icon='checkmark'
-                    variant={ButtonVariant.black}
-                    loading={isProceedLoading}
-                    disabled={isSkipLoading || isProceedLoading}
-                  />
+              ) : (
+                <View className=' flex-1 items-center justify-center'>
+                  <Text className='text-5xl text-center font-groen font-semibold text-black'>
+                    {copy.noSuggestions}
+                  </Text>
                 </View>
-              </>
-            )}
+              )}
+              <View className='flex-row justify-center items-center gap-6 px-8 pt-4 pb-8'>
+                <IconButton
+                  onPress={handleSkip}
+                  icon='close'
+                  variant={ButtonVariant.pink}
+                  loading={isSkipLoading}
+                  disabled={isSkipLoading || isProceedLoading}
+                />
+                <IconButton
+                  onPress={swipeModal.handleOpen}
+                  icon='eye'
+                  variant={ButtonVariant.white}
+                  disabled={isSkipLoading || isProceedLoading}
+                />
+                <IconButton
+                  onPress={handleProceed}
+                  icon='checkmark'
+                  variant={ButtonVariant.black}
+                  loading={isProceedLoading}
+                  disabled={isSkipLoading || isProceedLoading}
+                />
+              </View>
+            </>
           </View>
         )}
       </SafeView>
       <SwipeModal
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        visible={swipeModal.isVisible}
+        onClose={swipeModal.handleClose}
         suggestion={currentSuggestion}
+      />
+      <DistanceFilterModal
+        visible={distanceModal.isVisible}
+        onClose={distanceModal.handleClose}
       />
       <LocationPermissionModal />
     </FixedView>

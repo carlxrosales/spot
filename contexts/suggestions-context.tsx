@@ -1,4 +1,5 @@
 import { generateSuggestions, Suggestion } from "@/data/suggestions";
+import { DEFAULT_MAX_DISTANCE_IN_KM } from "@/data/suggestions/constants";
 import {
   createContext,
   ReactNode,
@@ -15,10 +16,12 @@ interface SuggestionsContextType {
   suggestions: Suggestion[];
   selectedSuggestionIds: string[];
   currentIndex: number;
+  maxDistanceInKm: number;
   fetchSuggestions: () => void;
   error: string | null;
   handleSkip: () => void;
   handleSelect: (suggestionId: string) => void;
+  handleFilterByDistance: (distanceInKm: number) => void;
 }
 
 const SuggestionsContext = createContext<SuggestionsContextType | undefined>(
@@ -39,6 +42,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [maxDistanceInKm, setMaxDistanceInKm] = useState<number>(
+    DEFAULT_MAX_DISTANCE_IN_KM
+  );
 
   const fetchSuggestions = useCallback(async () => {
     if (!isComplete || answers.length === 0 || !location) {
@@ -51,7 +57,11 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const dummySuggestions = generateSuggestions(answers, location);
+      const dummySuggestions = generateSuggestions(
+        answers,
+        location,
+        maxDistanceInKm
+      );
       setSuggestions(dummySuggestions);
       setCurrentIndex(0);
     } catch {
@@ -59,7 +69,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [answers, isComplete, location]);
+  }, [answers, isComplete, location, maxDistanceInKm]);
 
   const handleSkip = useCallback(() => {
     setCurrentIndex((prev) => {
@@ -71,6 +81,14 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const handleSelect = useCallback((suggestionId: string) => {
     setSelectedSuggestionIds((prev) => [...prev, suggestionId]);
   }, []);
+
+  const handleFilterByDistance = useCallback(
+    (distanceInKm: number) => {
+      setMaxDistanceInKm(distanceInKm);
+      fetchSuggestions();
+    },
+    [fetchSuggestions]
+  );
 
   useEffect(() => {
     if (answers.length === 0) {
@@ -89,10 +107,12 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         suggestions,
         selectedSuggestionIds,
         currentIndex,
+        maxDistanceInKm,
         fetchSuggestions,
         error,
         handleSkip,
         handleSelect,
+        handleFilterByDistance,
       }}
     >
       {children}

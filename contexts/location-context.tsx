@@ -1,4 +1,4 @@
-import { UserLocation } from "@/constants/location";
+import { UserLocation } from "@/data/location";
 import * as Location from "expo-location";
 import {
   createContext,

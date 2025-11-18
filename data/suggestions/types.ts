@@ -1,4 +1,4 @@
-import { UserLocation } from "@/constants/location";
+import { UserLocation } from "@/data/location";
 
 export interface Suggestion {
   id: string;

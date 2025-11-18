@@ -70,7 +70,7 @@ export function TextButton({
       disabled={disabled || loading}
       className={`${
         fullWidth ? "w-full" : ""
-      } px-6 py-4 rounded-[24px] items-center justify-center ${getBackgroundColor()} ${
+      } px-6 py-4 rounded-[28px] items-center justify-center ${getBackgroundColor()} ${
         disabled || loading ? "opacity-50" : ""
       }`}
       style={Shadows.light}

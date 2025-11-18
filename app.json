@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.carlrosales.spot"
+      "bundleIdentifier": "com.carlrosales.spot",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to find the best spots near you."
+      }
     },
     "web": {
       "output": "static",

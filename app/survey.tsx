@@ -132,47 +132,44 @@ export default function Survey() {
           )}
         </View>
         {!isLoading && !isComplete && (
-          <AbsoluteView
-            bottom={32}
-            left={answers.length > 0 ? 0 : 32}
-            right={32}
-            withSafeAreaInsets
-          >
-            {answers.length > 0 ? (
-              <View className='flex-row items-center justify-end gap-4'>
-                <ActionButton
-                  label={copy.showSpots}
-                  variant={ButtonVariant.black}
-                  onPress={handleShowSpots}
-                  index={0}
-                  isAnimatingOut={isLoading && !isComplete}
-                />
-                <ActionButton
-                  icon='reload'
-                  variant={ButtonVariant.white}
-                  onPress={handleStartOver}
-                  index={1}
-                  isAnimatingOut={isLoading && !isComplete}
-                />
-              </View>
-            ) : (
-              <View className='w-full flex-1 flex-col items-center justify-center gap-4'>
-                <ActionButton
-                  label={copy.feelingSponty}
-                  variant={ButtonVariant.black}
-                  onPress={handleFeelingSponty}
-                  index={0}
-                  isAnimatingOut={isLoading && !isComplete}
-                />
-                <ActionButton
-                  label={copy.lazyMode}
-                  variant={ButtonVariant.white}
-                  onPress={handleLazyModePress}
-                  index={1}
-                  isAnimatingOut={isLoading && !isComplete}
-                />
-              </View>
-            )}
+          <AbsoluteView bottom={32} left={32} right={32} withSafeAreaInsets>
+            <View className='w-full flex-1 flex-row items-center justify-end gap-4'>
+              {answers.length > 0 ? (
+                <>
+                  <ActionButton
+                    label={copy.showSpots}
+                    variant={ButtonVariant.black}
+                    onPress={handleShowSpots}
+                    index={0}
+                    isAnimatingOut={isLoading && !isComplete}
+                  />
+                  <ActionButton
+                    icon='reload'
+                    variant={ButtonVariant.white}
+                    onPress={handleStartOver}
+                    index={1}
+                    isAnimatingOut={isLoading && !isComplete}
+                  />
+                </>
+              ) : (
+                <>
+                  <ActionButton
+                    label={copy.feelingSponty}
+                    variant={ButtonVariant.black}
+                    onPress={handleFeelingSponty}
+                    index={0}
+                    isAnimatingOut={isLoading && !isComplete}
+                  />
+                  <ActionButton
+                    label={copy.lazyMode}
+                    variant={ButtonVariant.white}
+                    onPress={handleLazyModePress}
+                    index={1}
+                    isAnimatingOut={isLoading && !isComplete}
+                  />
+                </>
+              )}
+            </View>
           </AbsoluteView>
         )}
       </FixedView>

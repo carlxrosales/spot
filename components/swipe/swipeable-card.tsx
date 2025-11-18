@@ -5,7 +5,8 @@ import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
-  getRandomUnusedFeedback,
+  getRandomUnusedProceedFeedback,
+  getRandomUnusedSkipFeedback,
   isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
@@ -51,9 +52,11 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     } | null>(null);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
     const [countdown, setCountdown] = useState<string>("");
+    const [skipFeedback] = useState(() => getRandomUnusedSkipFeedback());
+    const [proceedFeedback] = useState(() => getRandomUnusedProceedFeedback());
 
     useEffect(() => {
-      setSelectedFeedback(getRandomUnusedFeedback());
+      setSelectedFeedback(null);
 
       translateX.value = 0;
       translateY.value = 0;
@@ -95,6 +98,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     }, [suggestion.openingHours?.opensAt, suggestion.openingHours?.closesAt]);
 
     const performSwipeLeft = () => {
+      setSelectedFeedback(skipFeedback);
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
         -SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
@@ -110,14 +114,13 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     };
 
     const performSwipeRight = () => {
+      setSelectedFeedback(proceedFeedback);
+      swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
         SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
         { duration: Animation.duration.normal }
       );
       opacity.value = withTiming(Animation.opacity.hidden, {
-        duration: Animation.duration.normal,
-      });
-      swipeProgress.value = withTiming(0, {
         duration: Animation.duration.normal,
       });
 
@@ -159,8 +162,15 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
           event.translationY * Animation.swipe.translateYMultiplier;
 
         if (event.translationX < 0) {
+          setSelectedFeedback(skipFeedback);
           swipeProgress.value = Math.min(
             Math.abs(event.translationX) / SWIPE_THRESHOLD,
+            1
+          );
+        } else if (event.translationX > 0) {
+          setSelectedFeedback(proceedFeedback);
+          swipeProgress.value = Math.min(
+            event.translationX / SWIPE_THRESHOLD,
             1
           );
         } else {
@@ -179,6 +189,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
           translateX.value = withSpring(0, Animation.spring);
           translateY.value = withSpring(0, Animation.spring);
           swipeProgress.value = withSpring(0, Animation.spring);
+          setSelectedFeedback(null);
         }
       });
 

@@ -12,11 +12,12 @@ import { useSurvey } from "./survey-context";
 interface SuggestionsContextType {
   isLoading: boolean;
   suggestions: Suggestion[];
+  selectedSuggestionIds: string[];
   currentIndex: number;
   fetchSuggestions: () => void;
   error: string | null;
   handleSkip: () => void;
-  handleProceed: () => void;
+  handleSelect: (suggestionId: string) => void;
 }
 
 const SuggestionsContext = createContext<SuggestionsContextType | undefined>(
@@ -30,6 +31,9 @@ interface SuggestionsProviderProps {
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { answers, isComplete } = useSurvey();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
+    []
+  );
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,17 +66,15 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     });
   }, [suggestions.length]);
 
-  const handleProceed = useCallback(() => {
-    setCurrentIndex((prev) => {
-      const next = prev + 1;
-      return next >= suggestions.length ? 0 : next;
-    });
-  }, [suggestions.length]);
+  const handleSelect = useCallback((suggestionId: string) => {
+    setSelectedSuggestionIds((prev) => [...prev, suggestionId]);
+  }, []);
 
   useEffect(() => {
     if (answers.length === 0) {
       setSuggestions([]);
       setCurrentIndex(0);
+      setSelectedSuggestionIds([]);
     }
   }, [answers]);
 
@@ -81,11 +83,12 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       value={{
         isLoading,
         suggestions,
+        selectedSuggestionIds,
         currentIndex,
         fetchSuggestions,
         error,
         handleSkip,
-        handleProceed,
+        handleSelect,
       }}
     >
       {children}

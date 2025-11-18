@@ -1,11 +1,11 @@
 import {
-  suggestionProceedFeedbacks,
+  suggestionSelectFeedbacks,
   suggestionSkipFeedbacks,
 } from "./constants";
 import { SuggestionFeedback } from "./types";
 
-let usedSkipFeedbackIndices = new Set<number>();
-let usedProceedFeedbackIndices = new Set<number>();
+const usedSkipFeedbackIndices = new Set<number>();
+const usedSelectFeedbackIndices = new Set<number>();
 
 export const getRandomUnusedSkipFeedback = (): SuggestionFeedback => {
   if (usedSkipFeedbackIndices.size >= suggestionSkipFeedbacks.length) {
@@ -24,21 +24,21 @@ export const getRandomUnusedSkipFeedback = (): SuggestionFeedback => {
   return suggestionSkipFeedbacks[randomIndex];
 };
 
-export const getRandomUnusedProceedFeedback = (): SuggestionFeedback => {
-  if (usedProceedFeedbackIndices.size >= suggestionProceedFeedbacks.length) {
-    usedProceedFeedbackIndices.clear();
+export const getRandomUnusedSelectFeedback = (): SuggestionFeedback => {
+  if (usedSelectFeedbackIndices.size >= suggestionSelectFeedbacks.length) {
+    usedSelectFeedbackIndices.clear();
   }
 
-  const availableIndices = suggestionProceedFeedbacks
+  const availableIndices = suggestionSelectFeedbacks
     .map((_, index) => index)
-    .filter((index) => !usedProceedFeedbackIndices.has(index));
+    .filter((index) => !usedSelectFeedbackIndices.has(index));
 
   const randomIndex =
     availableIndices[Math.floor(Math.random() * availableIndices.length)];
 
-  usedProceedFeedbackIndices.add(randomIndex);
+  usedSelectFeedbackIndices.add(randomIndex);
 
-  return suggestionProceedFeedbacks[randomIndex];
+  return suggestionSelectFeedbacks[randomIndex];
 };
 
 const getOpeningTimeForToday = (weekdayText: string[]): string => {

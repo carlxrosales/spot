@@ -62,7 +62,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         );
 
         if (!nextQuestion) {
-          setError("Yo! Somethin' went wrong");
+          setError("Yo! Somethin' went wrong.");
           return;
         }
 

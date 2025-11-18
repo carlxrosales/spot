@@ -38,7 +38,7 @@ export const suggestionSkipFeedbacks: SuggestionFeedback[] = [
   { text: "negats", emoji: "🙅‍♀️" },
 ];
 
-export const suggestionProceedFeedbacks: SuggestionFeedback[] = [
+export const suggestionSelectFeedbacks: SuggestionFeedback[] = [
   { text: "bet", emoji: "🤝" },
   { text: "fire", emoji: "🔥" },
   { text: "let's go", emoji: "🚀" },
@@ -63,7 +63,6 @@ export const suggestionProceedFeedbacks: SuggestionFeedback[] = [
   { text: "slaps", emoji: "👏" },
   { text: "banger", emoji: "🎸" },
   { text: "no cap", emoji: "🧢" },
-  { text: "facts", emoji: "📝" },
   { text: "fr", emoji: "💯" },
   { text: "say less", emoji: "🤐" },
   { text: "period", emoji: "🔴" },

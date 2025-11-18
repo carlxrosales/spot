@@ -32,6 +32,8 @@ export function TextButton({
         return "bg-neonPink";
       case "black":
         return "bg-black";
+      case "green":
+        return "bg-neonGreen";
       case "white":
       default:
         return "bg-white";
@@ -44,6 +46,7 @@ export function TextButton({
       case "black":
         return Colors.white;
       case "white":
+      case "green":
       default:
         return Colors.black;
     }

@@ -1,15 +1,12 @@
 import { IconButton } from "@/components/common/icon-button";
-import { TextButton } from "@/components/common/text-button";
-import { ButtonSize, ButtonVariant } from "@/constants/buttons";
+import { ButtonSize } from "@/constants/buttons";
 import { Shadows } from "@/constants/theme";
-import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
-import { useState } from "react";
-import { Linking, Modal, Platform, ScrollView, Text, View } from "react-native";
+import { Modal, ScrollView, Text, View } from "react-native";
+import { GetDirectionsButton } from "./get-directions-button";
+import { GoogleMapsButton } from "./google-maps-button";
 
 const copy = {
-  viewGoogleMaps: "View on Google Maps",
-  viewAppleMaps: "View on Apple Maps",
   kmAway: "km away",
   opensAt: "Opens at",
   closesAt: "Closes at",
@@ -22,31 +19,6 @@ interface SwipeModalProps {
 }
 
 export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
-  const { displayToast } = useToast();
-  const [isGoogleMapsLoading, setIsGoogleMapsLoading] =
-    useState<boolean>(false);
-  const [isAppleMapsLoading, setIsAppleMapsLoading] = useState<boolean>(false);
-
-  const openGoogleMaps = async () => {
-    if (!suggestion || isGoogleMapsLoading) return;
-    setIsGoogleMapsLoading(true);
-    const { lat, lng } = suggestion.location;
-    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    Linking.openURL(url)
-      .catch(() => displayToast({ message: "Failed to open Google Maps" }))
-      .finally(() => setIsGoogleMapsLoading(false));
-  };
-
-  const openAppleMaps = () => {
-    if (!suggestion || isAppleMapsLoading) return;
-    setIsAppleMapsLoading(true);
-    const { lat, lng } = suggestion.location;
-    const url = `http://maps.apple.com/?ll=${lat},${lng}`;
-    Linking.openURL(url)
-      .catch(() => displayToast({ message: "Failed to open Apple Maps" }))
-      .finally(() => setIsAppleMapsLoading(false));
-  };
-
   return (
     <Modal
       visible={visible}
@@ -75,8 +47,8 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
               {suggestion.types.length > 0 && (
                 <View className='flex-row flex-wrap gap-2'>
                   {suggestion.types
-                    .filter((type) => type !== "establishment")
-                    .map((type, idx) => (
+                    .filter((type: string) => type !== "establishment")
+                    .map((type: string, idx: number) => (
                       <View
                         key={idx}
                         className='bg-black rounded-full px-4 py-2'
@@ -119,22 +91,8 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 )}
 
               <View className='gap-4 mt-2'>
-                <TextButton
-                  label={copy.viewGoogleMaps}
-                  onPress={openGoogleMaps}
-                  variant={ButtonVariant.white}
-                  fullWidth
-                  loading={isGoogleMapsLoading}
-                />
-                {Platform.OS === "ios" && (
-                  <TextButton
-                    label={copy.viewAppleMaps}
-                    onPress={openAppleMaps}
-                    variant={ButtonVariant.black}
-                    fullWidth
-                    loading={isAppleMapsLoading}
-                  />
-                )}
+                <GetDirectionsButton suggestion={suggestion} />
+                <GoogleMapsButton suggestion={suggestion} />
               </View>
             </View>
           )}

@@ -5,7 +5,7 @@ import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
-  getRandomUnusedProceedFeedback,
+  getRandomUnusedSelectFeedback,
   getRandomUnusedSkipFeedback,
   isCurrentlyOpen,
   Suggestion,
@@ -20,6 +20,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
+import { GetDirectionsButton } from "./get-directions-button";
+import { ShareButton } from "./share-button";
 import { SwipeFeedback } from "./swipe-feedback";
 
 const copy = {
@@ -41,7 +43,8 @@ export interface SwipeableCardRef {
 
 export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
   ({ suggestion }, ref) => {
-    const { handleSkip, handleProceed } = useSuggestions();
+    const { selectedSuggestionIds, handleSkip, handleSelect } =
+      useSuggestions();
     const translateX = useSharedValue<number>(0);
     const translateY = useSharedValue<number>(0);
     const scale = useSharedValue<number>(Animation.scale.hidden);
@@ -54,15 +57,14 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
     const [countdown, setCountdown] = useState<string>("");
     const [skipFeedback] = useState(() => getRandomUnusedSkipFeedback());
-    const [proceedFeedback] = useState(() => getRandomUnusedProceedFeedback());
+    const [selectFeedback] = useState(() => getRandomUnusedSelectFeedback());
 
-    useEffect(() => {
-      setSelectedFeedback(null);
+    const isSelected = selectedSuggestionIds.includes(suggestion.id);
 
+    const resetCard = () => {
       translateX.value = 0;
       translateY.value = 0;
       swipeProgress.value = 0;
-      setCurrentPhotoIndex(0);
 
       scale.value = Animation.scale.hidden;
       opacity.value = Animation.opacity.hidden;
@@ -71,6 +73,12 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       opacity.value = withTiming(Animation.opacity.visible, {
         duration: Animation.duration.normal,
       });
+    };
+
+    useEffect(() => {
+      resetCard();
+      setSelectedFeedback(null);
+      setCurrentPhotoIndex(0);
     }, [suggestion.id]);
 
     useEffect(() => {
@@ -115,7 +123,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     };
 
     const performSwipeRight = () => {
-      setSelectedFeedback(proceedFeedback);
+      setSelectedFeedback(selectFeedback);
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
         SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
@@ -126,7 +134,9 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       });
 
       setTimeout(() => {
-        handleProceed();
+        handleSelect(suggestion.id);
+        resetCard();
+        setSelectedFeedback(null);
       }, Animation.duration.slow);
     };
 
@@ -169,7 +179,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
             1
           );
         } else if (event.translationX > 0) {
-          scheduleOnRN(setSelectedFeedback, proceedFeedback);
+          scheduleOnRN(setSelectedFeedback, selectFeedback);
           swipeProgress.value = Math.min(
             event.translationX / SWIPE_THRESHOLD,
             1
@@ -210,58 +220,121 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
         <Animated.View style={cardStyle} pointerEvents='auto'>
           <GestureDetector gesture={panGesture}>
             <View className='flex-1 bg-white rounded-3xl overflow-hidden m-4 shadow-xl'>
-              {suggestion.photos.length > 0 && (
-                <>
+              {isSelected && (
+                <View
+                  className='absolute top-6 right-[-52px] z-50'
+                  style={{ transform: [{ rotate: "45deg" }] }}
+                >
+                  <View className='bg-neonPink px-20 py-3'>
+                    <Text className='text-white font-bold text-md'>SAVED</Text>
+                  </View>
+                </View>
+              )}
+              <>
+                {suggestion.photos.length > 0 && (
                   <ImageCarousel
-                    images={suggestion.photos}
+                    images={
+                      isSelected ? [suggestion.photos[0]] : suggestion.photos
+                    }
                     currentIndex={currentPhotoIndex}
                     onIndexChange={setCurrentPhotoIndex}
                   />
-                  <View
-                    className='absolute bottom-0 left-0 right-0 p-6 gap-6'
-                    style={{
-                      backgroundColor: Overlay.backgroundColor,
-                    }}
-                  >
-                    <Text className='text-5xl font-bold font-groen text-white'>
-                      {suggestion.name}
-                    </Text>
-                    <View className='flex-row items-center justify-between'>
-                      <Text className='text-xl text-white font-semibold text-left'>
-                        ⭐ {suggestion.rating}
-                      </Text>
-                      {suggestion.distanceInKm && (
-                        <Text className='text-xl text-white opacity-90 text-right'>
-                          {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                )}
+                <View
+                  className={`absolute bottom-0 left-0 right-0 p-6 gap-6 ${
+                    isSelected ? "flex-1 w-full h-full" : ""
+                  }`}
+                  style={{
+                    backgroundColor: Overlay.backgroundColor,
+                  }}
+                >
+                  {isSelected ? (
+                    <View className='flex-1 justify-center h-full'>
+                      <View className='py-4 gap-4'>
+                        <Text className='text-5xl font-bold font-groen text-white'>
+                          {suggestion.name}
                         </Text>
-                      )}
-                    </View>
-                    {(suggestion.openingHours?.weekdayText ||
-                      suggestion.openingHours?.closesAt ||
-                      suggestion.openingHours?.opensAt) && (
-                      <View className='flex-row items-center justify-between'>
-                        {suggestion.openingHours?.weekdayText && (
-                          <Text className='text-lg text-white opacity-90 text-left'>
-                            {getOpeningHoursForToday(
-                              suggestion.openingHours.weekdayText
-                            )}
+                        <View className='flex-row items-center justify-between'>
+                          <Text className='text-xl text-white font-semibold text-left'>
+                            ⭐ {suggestion.rating}
                           </Text>
+                          {suggestion.distanceInKm && (
+                            <Text className='text-xl text-white opacity-90 text-right'>
+                              {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                            </Text>
+                          )}
+                        </View>
+                        {(suggestion.openingHours?.weekdayText ||
+                          suggestion.openingHours?.closesAt ||
+                          suggestion.openingHours?.opensAt) && (
+                          <View className='flex-row items-center justify-between'>
+                            {suggestion.openingHours?.weekdayText && (
+                              <Text className='text-lg text-white opacity-90 text-left'>
+                                {getOpeningHoursForToday(
+                                  suggestion.openingHours.weekdayText
+                                )}
+                              </Text>
+                            )}
+                            {countdown && (
+                              <Text className='text-lg text-white opacity-90 text-right'>
+                                {isCurrentlyOpen(
+                                  suggestion.openingHours?.opensAt,
+                                  suggestion.openingHours?.closesAt
+                                )
+                                  ? `${copy.closingIn} ${countdown}`
+                                  : `${copy.openingIn} ${countdown}`}
+                              </Text>
+                            )}
+                          </View>
                         )}
-                        {countdown && (
-                          <Text className='text-lg text-white opacity-90 text-right'>
-                            {isCurrentlyOpen(
-                              suggestion.openingHours?.opensAt,
-                              suggestion.openingHours?.closesAt
-                            )
-                              ? `${copy.closingIn} ${countdown}`
-                              : `${copy.openingIn} ${countdown}`}
+                        <View className='py-4 gap-3'>
+                          <GetDirectionsButton suggestion={suggestion} />
+                          <ShareButton suggestion={suggestion} />
+                        </View>
+                      </View>
+                    </View>
+                  ) : (
+                    <>
+                      <Text className='text-5xl font-bold font-groen text-white'>
+                        {suggestion.name}
+                      </Text>
+                      <View className='flex-row items-center justify-between'>
+                        <Text className='text-xl text-white font-semibold text-left'>
+                          ⭐ {suggestion.rating}
+                        </Text>
+                        {suggestion.distanceInKm && (
+                          <Text className='text-xl text-white opacity-90 text-right'>
+                            {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                           </Text>
                         )}
                       </View>
-                    )}
-                  </View>
-                </>
-              )}
+                      {(suggestion.openingHours?.weekdayText ||
+                        suggestion.openingHours?.closesAt ||
+                        suggestion.openingHours?.opensAt) && (
+                        <View className='flex-row items-center justify-between'>
+                          {suggestion.openingHours?.weekdayText && (
+                            <Text className='text-lg text-white opacity-90 text-left'>
+                              {getOpeningHoursForToday(
+                                suggestion.openingHours.weekdayText
+                              )}
+                            </Text>
+                          )}
+                          {countdown && (
+                            <Text className='text-lg text-white opacity-90 text-right'>
+                              {isCurrentlyOpen(
+                                suggestion.openingHours?.opensAt,
+                                suggestion.openingHours?.closesAt
+                              )
+                                ? `${copy.closingIn} ${countdown}`
+                                : `${copy.openingIn} ${countdown}`}
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                    </>
+                  )}
+                </View>
+              </>
             </View>
           </GestureDetector>
         </Animated.View>

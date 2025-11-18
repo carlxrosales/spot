@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 
 export const Button = {
-  variants: ["pink", "white", "black"] as const,
+  variants: ["pink", "white", "black", "green"] as const,
   sizes: ["sm", "md", "lg"] as const,
 } as const;
 
@@ -9,6 +9,7 @@ export const ButtonVariant = {
   pink: Button.variants[0],
   white: Button.variants[1],
   black: Button.variants[2],
+  green: Button.variants[3],
 } as const;
 
 export const ButtonSize = {

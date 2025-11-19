@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, TouchableOpacity } from "react-native";
 
 interface IconButtonProps {
-  onPress: () => void;
+  onPress?: () => void | Promise<void> | null | undefined;
   icon: ButtonIcon;
   variant?: ButtonVariantType;
   size?: ButtonSizeType;

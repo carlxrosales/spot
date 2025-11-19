@@ -8,7 +8,7 @@ import { Colors, Shadows } from "@/constants/theme";
 import { Text, TouchableOpacity } from "react-native";
 
 interface TextButtonProps {
-  onPress?: () => void | undefined;
+  onPress?: () => void | Promise<void> | null | undefined;
   label: string;
   variant?: ButtonVariantType;
   size?: ButtonSizeType;

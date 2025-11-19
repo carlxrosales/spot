@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface NeonButtonProps {
-  onPress: () => void;
+  onPress?: () => void | Promise<void> | null | undefined;
   children: ReactNode;
   style?: object;
 }

@@ -6,8 +6,22 @@ import {
 import * as Haptics from "expo-haptics";
 import { useEffect, useRef } from "react";
 
+/**
+ * Type definition for haptic feedback styles.
+ */
 type HapticType = "light" | "medium" | "heavy" | "success" | "warning";
 
+/**
+ * Custom hook that provides haptic and audio feedback for swipe interactions.
+ * Loads and manages audio playback for different swipe actions (skip, select, threshold)
+ * with contextually appropriate haptic feedback.
+ *
+ * @returns Object containing callback functions for swipe events:
+ *   - `onSwipeStart` - Triggered when swipe gesture begins
+ *   - `onSwipeThreshold` - Triggered when swipe reaches threshold distance
+ *   - `onSwipeSkip` - Triggered when user swipes to skip a suggestion
+ *   - `onSwipeSelect` - Triggered when user swipes to select a suggestion
+ */
 export function useSwipeFeedback() {
   const skipSoundRef = useRef<AudioPlayer | null>(null);
   const selectSoundRef = useRef<AudioPlayer | null>(null);

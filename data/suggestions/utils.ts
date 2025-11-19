@@ -7,6 +7,12 @@ import { SuggestionFeedback } from "./types";
 const usedSkipFeedbackIndices = new Set<number>();
 const usedSelectFeedbackIndices = new Set<number>();
 
+/**
+ * Gets a random skip feedback message that hasn't been used recently.
+ * Tracks used indices and resets when all feedbacks have been used.
+ *
+ * @returns A random SuggestionFeedback object for skip actions
+ */
 export const getRandomUnusedSkipFeedback = (): SuggestionFeedback => {
   if (usedSkipFeedbackIndices.size >= suggestionSkipFeedbacks.length) {
     usedSkipFeedbackIndices.clear();
@@ -24,6 +30,12 @@ export const getRandomUnusedSkipFeedback = (): SuggestionFeedback => {
   return suggestionSkipFeedbacks[randomIndex];
 };
 
+/**
+ * Gets a random select feedback message that hasn't been used recently.
+ * Tracks used indices and resets when all feedbacks have been used.
+ *
+ * @returns A random SuggestionFeedback object for select actions
+ */
 export const getRandomUnusedSelectFeedback = (): SuggestionFeedback => {
   if (usedSelectFeedbackIndices.size >= suggestionSelectFeedbacks.length) {
     usedSelectFeedbackIndices.clear();
@@ -41,6 +53,12 @@ export const getRandomUnusedSelectFeedback = (): SuggestionFeedback => {
   return suggestionSelectFeedbacks[randomIndex];
 };
 
+/**
+ * Extracts the opening time for today from weekday opening hours descriptions.
+ *
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...]
+ * @returns Opening time string in "HH:MM AM/PM" format, or empty string if not found
+ */
 const getOpeningTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
   const dayMap: { [key: number]: number } = {
@@ -59,6 +77,12 @@ const getOpeningTimeForToday = (weekdayText: string[]): string => {
   return match ? match[1] : "";
 };
 
+/**
+ * Extracts the closing time for today from weekday opening hours descriptions.
+ *
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...]
+ * @returns Closing time string in "HH:MM AM/PM" format, or empty string if not found
+ */
 const getClosingTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
   const dayMap: { [key: number]: number } = {
@@ -77,6 +101,12 @@ const getClosingTimeForToday = (weekdayText: string[]): string => {
   return match ? match[1] : "";
 };
 
+/**
+ * Gets the full opening hours range for today from weekday opening hours descriptions.
+ *
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...]
+ * @returns Opening hours string in "HH:MM AM/PM - HH:MM AM/PM" format, or empty string if not found
+ */
 export const getOpeningHoursForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
   const dayMap: { [key: number]: number } = {
@@ -97,6 +127,13 @@ export const getOpeningHoursForToday = (weekdayText: string[]): string => {
   return match ? `${match[1]} - ${match[2]}` : "";
 };
 
+/**
+ * Calculates a countdown string until a target time.
+ * Returns time remaining in "Xh Ym" or "Ym" format.
+ *
+ * @param timeString - Time string in "HH:MM AM/PM" format
+ * @returns Countdown string (e.g., "2h 30m" or "45m"), or empty string if invalid
+ */
 export const getCountdown = (timeString: string): string => {
   if (!timeString) return "";
 
@@ -131,6 +168,14 @@ export const getCountdown = (timeString: string): string => {
   return `${diffMinutes}m`;
 };
 
+/**
+ * Determines if a place is currently open based on opening and closing times.
+ * Handles cases where closing time is on the next day (e.g., bars open until 2 AM).
+ *
+ * @param opensAt - Opening time in "HH:MM AM/PM" format (optional)
+ * @param closesAt - Closing time in "HH:MM AM/PM" format (optional)
+ * @returns true if the place is currently open, false otherwise. Returns true if times are not provided.
+ */
 export const isCurrentlyOpen = (
   opensAt?: string,
   closesAt?: string
@@ -176,6 +221,17 @@ export const isCurrentlyOpen = (
   return true;
 };
 
+/**
+ * Calculates the distance between two geographic coordinates using the Haversine formula.
+ *
+ * @param userLat - User's latitude in decimal degrees
+ * @param userLng - User's longitude in decimal degrees
+ * @param targetLat - Target location's latitude in decimal degrees
+ * @param targetLng - Target location's longitude in decimal degrees
+ * @returns Distance in kilometers, rounded to 1 decimal place
+ *
+ * @see https://en.wikipedia.org/wiki/Haversine_formula
+ */
 export const getDistanceInKm = (
   userLat: number,
   userLng: number,

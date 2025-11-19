@@ -29,7 +29,7 @@ const copy = {
   kmAway: "km away",
   closingIn: "Closing in",
   openingIn: "Opening in",
-  spotted: "SPOTTED",
+  spotted: "spotted",
 };
 
 const SWIPE_THRESHOLD = SCREEN_WIDTH * Animation.threshold.swipeCard;
@@ -88,20 +88,17 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     }, [suggestion.id]);
 
     useEffect(() => {
-      if (
-        suggestion.openingHours?.opensAt ||
-        suggestion.openingHours?.closesAt
-      ) {
+      if (suggestion.opensAt || suggestion.closesAt) {
         const updateCountdown = () => {
           const isOpen = isCurrentlyOpen(
-            suggestion.openingHours?.opensAt,
-            suggestion.openingHours?.closesAt
+            suggestion.opensAt,
+            suggestion.closesAt
           );
 
-          if (!isOpen && suggestion.openingHours?.opensAt) {
-            setCountdown(getCountdown(suggestion.openingHours.opensAt));
-          } else if (suggestion.openingHours?.closesAt) {
-            setCountdown(getCountdown(suggestion.openingHours.closesAt));
+          if (!isOpen && suggestion.opensAt) {
+            setCountdown(getCountdown(suggestion.opensAt));
+          } else if (suggestion.closesAt) {
+            setCountdown(getCountdown(suggestion.closesAt));
           }
         };
 
@@ -110,7 +107,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
 
         return () => clearInterval(interval);
       }
-    }, [suggestion.openingHours?.opensAt, suggestion.openingHours?.closesAt]);
+    }, [suggestion.opensAt, suggestion.closesAt]);
 
     const performSwipeLeft = () => {
       scheduleOnRN(onSwipeSkip);
@@ -243,7 +240,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
             <View className='flex-1 bg-white rounded-3xl overflow-hidden m-4 shadow-xl'>
               {isSelected && (
                 <View
-                  className='absolute top-8 right-[-60px] z-50'
+                  className='absolute top-8 right-[-55px] z-50'
                   style={{ transform: [{ rotate: "45deg" }] }}
                 >
                   <View className='bg-neonPink px-20 py-3'>
@@ -254,10 +251,12 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                 </View>
               )}
               <>
-                {suggestion.photos.length > 0 && (
+                {suggestion.photoUris && suggestion.photoUris.length > 0 && (
                   <ImageCarousel
                     images={
-                      isSelected ? [suggestion.photos[0]] : suggestion.photos
+                      isSelected
+                        ? [suggestion.photoUris[0]]
+                        : suggestion.photoUris
                     }
                     currentIndex={currentPhotoIndex}
                     onIndexChange={setCurrentPhotoIndex}
@@ -287,22 +286,22 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                             </Text>
                           )}
                         </View>
-                        {(suggestion.openingHours?.weekdayText ||
-                          suggestion.openingHours?.closesAt ||
-                          suggestion.openingHours?.opensAt) && (
+                        {(suggestion.openingHours ||
+                          suggestion.closesAt ||
+                          suggestion.opensAt) && (
                           <View className='flex-row items-center justify-between'>
-                            {suggestion.openingHours?.weekdayText && (
+                            {suggestion.openingHours && (
                               <Text className='text-lg text-white opacity-90 text-left'>
                                 {getOpeningHoursForToday(
-                                  suggestion.openingHours.weekdayText
+                                  suggestion.openingHours
                                 )}
                               </Text>
                             )}
                             {countdown && (
                               <Text className='text-lg text-white opacity-90 text-right'>
                                 {isCurrentlyOpen(
-                                  suggestion.openingHours?.opensAt,
-                                  suggestion.openingHours?.closesAt
+                                  suggestion.opensAt,
+                                  suggestion.closesAt
                                 )
                                   ? `${copy.closingIn} ${countdown}`
                                   : `${copy.openingIn} ${countdown}`}
@@ -331,22 +330,20 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                           </Text>
                         )}
                       </View>
-                      {(suggestion.openingHours?.weekdayText ||
-                        suggestion.openingHours?.closesAt ||
-                        suggestion.openingHours?.opensAt) && (
+                      {(suggestion.openingHours ||
+                        suggestion.closesAt ||
+                        suggestion.opensAt) && (
                         <View className='flex-row items-center justify-between'>
-                          {suggestion.openingHours?.weekdayText && (
+                          {suggestion.openingHours && (
                             <Text className='text-lg text-white opacity-90 text-left'>
-                              {getOpeningHoursForToday(
-                                suggestion.openingHours.weekdayText
-                              )}
+                              {getOpeningHoursForToday(suggestion.openingHours)}
                             </Text>
                           )}
                           {countdown && (
                             <Text className='text-lg text-white opacity-90 text-right'>
                               {isCurrentlyOpen(
-                                suggestion.openingHours?.opensAt,
-                                suggestion.openingHours?.closesAt
+                                suggestion.opensAt,
+                                suggestion.closesAt
                               )
                                 ? `${copy.closingIn} ${countdown}`
                                 : `${copy.openingIn} ${countdown}`}

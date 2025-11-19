@@ -1,6 +1,12 @@
 import { initialFeedbacks, initialQuestions } from "./constants";
 import { Question } from "./types";
 
+/**
+ * Generates the initial survey question with predefined choices and random feedback.
+ * This is the first question shown to users, asking about their current activity preference.
+ *
+ * @returns A Question object with random initial question text and feedback
+ */
 export const generateInitialQuestion = (): Question => {
   return {
     question:

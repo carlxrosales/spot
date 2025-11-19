@@ -6,6 +6,12 @@ import {
 import * as Haptics from "expo-haptics";
 import { useEffect, useRef } from "react";
 
+/**
+ * Custom hook that provides haptic and audio feedback for survey choice interactions.
+ * Loads and manages audio playback for choice selection with haptic feedback.
+ *
+ * @returns Object containing `onChoicePress` callback function
+ */
 export function useChoiceFeedback() {
   const choiceSoundRef = useRef<AudioPlayer | null>(null);
 

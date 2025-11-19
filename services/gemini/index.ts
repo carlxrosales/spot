@@ -9,6 +9,14 @@ import {
   TagsZodSchema,
 } from "./schema";
 
+/**
+ * Generates a survey question using Gemini AI based on conversation history.
+ *
+ * @param history - Array of conversation history entries with role and message parts
+ * @param message - The current user message to generate a question for
+ * @returns Promise resolving to a validated Question object
+ * @throws Error if the AI response is invalid or parsing fails
+ */
 async function generateQuestion(
   history: Array<{
     role: "user" | "model";
@@ -43,6 +51,16 @@ async function generateQuestion(
   return validated;
 }
 
+/**
+ * Generates the next survey question based on previous questions and answers.
+ * Builds conversation history from previous interactions and attempts to generate
+ * a new question with retry logic (up to 3 attempts).
+ *
+ * @param questions - Array of previously asked questions (default: empty array)
+ * @param answers - Array of user answers corresponding to previous questions (default: empty array)
+ * @returns Promise resolving to a Question object, or null if generation fails after retries
+ * @throws Error if all retry attempts fail
+ */
 export async function generateNextQuestion(
   questions: Question[] = [],
   answers: string[] = []
@@ -90,6 +108,14 @@ export async function generateNextQuestion(
   throw new Error("Yo! Somethin' went wrong, let's start over");
 }
 
+/**
+ * Extracts 6-10 meaningful tags from user input using Gemini AI.
+ * Tags are formatted as lowercase, hyphenated strings suitable for embedding-based similarity search.
+ *
+ * @param input - The user input text to extract tags from
+ * @returns Promise resolving to an array of 6-10 tag strings
+ * @throws Error if tag extraction fails or response is invalid
+ */
 export async function generateTags(input: string): Promise<string[]> {
   const chat = ai.chats.create({
     model: "gemini-2.5-flash-lite",

@@ -43,7 +43,7 @@ export function GetDirectionsModal({
     if (!suggestion || isLoading) return;
     setIsLoading(true);
     onClose();
-    const { lat, lng } = suggestion.location;
+    const { lat, lng } = suggestion;
     const url = `waze://?ll=${lat},${lng}&navigate=yes`;
     Linking.openURL(url)
       .catch(() => {

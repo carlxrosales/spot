@@ -58,7 +58,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const dummySuggestions = generateSuggestions(
+      const dummySuggestions = await generateSuggestions(
         answers,
         location,
         maxDistanceInKm
@@ -95,9 +95,12 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     suggestions
       .slice(currentIndex, currentIndex + 1)
       .forEach((suggestion: Suggestion) => {
-        suggestion.photos.forEach((photo) => {
-          Image.prefetch(photo).catch(() => {});
-        });
+        const photosToPrefetch = suggestion.photoUris;
+        if (photosToPrefetch) {
+          photosToPrefetch.forEach((photo) => {
+            Image.prefetch(photo).catch(() => {});
+          });
+        }
       });
   }, [suggestions, currentIndex]);
 

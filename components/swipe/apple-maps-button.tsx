@@ -20,7 +20,7 @@ export function AppleMapsButton({ suggestion }: AppleMapsButtonProps) {
   const openAppleMaps = () => {
     if (!suggestion || isLoading) return;
     setIsLoading(true);
-    const { lat, lng } = suggestion.location;
+    const { lat, lng } = suggestion;
     const url = `http://maps.apple.com/?ll=${lat},${lng}`;
     Linking.openURL(url)
       .catch(() =>

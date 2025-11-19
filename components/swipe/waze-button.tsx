@@ -20,7 +20,7 @@ export function WazeButton({ suggestion }: WazeButtonProps) {
   const openWaze = () => {
     if (!suggestion || isLoading) return;
     setIsLoading(true);
-    const { lat, lng } = suggestion.location;
+    const { lat, lng } = suggestion;
     const url = `waze://?ll=${lat},${lng}&navigate=yes`;
     Linking.openURL(url)
       .catch(() => {

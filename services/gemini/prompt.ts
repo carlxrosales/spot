@@ -1,3 +1,8 @@
+/**
+ * System and user prompts for generating survey questions.
+ * These prompts guide the AI to create context-aware questions that extract
+ * meaningful tags for place recommendation matching.
+ */
 export const SURVEY_PROMPT = {
   SYSTEM: `You are the Question Generator AI for "spot" — an app that helps users find cafes and restaurants that match their vibe. Your job is to ask short, fun, Gen Z-style questions that capture the user's preferences and gather useful tags from their choices.
 
@@ -42,6 +47,11 @@ You must respond with valid JSON matching this schema:
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,
 };
 
+/**
+ * System prompt for extracting tags from user input.
+ * Guides the AI to extract 6-10 distinct, non-overlapping tags that capture
+ * user preferences for place matching via embedding similarity search.
+ */
 export const TAGS_PROMPT = `You are the Tag Extractor AI for "spot" — an app that helps users find cafes and restaurants that match their vibe. Extract 6-10 meaningful tags from the user's input that will be converted into embeddings for similarity search.
 
 ## Requirements

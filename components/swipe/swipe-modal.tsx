@@ -44,18 +44,18 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 </Text>
               )}
 
-              {suggestion.types.length > 0 && (
+              {suggestion.tags.length > 0 && (
                 <View className='flex-row flex-wrap gap-2'>
-                  {suggestion.types
-                    .filter((type: string) => type !== "establishment")
-                    .map((type: string, idx: number) => (
+                  {suggestion.tags
+                    .filter((tag: string) => tag !== "establishment")
+                    .map((tag: string, idx: number) => (
                       <View
                         key={idx}
                         className='bg-black rounded-full px-4 py-2'
                         style={Shadows.light}
                       >
                         <Text className='text-md font-semibold text-white capitalize'>
-                          {type.replace(/_/g, " ")}
+                          {tag.replace(/_/g, " ")}
                         </Text>
                       </View>
                     ))}
@@ -73,22 +73,20 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 )}
               </View>
 
-              {suggestion.openingHours &&
-                (suggestion.openingHours.opensAt ||
-                  suggestion.openingHours.closesAt) && (
-                  <View className='flex-row items-center justify-between'>
-                    {suggestion.openingHours.opensAt && (
-                      <Text className='text-lg text-black font-medium opacity-80'>
-                        {copy.opensAt} {suggestion.openingHours.opensAt}
-                      </Text>
-                    )}
-                    {suggestion.openingHours.closesAt && (
-                      <Text className='text-lg text-black font-medium opacity-80'>
-                        {copy.closesAt} {suggestion.openingHours.closesAt}
-                      </Text>
-                    )}
-                  </View>
-                )}
+              {(suggestion.opensAt || suggestion.closesAt) && (
+                <View className='flex-row items-center justify-between'>
+                  {suggestion.opensAt && (
+                    <Text className='text-lg text-black font-medium opacity-80'>
+                      {copy.opensAt} {suggestion.opensAt}
+                    </Text>
+                  )}
+                  {suggestion.closesAt && (
+                    <Text className='text-lg text-black font-medium opacity-80'>
+                      {copy.closesAt} {suggestion.closesAt}
+                    </Text>
+                  )}
+                </View>
+              )}
 
               <View className='gap-4 mt-2'>
                 <GetDirectionsButton suggestion={suggestion} />

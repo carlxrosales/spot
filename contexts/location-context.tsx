@@ -1,4 +1,4 @@
-import { UserLocation } from "@/data/location";
+import { LocationCoordinates } from "@/data/location";
 import * as Location from "expo-location";
 import {
   createContext,
@@ -10,7 +10,7 @@ import {
 } from "react";
 
 interface LocationContextType {
-  location: UserLocation | null;
+  location: LocationCoordinates | null;
   hasPermission: boolean;
   isLoading: boolean;
   error: string | null;
@@ -26,7 +26,7 @@ interface LocationProviderProps {
 }
 
 export function LocationProvider({ children }: LocationProviderProps) {
-  const [location, setLocation] = useState<UserLocation | null>(null);
+  const [location, setLocation] = useState<LocationCoordinates | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

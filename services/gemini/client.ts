@@ -6,6 +6,12 @@ if (!GEMINI_API_KEY) {
   throw new Error("Gemini API key is not configured");
 }
 
+/**
+ * Google Generative AI client instance configured with API key.
+ * Used for generating survey questions and extracting tags from user input.
+ *
+ * @see https://ai.google.dev/docs
+ */
 export const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
 });

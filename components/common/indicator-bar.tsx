@@ -6,6 +6,14 @@ interface IndicatorBarProps {
   className?: string;
 }
 
+/**
+ * Progress indicator bar component.
+ * Displays a series of bars where filled bars represent completed/past items and the active bar represents the current item.
+ *
+ * @param totalBars - Total number of indicator bars to display
+ * @param currentIndex - Current active index (0-based)
+ * @param className - Optional Tailwind CSS class names (default: "flex-row gap-1")
+ */
 export function IndicatorBar({
   totalBars,
   currentIndex,
@@ -32,4 +40,3 @@ export function IndicatorBar({
     </View>
   );
 }
-

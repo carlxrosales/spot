@@ -9,6 +9,15 @@ interface SafeViewProps {
   edges?: ("top" | "bottom" | "left" | "right")[];
 }
 
+/**
+ * Safe area view component that respects device safe area insets.
+ * Automatically applies padding to avoid notches, status bars, and home indicators.
+ *
+ * @param children - Child components to render
+ * @param className - Optional Tailwind CSS class names
+ * @param style - Optional inline styles
+ * @param edges - Array of edges to apply safe area insets to (default: all edges)
+ */
 export function SafeView({ children, className, style, edges }: SafeViewProps) {
   const insets = useSafeAreaInsets();
 
@@ -25,4 +34,3 @@ export function SafeView({ children, className, style, edges }: SafeViewProps) {
     </View>
   );
 }
-

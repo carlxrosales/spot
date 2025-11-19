@@ -13,6 +13,19 @@ interface AbsoluteViewProps {
   withSafeAreaInsets?: boolean;
 }
 
+/**
+ * Absolutely positioned view component.
+ * Positions children at specific coordinates with optional safe area inset support.
+ *
+ * @param children - Child components to render
+ * @param className - Optional Tailwind CSS class names
+ * @param top - Distance from top in pixels
+ * @param bottom - Distance from bottom in pixels
+ * @param left - Distance from left in pixels
+ * @param right - Distance from right in pixels
+ * @param style - Optional inline styles
+ * @param withSafeAreaInsets - Whether to add safe area insets to positioning (default: false)
+ */
 export function AbsoluteView({
   children,
   className,

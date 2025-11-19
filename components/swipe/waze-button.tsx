@@ -13,6 +13,12 @@ const copy = {
   openInWaze: "Open in Waze",
 };
 
+/**
+ * Button component that opens a suggestion in Waze navigation app.
+ * Attempts to open Waze app, with fallback to web version if app is not available.
+ *
+ * @param suggestion - The suggestion to open in Waze, or null if no suggestion is available
+ */
 export function WazeButton({ suggestion }: WazeButtonProps) {
   const { displayToast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);

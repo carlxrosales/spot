@@ -24,6 +24,16 @@ interface ChoiceButtonProps {
   isAnimatingOut: boolean;
 }
 
+/**
+ * Animated choice button component for survey questions.
+ * Displays a choice option with emoji and label, with staggered enter/exit animations.
+ * Provides haptic and audio feedback on press.
+ *
+ * @param choice - Choice object containing label, emoji, and value
+ * @param index - Index for staggered animation timing
+ * @param onPress - Callback function called when choice is selected
+ * @param isAnimatingOut - Whether the button is animating out
+ */
 export function ChoiceButton({
   choice,
   index,

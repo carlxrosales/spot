@@ -12,6 +12,13 @@ interface DistanceFilterModalProps {
   onClose: () => void;
 }
 
+/**
+ * Modal component for filtering suggestions by maximum distance.
+ * Allows users to select a maximum distance in kilometers for filtering place suggestions.
+ *
+ * @param visible - Whether the modal is visible
+ * @param onClose - Callback function called when modal is closed
+ */
 export function DistanceFilterModal({
   visible,
   onClose,

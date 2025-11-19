@@ -18,6 +18,15 @@ interface SwipeModalProps {
   suggestion: Suggestion | null;
 }
 
+/**
+ * Full-screen modal component for displaying suggestion details.
+ * Shows suggestion information including name, description, tags, rating, distance, and opening hours.
+ * Includes buttons for getting directions and opening in Google Maps.
+ *
+ * @param visible - Whether the modal is visible
+ * @param onClose - Callback function called when modal is closed
+ * @param suggestion - The suggestion to display, or null if no suggestion is available
+ */
 export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
   return (
     <Modal

@@ -11,6 +11,12 @@ const copy = {
   share: "Share",
 };
 
+/**
+ * Share button component for suggestions.
+ * Triggers sharing functionality for a suggestion with loading state support.
+ *
+ * @param suggestion - The suggestion to share, or null if no suggestion is available
+ */
 export function ShareButton({ suggestion }: ShareButtonProps) {
   const { shareSuggestion, isSharing } = useShare();
 

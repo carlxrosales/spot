@@ -12,6 +12,12 @@ const copy = {
   getDirections: "Get Directions",
 };
 
+/**
+ * Button component that opens the get directions modal.
+ * Triggers a modal to select a navigation app (Google Maps or Waze) for directions.
+ *
+ * @param suggestion - The suggestion to get directions for, or null if no suggestion is available
+ */
 export function GetDirectionsButton({ suggestion }: GetDirectionsButtonProps) {
   const getDirectionsModal = useModal();
 

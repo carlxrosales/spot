@@ -43,6 +43,15 @@ export interface SwipeableCardRef {
   swipeRight: () => void;
 }
 
+/**
+ * Swipeable card component for displaying and interacting with place suggestions.
+ * Supports swipe gestures to select or skip suggestions with haptic and audio feedback.
+ * Displays suggestion photos, name, rating, distance, and opening hours.
+ * Provides programmatic swipe methods via ref.
+ *
+ * @param suggestion - The suggestion to display in the card
+ * @param ref - Ref object with `swipeLeft` and `swipeRight` methods for programmatic swiping
+ */
 export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
   ({ suggestion }, ref) => {
     const { selectedSuggestionIds, handleSkip, handleSelect } =

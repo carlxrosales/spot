@@ -18,6 +18,15 @@ interface ToastProps {
   position?: ToastPosition;
 }
 
+/**
+ * Toast notification component with slide animations.
+ * Displays a temporary message at the top or bottom of the screen with auto-dismiss functionality.
+ *
+ * @param message - Toast message text to display
+ * @param visible - Whether the toast is visible
+ * @param duration - Display duration in milliseconds before auto-dismissing (default: Animation.duration.toast)
+ * @param position - Toast position on screen (default: "top")
+ */
 export function Toast({
   message,
   visible,
@@ -86,4 +95,3 @@ export function Toast({
     </Animated.View>
   );
 }
-

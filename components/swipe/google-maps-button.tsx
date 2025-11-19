@@ -13,6 +13,12 @@ const copy = {
   viewOnGoogleMaps: "Open in Google Maps",
 };
 
+/**
+ * Button component that opens a suggestion in Google Maps.
+ * Launches Google Maps with the suggestion's place ID.
+ *
+ * @param suggestion - The suggestion to open in Google Maps, or null if no suggestion is available
+ */
 export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
   const { displayToast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);

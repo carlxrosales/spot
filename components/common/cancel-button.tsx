@@ -4,6 +4,12 @@ interface CancelButtonProps {
   onPress: () => void;
 }
 
+/**
+ * Cancel button component with gray background styling.
+ * Standardized cancel button used in modals and forms.
+ *
+ * @param onPress - Callback function called when button is pressed
+ */
 export function CancelButton({ onPress }: CancelButtonProps) {
   return (
     <TouchableOpacity

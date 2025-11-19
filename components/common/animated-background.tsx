@@ -3,6 +3,10 @@ import { Animation } from "@/constants/theme";
 import { AbsoluteView } from "./absolute-view";
 import { Sparkle, SparkleProps } from "./sparkle";
 
+/**
+ * Animated background component with multiple sparkle effects.
+ * Renders a full-screen background with randomly positioned animated sparkles.
+ */
 export function AnimatedBackground() {
   const sparkles: SparkleProps[] = [];
 
@@ -30,4 +34,3 @@ export function AnimatedBackground() {
     </AbsoluteView>
   );
 }
-

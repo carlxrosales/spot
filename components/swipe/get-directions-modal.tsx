@@ -19,6 +19,14 @@ const copy = {
   description: "Choose your preferred navigation app to get directions.",
 };
 
+/**
+ * Modal component for selecting a navigation app to get directions.
+ * Displays options to open directions in Google Maps or Waze with navigation enabled.
+ *
+ * @param visible - Whether the modal is visible
+ * @param onClose - Callback function called when modal is closed
+ * @param suggestion - The suggestion to get directions for, or null if no suggestion is available
+ */
 export function GetDirectionsModal({
   visible,
   onClose,

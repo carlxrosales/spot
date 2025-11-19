@@ -17,6 +17,18 @@ interface TextButtonProps {
   loading?: boolean;
 }
 
+/**
+ * Text button component with variant and size options.
+ * Displays a text label in a rounded button with loading state support.
+ *
+ * @param onPress - Callback function called when button is pressed
+ * @param label - Button text label
+ * @param variant - Button color variant (default: "white")
+ * @param size - Button text size (default: "lg")
+ * @param disabled - Whether the button is disabled (default: false)
+ * @param fullWidth - Whether the button should take full width (default: false)
+ * @param loading - Whether the button is in loading state (default: false)
+ */
 export function TextButton({
   onPress,
   label,

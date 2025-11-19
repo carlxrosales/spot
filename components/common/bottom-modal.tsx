@@ -11,6 +11,18 @@ interface BottomModalProps {
   dismissible?: boolean;
 }
 
+/**
+ * Bottom modal component that slides up from the bottom of the screen.
+ * Displays content in a modal with a title, optional description, and customizable actions.
+ *
+ * @param visible - Whether the modal is visible
+ * @param onClose - Callback function called when modal is closed
+ * @param title - Modal title text
+ * @param description - Optional description text displayed below title
+ * @param children - Child components to render in the modal content area
+ * @param showCancelButton - Whether to show a cancel button at the bottom (default: false)
+ * @param dismissible - Whether the modal can be dismissed by tapping outside (default: true)
+ */
 export function BottomModal({
   visible,
   onClose,

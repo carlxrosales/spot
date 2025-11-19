@@ -15,6 +15,14 @@ export interface SparkleProps {
   duration: number;
 }
 
+/**
+ * Animated sparkle effect component.
+ * Displays a sparkle emoji with continuous movement, rotation, and opacity animations.
+ *
+ * @param startX - Initial X position in pixels
+ * @param startY - Initial Y position in pixels
+ * @param duration - Animation duration in milliseconds
+ */
 export function Sparkle({ startX, startY, duration }: SparkleProps) {
   const translateX = useSharedValue<number>(0);
   const translateY = useSharedValue<number>(0);

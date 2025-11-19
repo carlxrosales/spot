@@ -14,6 +14,14 @@ interface SwipeFeedbackProps {
   swipeProgress: SharedValue<number>;
 }
 
+/**
+ * Animated feedback component displayed during swipe gestures.
+ * Shows emoji and text feedback that appears when swipe progress exceeds the threshold.
+ * Opacity and scale animations are tied to swipe progress.
+ *
+ * @param feedback - Feedback object containing emoji and text
+ * @param swipeProgress - Shared value representing the current swipe progress (0-1)
+ */
 export function SwipeFeedback({ feedback, swipeProgress }: SwipeFeedbackProps) {
   const feedbackProgress = useSharedValue<number>(0);
 

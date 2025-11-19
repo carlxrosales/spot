@@ -20,6 +20,13 @@ interface ShareCardProps {
   suggestion: Suggestion;
 }
 
+/**
+ * Shareable card component displaying suggestion information.
+ * Renders a card with suggestion photo, name, rating, distance, and opening hours.
+ * Includes a "spotted" badge and countdown timer for opening/closing times.
+ *
+ * @param suggestion - The suggestion to display in the share card
+ */
 export function ShareCard({ suggestion }: ShareCardProps) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
   const [countdown, setCountdown] = useState<string>("");

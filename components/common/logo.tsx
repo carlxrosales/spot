@@ -13,6 +13,13 @@ interface LogoProps {
   isAnimatingOut?: boolean;
 }
 
+/**
+ * Application logo component with optional animations.
+ * Displays "spot" text with custom font and supports enter/exit animations.
+ *
+ * @param isAnimated - Whether to enable animations (default: false)
+ * @param isAnimatingOut - Whether the logo is animating out (default: false)
+ */
 export function Logo({
   isAnimated = false,
   isAnimatingOut = false,

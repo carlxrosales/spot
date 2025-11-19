@@ -13,6 +13,13 @@ interface ChoiceFeedbackProps {
   feedback: { emoji: string; label: string };
 }
 
+/**
+ * Animated feedback component displayed when a survey choice is selected.
+ * Shows emoji and text feedback with scale and opacity animations.
+ *
+ * @param visible - Whether the feedback is visible
+ * @param feedback - Feedback object containing emoji and label text
+ */
 export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
   const feedbackOpacity = useSharedValue<number>(Animation.opacity.hidden);
   const feedbackScale = useSharedValue<number>(Animation.scale.medium);

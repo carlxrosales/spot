@@ -10,6 +10,11 @@ const copy = {
   enableLocation: "Enable Location",
 };
 
+/**
+ * Modal component for requesting location permission.
+ * Displays when location permission is not granted and cannot be dismissed until permission is granted.
+ * Automatically shows/hides based on permission status.
+ */
 export function LocationPermissionModal() {
   const { hasPermission, isLoading, requestPermission } = useLocation();
   return (

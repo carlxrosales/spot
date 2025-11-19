@@ -22,6 +22,18 @@ export interface ShareModalRef {
   capture: () => Promise<string | null>;
 }
 
+/**
+ * Share modal component for sharing suggestions.
+ * Displays a shareable card with logo and provides options to share as image or link.
+ * Uses ViewShot to capture the card as an image for sharing.
+ *
+ * @param visible - Whether the modal is visible
+ * @param onClose - Callback function called when modal is closed
+ * @param suggestion - The suggestion to share, or null if no suggestion is available
+ * @param onShareImage - Callback function called when share image button is pressed
+ * @param onShareLink - Callback function called when share link button is pressed
+ * @param ref - Ref object with `capture` method to capture the card as an image
+ */
 export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
   ({ visible, onClose, suggestion, onShareImage, onShareLink }, ref) => {
     const viewShotRef = React.useRef<ViewShot>(null);

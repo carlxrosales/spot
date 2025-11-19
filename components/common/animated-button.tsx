@@ -29,6 +29,21 @@ interface AnimatedButtonProps {
   loading?: boolean;
 }
 
+/**
+ * Animated button component with enter/exit animations.
+ * Wraps either IconButton or TextButton with scale, opacity, and translate animations.
+ * Supports staggered animations based on index.
+ *
+ * @param label - Text label for text button variant
+ * @param icon - Icon name for icon button variant
+ * @param variant - Button color variant (default: "white")
+ * @param size - Button size (default: "md")
+ * @param onPress - Callback function called when button is pressed
+ * @param index - Animation index for staggered effects (default: 0)
+ * @param isAnimatingOut - Whether the button is animating out (optional)
+ * @param disabled - Whether the button is disabled (default: false)
+ * @param loading - Whether the button is in loading state (default: false)
+ */
 export function AnimatedButton({
   label,
   icon,

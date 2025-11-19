@@ -11,6 +11,17 @@ interface ImageCarouselProps {
   className?: string;
 }
 
+/**
+ * Image carousel component with tap-to-navigate functionality.
+ * Displays multiple images with an indicator bar and allows navigation by tapping left/right sides.
+ *
+ * @param images - Array of image URIs to display
+ * @param currentIndex - Currently displayed image index
+ * @param onIndexChange - Callback function called when image index changes
+ * @param showIndicator - Whether to show the indicator bar (default: true)
+ * @param indicatorClassName - Optional Tailwind CSS class names for the indicator
+ * @param className - Optional Tailwind CSS class names for the container
+ */
 export function ImageCarousel({
   images,
   currentIndex,

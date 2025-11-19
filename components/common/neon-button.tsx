@@ -8,6 +8,14 @@ interface NeonButtonProps {
   style?: object;
 }
 
+/**
+ * Neon-styled button component with pink shadow effect.
+ * Displays children content in a white button with neon pink shadow styling.
+ *
+ * @param onPress - Callback function called when button is pressed
+ * @param children - Child components or text to display in the button
+ * @param style - Optional inline styles
+ */
 export function NeonButton({ onPress, children, style }: NeonButtonProps) {
   return (
     <TouchableOpacity onPress={onPress} style={style}>

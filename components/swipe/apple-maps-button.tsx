@@ -13,6 +13,12 @@ const copy = {
   viewOnAppleMaps: "Open in Apple Maps",
 };
 
+/**
+ * Button component that opens a suggestion in Apple Maps.
+ * Launches Apple Maps with the suggestion's coordinates.
+ *
+ * @param suggestion - The suggestion to open in Apple Maps, or null if no suggestion is available
+ */
 export function AppleMapsButton({ suggestion }: AppleMapsButtonProps) {
   const { displayToast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);

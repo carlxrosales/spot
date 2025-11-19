@@ -4,7 +4,7 @@ import { Colors } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { DISTANCE_OPTIONS } from "@/data/suggestions/constants";
 import { Picker } from "@react-native-picker/picker";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface DistanceFilterModalProps {
@@ -32,14 +32,6 @@ export function DistanceFilterModal({
     useState<number>(minDistanceInKm);
   const [selectedMaxDistance, setSelectedMaxDistance] =
     useState<number>(maxDistanceInKm);
-
-  useEffect(() => {
-    if (visible) {
-      setSelectedMinDistance(minDistanceInKm);
-      setSelectedMaxDistance(maxDistanceInKm);
-      setActiveTab("min");
-    }
-  }, [visible, minDistanceInKm, maxDistanceInKm]);
 
   const handleSave = useCallback(() => {
     handleFilterByDistance(selectedMinDistance, selectedMaxDistance);
@@ -72,6 +64,35 @@ export function DistanceFilterModal({
       (distance) => distance < selectedMaxDistance
     );
   };
+
+  const handleDistanceChange = useCallback(
+    (itemValue: number) => {
+      if (activeTab === "min") {
+        setSelectedMinDistance(itemValue);
+        // Ensure max is always greater than min
+        if (itemValue >= selectedMaxDistance) {
+          // Find the next available max distance
+          const nextMax = DISTANCE_OPTIONS.find((d) => d > itemValue);
+          if (nextMax !== undefined) {
+            setSelectedMaxDistance(nextMax);
+          }
+        }
+      } else {
+        setSelectedMaxDistance(itemValue);
+        // Ensure min is always less than max
+        if (itemValue <= selectedMinDistance) {
+          // Find the previous available min distance
+          const prevMin = [...DISTANCE_OPTIONS]
+            .reverse()
+            .find((d) => d < itemValue);
+          if (prevMin !== undefined) {
+            setSelectedMinDistance(prevMin);
+          }
+        }
+      }
+    },
+    [activeTab, selectedMaxDistance, selectedMinDistance]
+  );
 
   return (
     <BottomModal
@@ -120,31 +141,7 @@ export function DistanceFilterModal({
             selectedValue={
               activeTab === "min" ? selectedMinDistance : selectedMaxDistance
             }
-            onValueChange={(itemValue) => {
-              if (activeTab === "min") {
-                setSelectedMinDistance(itemValue);
-                // Ensure max is always greater than min
-                if (itemValue >= selectedMaxDistance) {
-                  // Find the next available max distance
-                  const nextMax = DISTANCE_OPTIONS.find((d) => d > itemValue);
-                  if (nextMax !== undefined) {
-                    setSelectedMaxDistance(nextMax);
-                  }
-                }
-              } else {
-                setSelectedMaxDistance(itemValue);
-                // Ensure min is always less than max
-                if (itemValue <= selectedMinDistance) {
-                  // Find the previous available min distance
-                  const prevMin = [...DISTANCE_OPTIONS]
-                    .reverse()
-                    .find((d) => d < itemValue);
-                  if (prevMin !== undefined) {
-                    setSelectedMinDistance(prevMin);
-                  }
-                }
-              }
-            }}
+            onValueChange={handleDistanceChange}
             style={{
               backgroundColor: "transparent",
             }}

@@ -7,7 +7,7 @@ export const Inputs = {
     placeholder: "Type your answer",
     validation: {
       minLength: 3,
-      maxLength: 12,
+      maxLength: 20,
     },
     style: {
       maxWidth: 360,

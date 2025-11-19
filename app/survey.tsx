@@ -30,6 +30,7 @@ const copy = {
  */
 export default function Survey() {
   const {
+    questions,
     currentQuestion,
     isLoading,
     error,
@@ -122,60 +123,60 @@ export default function Survey() {
                     isAnimatingOut={isLoading && !isComplete}
                   />
                 ))}
-                <ChoiceButton
-                  key={`custom-input-${currentQuestion.question}`}
-                  choice={{
-                    emoji: "💬",
-                    label: copy.typeInput,
-                    value: "custom-input",
-                  }}
-                  index={currentQuestion.choices.length}
-                  onPress={handleCustomInputPress}
-                  isAnimatingOut={isLoading && !isComplete}
-                />
+                {questions.length > 1 && (
+                  <ChoiceButton
+                    key={`custom-input-${currentQuestion.question}`}
+                    choice={{
+                      emoji: "💬",
+                      label: copy.typeInput,
+                      value: "custom-input",
+                    }}
+                    index={currentQuestion.choices.length}
+                    onPress={handleCustomInputPress}
+                    isAnimatingOut={isLoading && !isComplete}
+                  />
+                )}
               </View>
             </>
           )}
         </View>
         {!isLoading && !isComplete && (
           <AbsoluteView bottom={32} left={32} right={32} withSafeAreaInsets>
-            <View className='w-full flex-1 flex-row items-center justify-end gap-4'>
-              {answers.length > 0 ? (
-                <>
-                  <AnimatedButton
-                    label={copy.showSpots}
-                    variant={ButtonVariant.black}
-                    onPress={handleShowSpots}
-                    index={0}
-                    isAnimatingOut={isLoading && !isComplete}
-                  />
-                  <AnimatedButton
-                    icon='reload'
-                    variant={ButtonVariant.white}
-                    onPress={handleStartOver}
-                    index={1}
-                    isAnimatingOut={isLoading && !isComplete}
-                  />
-                </>
-              ) : (
-                <>
-                  <AnimatedButton
-                    label={copy.feelingSponty}
-                    variant={ButtonVariant.black}
-                    onPress={handleFeelingSponty}
-                    index={0}
-                    isAnimatingOut={isLoading && !isComplete}
-                  />
-                  <AnimatedButton
-                    label={copy.lazyMode}
-                    variant={ButtonVariant.white}
-                    onPress={handleLazyModePress}
-                    index={1}
-                    isAnimatingOut={isLoading && !isComplete}
-                  />
-                </>
-              )}
-            </View>
+            {answers.length > 0 ? (
+              <View className='w-full flex-1 flex-row items-center justify-end gap-4'>
+                <AnimatedButton
+                  label={copy.showSpots}
+                  variant={ButtonVariant.black}
+                  onPress={handleShowSpots}
+                  index={0}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+                <AnimatedButton
+                  icon='reload'
+                  variant={ButtonVariant.white}
+                  onPress={handleStartOver}
+                  index={1}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+              </View>
+            ) : (
+              <View className='w-full flex-1 flex-col items-end justify-end gap-4'>
+                <AnimatedButton
+                  label={copy.feelingSponty}
+                  variant={ButtonVariant.black}
+                  onPress={handleFeelingSponty}
+                  index={0}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+                <AnimatedButton
+                  label={copy.lazyMode}
+                  variant={ButtonVariant.white}
+                  onPress={handleLazyModePress}
+                  index={1}
+                  isAnimatingOut={isLoading && !isComplete}
+                />
+              </View>
+            )}
           </AbsoluteView>
         )}
       </FixedView>

@@ -16,17 +16,13 @@ export const getPhotoUris = async (photoNames: string[]): Promise<string[]> => {
 
   try {
     const photoUriPromises = photoNames.map(async (photoName) => {
-      const mediaResourceName = `${photoName}/media`;
-
-      const data = await places.sendRequest<{ photoUri: string }>({
-        path: mediaResourceName,
-        searchParams: {
-          maxWidthPx: PHOTO_MAX_WIDTH_PX,
-          maxHeightPx: PHOTO_MAX_HEIGHT_PX,
-        },
+      const photoUri = await places.getPhotoUri({
+        photoName,
+        maxWidthPx: PHOTO_MAX_WIDTH_PX,
+        maxHeightPx: PHOTO_MAX_HEIGHT_PX,
       });
 
-      return data.photoUri;
+      return photoUri;
     });
 
     const photoUris = await Promise.all(photoUriPromises);

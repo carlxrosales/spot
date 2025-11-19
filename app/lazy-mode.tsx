@@ -116,6 +116,7 @@ export default function LazyModeScreen() {
           multiline={true}
           returnKeyType='default'
           autoFocus={true}
+          autoCorrect={false}
           editable={!isLoading}
         />
 

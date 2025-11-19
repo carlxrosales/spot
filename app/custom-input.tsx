@@ -90,6 +90,7 @@ export default function CustomInputScreen() {
           returnKeyType='done'
           onSubmitEditing={isValid ? handleSubmit : undefined}
           autoFocus={true}
+          autoCorrect={false}
           editable={!isLoading}
         />
 

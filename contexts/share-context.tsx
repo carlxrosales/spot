@@ -5,14 +5,17 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
-import { Share } from "react-native";
+import { Image, Share } from "react-native";
+import { useSuggestions } from "./suggestions-context";
 import { useToast } from "./toast-context";
 
 interface ShareContextType {
-  shareSuggestion: (suggestion: Suggestion) => void;
+  shareSuggestion: (suggestion: Suggestion, currentPhotoIndex: number) => void;
+  getPhotoIndex: (suggestionId: string) => number;
   isSharing: boolean;
 }
 
@@ -24,12 +27,23 @@ interface ShareProviderProps {
 
 export function ShareProvider({ children }: ShareProviderProps) {
   const { displayToast } = useToast();
+  const { selectedSuggestionIds, suggestions } = useSuggestions();
   const [isSharing, setIsSharing] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [currentSuggestion, setCurrentSuggestion] = useState<Suggestion | null>(
     null
   );
+  const [photoIndices, setPhotoIndices] = useState<Record<string, number>>({});
+  const photoIndicesRef = useRef<Record<string, number>>({});
   const shareModalRef = useRef<ShareModalRef>(null);
+
+  useEffect(() => {
+    photoIndicesRef.current = photoIndices;
+  }, [photoIndices]);
+
+  const currentPhotoIndex = currentSuggestion
+    ? photoIndices[currentSuggestion.id] ?? 0
+    : 0;
 
   const shareImage = useCallback(async () => {
     try {
@@ -94,7 +108,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
 
       setIsSharing(true);
 
-      const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${currentSuggestion.id}`;
+      const googleMapsUrl = currentSuggestion.shareLink;
       const message = `Found our spot: ${currentSuggestion.name}\n\n👉 ${googleMapsUrl}`;
 
       const shareOptions: {
@@ -125,10 +139,25 @@ export function ShareProvider({ children }: ShareProviderProps) {
     }
   }, [currentSuggestion, displayToast]);
 
-  const shareSuggestion = useCallback((suggestion: Suggestion) => {
-    setCurrentSuggestion(suggestion);
-    setIsModalVisible(true);
-  }, []);
+  const shareSuggestion = useCallback(
+    (suggestion: Suggestion, currentPhotoIndex: number) => {
+      setPhotoIndices((prev) => ({
+        ...prev,
+        [suggestion.id]: currentPhotoIndex,
+      }));
+      setCurrentSuggestion(suggestion);
+      setIsModalVisible(true);
+    },
+    []
+  );
+
+  const getPhotoIndex = useCallback(
+    (suggestionId: string) => {
+      return photoIndices[suggestionId] ?? 0;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   const handleClose = useCallback(() => {
     setIsModalVisible(false);
@@ -136,10 +165,25 @@ export function ShareProvider({ children }: ShareProviderProps) {
     setCurrentSuggestion(null);
   }, []);
 
+  useEffect(() => {
+    selectedSuggestionIds.forEach((suggestionId) => {
+      const suggestion = suggestions.find((s) => s.id === suggestionId);
+      if (suggestion) {
+        const photosToPrefetch = suggestion.photoUris;
+        if (photosToPrefetch) {
+          photosToPrefetch.forEach((photo) => {
+            Image.prefetch(photo).catch(() => {});
+          });
+        }
+      }
+    });
+  }, [selectedSuggestionIds, suggestions]);
+
   return (
     <ShareContext.Provider
       value={{
         shareSuggestion,
+        getPhotoIndex,
         isSharing,
       }}
     >
@@ -151,6 +195,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
         onShareImage={shareImage}
         onShareLink={shareLink}
         suggestion={currentSuggestion}
+        currentPhotoIndex={currentPhotoIndex}
       />
     </ShareContext.Provider>
   );

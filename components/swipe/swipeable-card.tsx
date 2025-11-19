@@ -11,7 +11,13 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -72,6 +78,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     const [countdown, setCountdown] = useState<string>("");
     const [skipFeedback] = useState(() => getRandomUnusedSkipFeedback());
     const [selectFeedback] = useState(() => getRandomUnusedSelectFeedback());
+    const previousSuggestionIdRef = useRef<string>(suggestion.id);
 
     const isSelected = selectedSuggestionIds.includes(suggestion.id);
 
@@ -91,9 +98,15 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     };
 
     useEffect(() => {
+      const previousId = previousSuggestionIdRef.current;
+      const currentId = suggestion.id;
+
       resetCard();
-      setSelectedFeedback(null);
-      setCurrentPhotoIndex(0);
+      if (previousId !== currentId) {
+        setSelectedFeedback(null);
+        setCurrentPhotoIndex(0);
+        previousSuggestionIdRef.current = currentId;
+      }
     }, [suggestion.id]);
 
     useEffect(() => {
@@ -262,13 +275,10 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
               <>
                 {suggestion.photoUris && suggestion.photoUris.length > 0 && (
                   <ImageCarousel
-                    images={
-                      isSelected
-                        ? [suggestion.photoUris[0]]
-                        : suggestion.photoUris
-                    }
+                    images={suggestion.photoUris}
                     currentIndex={currentPhotoIndex}
                     onIndexChange={setCurrentPhotoIndex}
+                    showIndicator={!isSelected}
                   />
                 )}
                 <View
@@ -278,19 +288,35 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                   style={{
                     backgroundColor: Overlay.backgroundColor,
                   }}
+                  pointerEvents='box-none'
                 >
                   {isSelected ? (
-                    <View className='flex-1 justify-center h-full'>
-                      <View className='py-4 gap-4'>
-                        <Text className='text-5xl font-bold font-groen text-white'>
+                    <View
+                      className='flex-1 justify-center h-full'
+                      pointerEvents='box-none'
+                    >
+                      <View className='py-4 gap-4' pointerEvents='box-none'>
+                        <Text
+                          className='text-5xl font-bold font-groen text-white'
+                          pointerEvents='none'
+                        >
                           {suggestion.name}
                         </Text>
-                        <View className='flex-row items-center justify-between'>
-                          <Text className='text-xl text-white font-semibold text-left'>
+                        <View
+                          className='flex-row items-center justify-between'
+                          pointerEvents='box-none'
+                        >
+                          <Text
+                            className='text-xl text-white font-semibold text-left'
+                            pointerEvents='none'
+                          >
                             ⭐ {suggestion.rating}
                           </Text>
                           {suggestion.distanceInKm && (
-                            <Text className='text-xl text-white opacity-90 text-right'>
+                            <Text
+                              className='text-xl text-white opacity-90 text-right'
+                              pointerEvents='none'
+                            >
                               {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                             </Text>
                           )}
@@ -298,16 +324,25 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                         {(suggestion.openingHours ||
                           suggestion.closesAt ||
                           suggestion.opensAt) && (
-                          <View className='flex-row items-center justify-between'>
+                          <View
+                            className='flex-row items-center justify-between'
+                            pointerEvents='box-none'
+                          >
                             {suggestion.openingHours && (
-                              <Text className='text-lg text-white opacity-90 text-left'>
+                              <Text
+                                className='text-lg text-white opacity-90 text-left'
+                                pointerEvents='none'
+                              >
                                 {getOpeningHoursForToday(
                                   suggestion.openingHours
                                 )}
                               </Text>
                             )}
                             {countdown && (
-                              <Text className='text-lg text-white opacity-90 text-right'>
+                              <Text
+                                className='text-lg text-white opacity-90 text-right'
+                                pointerEvents='none'
+                              >
                                 {isCurrentlyOpen(
                                   suggestion.opensAt,
                                   suggestion.closesAt
@@ -320,21 +355,36 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                         )}
                         <View className='py-4 gap-3'>
                           <GetDirectionsButton suggestion={suggestion} />
-                          <ShareButton suggestion={suggestion} />
+                          <ShareButton
+                            suggestion={suggestion}
+                            currentPhotoIndex={currentPhotoIndex}
+                          />
                         </View>
                       </View>
                     </View>
                   ) : (
                     <>
-                      <Text className='text-5xl font-bold font-groen text-white'>
+                      <Text
+                        className='text-5xl font-bold font-groen text-white'
+                        pointerEvents='none'
+                      >
                         {suggestion.name}
                       </Text>
-                      <View className='flex-row items-center justify-between'>
-                        <Text className='text-xl text-white font-semibold text-left'>
+                      <View
+                        className='flex-row items-center justify-between'
+                        pointerEvents='box-none'
+                      >
+                        <Text
+                          className='text-xl text-white font-semibold text-left'
+                          pointerEvents='none'
+                        >
                           ⭐ {suggestion.rating}
                         </Text>
                         {suggestion.distanceInKm && (
-                          <Text className='text-xl text-white opacity-90 text-right'>
+                          <Text
+                            className='text-xl text-white opacity-90 text-right'
+                            pointerEvents='none'
+                          >
                             {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                           </Text>
                         )}
@@ -342,14 +392,23 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                       {(suggestion.openingHours ||
                         suggestion.closesAt ||
                         suggestion.opensAt) && (
-                        <View className='flex-row items-center justify-between'>
+                        <View
+                          className='flex-row items-center justify-between'
+                          pointerEvents='box-none'
+                        >
                           {suggestion.openingHours && (
-                            <Text className='text-lg text-white opacity-90 text-left'>
+                            <Text
+                              className='text-lg text-white opacity-90 text-left'
+                              pointerEvents='none'
+                            >
                               {getOpeningHoursForToday(suggestion.openingHours)}
                             </Text>
                           )}
                           {countdown && (
-                            <Text className='text-lg text-white opacity-90 text-right'>
+                            <Text
+                              className='text-lg text-white opacity-90 text-right'
+                              pointerEvents='none'
+                            >
                               {isCurrentlyOpen(
                                 suggestion.opensAt,
                                 suggestion.closesAt

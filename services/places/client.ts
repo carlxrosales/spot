@@ -1,62 +1,85 @@
 const GOOGLE_PLACES_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
 
-export interface PlacesApiRequestOptions {
-  path: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
-  searchParams?: Record<string, string | number>;
-  body?: unknown;
+export interface GetPhotoUriOptions {
+  photoName: string;
+  maxWidthPx?: number;
+  maxHeightPx?: number;
 }
 
 /**
- * Reusable client for making requests to the Google Places API.
+ * Response from the Google Places API Place Photos (New) getMedia endpoint.
+ *
+ * @see https://developers.google.com/maps/documentation/places/web-service/place-photos
+ */
+export interface GetPhotoUriResponse {
+  /**
+   * The resource name of the photo media in the format:
+   * places/{placeId}/photos/{photo_reference}/media
+   */
+  name: string;
+
+  /**
+   * A short-lived URI that can be used to render the photo.
+   * This URI is temporary and should be used immediately.
+   */
+  photoUri: string;
+}
+
+/**
+ * Client for making requests to the Google Places API.
  *
  * @see https://developers.google.com/maps/documentation/places/web-service/overview
  */
 export const places = {
   /**
-   * Sends a request to the Google Places API.
+   * Gets a photo URI from the Google Places API.
    *
-   * @param options - Request configuration options
-   * @returns Promise resolving to the JSON response data
+   * @param options - Photo request options
+   * @param options.photoName - Photo resource name in format: places/{placeId}/photos/{photo_reference}
+   * @param options.maxWidthPx - Maximum width in pixels (optional)
+   * @param options.maxHeightPx - Maximum height in pixels (optional)
+   * @returns Promise resolving to the photo URI (short-lived URI for rendering)
    * @throws Error if the API key is missing or the request fails
    */
-  sendRequest: async <T = unknown>(
-    options: PlacesApiRequestOptions
-  ): Promise<T> => {
+  getPhotoUri: async (options: GetPhotoUriOptions): Promise<string> => {
     if (!GOOGLE_PLACES_API_KEY) {
       throw new Error("Google Places API key is not configured");
     }
 
-    const { path, method = "GET", searchParams, body } = options;
+    const { photoName, maxWidthPx, maxHeightPx } = options;
+    const mediaResourceName = `${photoName}/media`;
 
-    const url = new URL(`https://places.googleapis.com/v1/${path}`);
+    const url = new URL(
+      `https://places.googleapis.com/v1/${mediaResourceName}`
+    );
 
-    if (searchParams) {
-      Object.entries(searchParams).forEach(([key, value]) => {
-        url.searchParams.append(key, value.toString());
-      });
+    if (maxWidthPx !== undefined) {
+      url.searchParams.append("maxWidthPx", maxWidthPx.toString());
     }
 
+    if (maxHeightPx !== undefined) {
+      url.searchParams.append("maxHeightPx", maxHeightPx.toString());
+    }
+
+    url.searchParams.append("skipHttpRedirect", "true");
+
     const fetchOptions: RequestInit = {
-      method,
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
       },
     };
 
-    if (body) {
-      fetchOptions.body = JSON.stringify(body);
-    }
-
     const response = await fetch(url.toString(), fetchOptions);
 
     if (!response.ok) {
       throw new Error(
-        `Google Places API request failed: ${response.status} ${response.statusText}`
+        `Google Places API photo request failed: ${response.status} ${response.statusText}`
       );
     }
 
-    return response.json();
+    const data = (await response.json()) as GetPhotoUriResponse;
+    return data.photoUri;
   },
 };

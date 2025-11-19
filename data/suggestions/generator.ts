@@ -1,7 +1,13 @@
 import { LocationCoordinates } from "@/data/location";
+import { SpontyChoice } from "@/data/survey";
 import { generateEmbedding, generateQuery } from "@/services/gemini";
 import { getPhotoUris } from "@/services/places";
-import { DEFAULT_MAX_DISTANCE_IN_KM } from "./constants";
+import { suggestPlaces } from "@/services/supabase";
+import {
+  DEFAULT_THRESHOLD,
+  SHOW_NOW_THRESHOLD,
+  SPONTY_THRESHOLD,
+} from "@/services/supabase/constants";
 import { Suggestion } from "./types";
 import {
   getClosingTimeForToday,
@@ -20,13 +26,22 @@ import {
  */
 export const generateSuggestions = async (
   answers: string[],
-  userLocation: LocationCoordinates,
-  maxDistanceInKm: number = DEFAULT_MAX_DISTANCE_IN_KM
+  userLocation: LocationCoordinates
 ): Promise<Suggestion[]> => {
   const query = await generateQuery(answers);
   const embeddings = await generateEmbedding(query);
-  // Query supabase using similarity search here
-  const suggestions: Suggestion[] = [];
+
+  let threshold = DEFAULT_THRESHOLD;
+  if (answers.includes(SpontyChoice.value)) {
+    threshold = SPONTY_THRESHOLD;
+  } else if (answers.length <= 4) {
+    threshold = SHOW_NOW_THRESHOLD;
+  }
+
+  const suggestions: Suggestion[] = await suggestPlaces({
+    queryEmbedding: embeddings,
+    threshold,
+  });
 
   const suggestionsWithComputedFields = await Promise.all(
     suggestions.map(async (suggestion: Suggestion) => {
@@ -62,5 +77,10 @@ export const generateSuggestions = async (
     })
   );
 
-  return suggestionsWithComputedFields;
+  return suggestionsWithComputedFields.filter(
+    (suggestion) =>
+      suggestion.photoUris &&
+      suggestion.photoUris.length > 0 &&
+      suggestion.distanceInKm !== undefined
+  );
 };

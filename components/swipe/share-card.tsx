@@ -18,6 +18,7 @@ const copy = {
 
 interface ShareCardProps {
   suggestion: Suggestion;
+  currentPhotoIndex: number;
 }
 
 /**
@@ -26,10 +27,34 @@ interface ShareCardProps {
  * Includes a "spotted" badge and countdown timer for opening/closing times.
  *
  * @param suggestion - The suggestion to display in the share card
+ * @param currentPhotoIndex - The initial photo index to display in the carousel
  */
-export function ShareCard({ suggestion }: ShareCardProps) {
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
+export function ShareCard({
+  suggestion,
+  currentPhotoIndex: initialPhotoIndex,
+}: ShareCardProps) {
+  const photoCount = suggestion.photoUris?.length || 0;
+  const safeInitialIndex =
+    photoCount > 0
+      ? Math.max(0, Math.min(initialPhotoIndex, photoCount - 1))
+      : 0;
+
+  const [currentPhotoIndex, setCurrentPhotoIndex] =
+    useState<number>(safeInitialIndex);
   const [countdown, setCountdown] = useState<string>("");
+
+  useEffect(() => {
+    const photoCount = suggestion.photoUris?.length || 0;
+    if (photoCount > 0) {
+      const safeIndex = Math.max(
+        0,
+        Math.min(initialPhotoIndex, photoCount - 1)
+      );
+      setCurrentPhotoIndex(safeIndex);
+    } else {
+      setCurrentPhotoIndex(0);
+    }
+  }, [initialPhotoIndex, suggestion.photoUris]);
 
   useEffect(() => {
     if (suggestion.opensAt || suggestion.closesAt) {
@@ -62,9 +87,10 @@ export function ShareCard({ suggestion }: ShareCardProps) {
       </View>
       {suggestion.photoUris && suggestion.photoUris.length > 0 && (
         <ImageCarousel
-          images={[suggestion.photoUris[0]]}
+          images={suggestion.photoUris}
           currentIndex={currentPhotoIndex}
           onIndexChange={setCurrentPhotoIndex}
+          showIndicator={false}
         />
       )}
       <View
@@ -72,18 +98,31 @@ export function ShareCard({ suggestion }: ShareCardProps) {
         style={{
           backgroundColor: Overlay.backgroundColor,
         }}
+        pointerEvents='box-none'
       >
-        <View className='flex-1 justify-center h-full'>
-          <View className='py-4 gap-4'>
-            <Text className='text-5xl font-bold font-groen text-white'>
+        <View className='flex-1 justify-center h-full' pointerEvents='box-none'>
+          <View className='py-4 gap-4' pointerEvents='box-none'>
+            <Text
+              className='text-5xl font-bold font-groen text-white'
+              pointerEvents='box-none'
+            >
               {suggestion.name}
             </Text>
-            <View className='flex-row items-center justify-between'>
-              <Text className='text-xl text-white font-semibold text-left'>
+            <View
+              className='flex-row items-center justify-between'
+              pointerEvents='box-none'
+            >
+              <Text
+                className='text-xl text-white font-semibold text-left'
+                pointerEvents='box-none'
+              >
                 ⭐ {suggestion.rating}
               </Text>
               {suggestion.distanceInKm && (
-                <Text className='text-xl text-white opacity-90 text-right'>
+                <Text
+                  className='text-xl text-white opacity-90 text-right'
+                  pointerEvents='box-none'
+                >
                   {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                 </Text>
               )}
@@ -91,14 +130,23 @@ export function ShareCard({ suggestion }: ShareCardProps) {
             {(suggestion.openingHours ||
               suggestion.closesAt ||
               suggestion.opensAt) && (
-              <View className='flex-row items-center justify-between'>
+              <View
+                className='flex-row items-center justify-between'
+                pointerEvents='box-none'
+              >
                 {suggestion.openingHours && (
-                  <Text className='text-lg text-white opacity-90 text-left'>
+                  <Text
+                    className='text-lg text-white opacity-90 text-left'
+                    pointerEvents='box-none'
+                  >
                     {getOpeningHoursForToday(suggestion.openingHours)}
                   </Text>
                 )}
                 {countdown && (
-                  <Text className='text-lg text-white opacity-90 text-right'>
+                  <Text
+                    className='text-lg text-white opacity-90 text-right'
+                    pointerEvents='box-none'
+                  >
                     {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
                       ? `${copy.closingIn} ${countdown}`
                       : `${copy.openingIn} ${countdown}`}

@@ -5,6 +5,7 @@ import { Suggestion } from "@/data/suggestions";
 
 interface ShareButtonProps {
   suggestion: Suggestion | null;
+  currentPhotoIndex: number;
 }
 
 const copy = {
@@ -16,13 +17,17 @@ const copy = {
  * Triggers sharing functionality for a suggestion with loading state support.
  *
  * @param suggestion - The suggestion to share, or null if no suggestion is available
+ * @param currentPhotoIndex - The current photo index to use when sharing
  */
-export function ShareButton({ suggestion }: ShareButtonProps) {
+export function ShareButton({
+  suggestion,
+  currentPhotoIndex,
+}: ShareButtonProps) {
   const { shareSuggestion, isSharing } = useShare();
 
   const handleShare = () => {
     if (!suggestion || isSharing) return;
-    shareSuggestion(suggestion);
+    shareSuggestion(suggestion, currentPhotoIndex);
   };
 
   return (

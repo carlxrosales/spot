@@ -154,20 +154,26 @@ export default function Swipe() {
                   icon='close'
                   variant={ButtonVariant.black}
                   loading={isSkipLoading}
-                  disabled={isSkipLoading || isProceedLoading}
+                  disabled={
+                    !currentSuggestion || isSkipLoading || isProceedLoading
+                  }
                 />
                 <IconButton
                   onPress={swipeModal.handleOpen}
                   icon='eye'
                   variant={ButtonVariant.white}
-                  disabled={isSkipLoading || isProceedLoading}
+                  disabled={
+                    !currentSuggestion || isSkipLoading || isProceedLoading
+                  }
                 />
                 <IconButton
                   onPress={handleProceed}
                   icon='checkmark-sharp'
                   variant={ButtonVariant.pink}
                   loading={isProceedLoading}
-                  disabled={isSkipLoading || isProceedLoading}
+                  disabled={
+                    !currentSuggestion || isSkipLoading || isProceedLoading
+                  }
                 />
               </View>
             </>

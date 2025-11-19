@@ -56,7 +56,7 @@ export const getRandomUnusedSelectFeedback = (): SuggestionFeedback => {
 /**
  * Extracts the opening time for today from weekday opening hours descriptions.
  *
- * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...]
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...]
  * @returns Opening time string in "HH:MM AM/PM" format, or empty string if not found
  */
 const getOpeningTimeForToday = (weekdayText: string[]): string => {
@@ -73,14 +73,26 @@ const getOpeningTimeForToday = (weekdayText: string[]): string => {
   const dayIndex = dayMap[today];
   const todaySchedule = weekdayText[dayIndex];
   if (!todaySchedule) return "";
-  const match = todaySchedule.match(/(\d{1,2}:\d{2}\s*(?:AM|PM))\s*-/);
-  return match ? match[1] : "";
+
+  const matchWithAMPM = todaySchedule.match(
+    /(\d{1,2}:\d{2}\s*(?:AM|PM))\s*[-–]/
+  );
+  if (matchWithAMPM) return matchWithAMPM[1];
+
+  const matchWithoutAMPM = todaySchedule.match(
+    /(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}\s*(AM|PM)/i
+  );
+  if (matchWithoutAMPM) {
+    return `${matchWithoutAMPM[1]} ${matchWithoutAMPM[2]}`;
+  }
+
+  return "";
 };
 
 /**
  * Extracts the closing time for today from weekday opening hours descriptions.
  *
- * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...]
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...]
  * @returns Closing time string in "HH:MM AM/PM" format, or empty string if not found
  */
 const getClosingTimeForToday = (weekdayText: string[]): string => {
@@ -97,14 +109,14 @@ const getClosingTimeForToday = (weekdayText: string[]): string => {
   const dayIndex = dayMap[today];
   const todaySchedule = weekdayText[dayIndex];
   if (!todaySchedule) return "";
-  const match = todaySchedule.match(/-\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/);
+  const match = todaySchedule.match(/[-–]\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/i);
   return match ? match[1] : "";
 };
 
 /**
  * Gets the full opening hours range for today from weekday opening hours descriptions.
  *
- * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...]
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...]
  * @returns Opening hours string in "HH:MM AM/PM - HH:MM AM/PM" format, or empty string if not found
  */
 export const getOpeningHoursForToday = (weekdayText: string[]): string => {
@@ -121,10 +133,22 @@ export const getOpeningHoursForToday = (weekdayText: string[]): string => {
   const dayIndex = dayMap[today];
   const todaySchedule = weekdayText[dayIndex];
   if (!todaySchedule) return "";
-  const match = todaySchedule.match(
-    /(\d{1,2}:\d{2}\s*(?:AM|PM))\s*-\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/
+
+  const matchWithBothAMPM = todaySchedule.match(
+    /(\d{1,2}:\d{2}\s*(?:AM|PM))\s*[-–]\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/i
   );
-  return match ? `${match[1]} - ${match[2]}` : "";
+  if (matchWithBothAMPM) {
+    return `${matchWithBothAMPM[1]} - ${matchWithBothAMPM[2]}`;
+  }
+
+  const matchWithSecondAMPM = todaySchedule.match(
+    /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2}\s*(AM|PM))/i
+  );
+  if (matchWithSecondAMPM) {
+    return `${matchWithSecondAMPM[1]} ${matchWithSecondAMPM[3]} - ${matchWithSecondAMPM[2]}`;
+  }
+
+  return "";
 };
 
 /**

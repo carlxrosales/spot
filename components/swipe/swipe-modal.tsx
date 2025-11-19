@@ -5,6 +5,7 @@ import { Suggestion } from "@/data/suggestions";
 import { Modal, ScrollView, Text, View } from "react-native";
 import { GetDirectionsButton } from "./get-directions-button";
 import { GoogleMapsButton } from "./google-maps-button";
+import { ViewReviewsButton } from "./view-reviews-button";
 
 const copy = {
   kmAway: "km away",
@@ -47,11 +48,9 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 {suggestion.name}
               </Text>
 
-              {suggestion.description && (
-                <Text className='text-2xl text-black font-medium opacity-90 leading-9'>
-                  {suggestion.description}
-                </Text>
-              )}
+              <Text className='text-xl text-black font-semibold opacity-90'>
+                📍 {suggestion.address}
+              </Text>
 
               {suggestion.tags.length > 0 && (
                 <View className='flex-row flex-wrap gap-2'>
@@ -71,12 +70,18 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 </View>
               )}
 
+              {suggestion.description && (
+                <Text className='text-xl text-black font-medium opacity-80 leading-9'>
+                  {suggestion.description}
+                </Text>
+              )}
+
               <View className='flex-row items-center justify-between'>
-                <Text className='text-lg font-semibold text-black opacity-80'>
+                <Text className='text-lg font-semibold text-black opacity-90'>
                   ⭐ {suggestion.rating}
                 </Text>
                 {suggestion.distanceInKm && (
-                  <Text className='text-lg text-black font-medium opacity-80'>
+                  <Text className='text-lg text-black font-medium opacity-90'>
                     {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                   </Text>
                 )}
@@ -85,12 +90,12 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
               {(suggestion.opensAt || suggestion.closesAt) && (
                 <View className='flex-row items-center justify-between'>
                   {suggestion.opensAt && (
-                    <Text className='text-lg text-black font-medium opacity-80'>
+                    <Text className='text-lg text-black font-medium opacity-90'>
                       {copy.opensAt} {suggestion.opensAt}
                     </Text>
                   )}
                   {suggestion.closesAt && (
-                    <Text className='text-lg text-black font-medium opacity-80'>
+                    <Text className='text-lg text-black font-medium opacity-90'>
                       {copy.closesAt} {suggestion.closesAt}
                     </Text>
                   )}
@@ -99,6 +104,9 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
 
               <View className='gap-4 mt-2'>
                 <GetDirectionsButton suggestion={suggestion} />
+                {suggestion.reviewsLink && (
+                  <ViewReviewsButton suggestion={suggestion} />
+                )}
                 <GoogleMapsButton suggestion={suggestion} />
               </View>
             </View>

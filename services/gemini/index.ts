@@ -1,4 +1,4 @@
-import { Question } from "@/data/survey";
+import { Question, SpontyChoice } from "@/data/survey";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { ai } from "./client";
 import { QUERY_PROMPT, SURVEY_PROMPT, TAGS_PROMPT } from "./prompt";
@@ -33,7 +33,7 @@ async function generateQuestion(
       responseSchema: QuestionSchema,
       responseJsonSchema: zodToJsonSchema(QuestionZodSchema),
       temperature: 0.7,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 1500,
     },
   });
 
@@ -154,6 +154,10 @@ export async function generateTags(input: string): Promise<string[]> {
  * @throws Error if query generation fails or response is invalid
  */
 export async function generateQuery(tags: string[]): Promise<string> {
+  if (tags.includes(SpontyChoice.value)) {
+    return "The place offers a dynamic environment perfect for spontaneous outings, featuring diverse menu options and a lively ambiance that adapts to any mood or moment.";
+  }
+
   const chat = ai.chats.create({
     model: "gemini-2.5-flash-lite",
     config: {

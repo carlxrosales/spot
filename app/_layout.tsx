@@ -23,9 +23,9 @@ export default function RootLayout() {
       <FontsProvider>
         <LocationProvider>
           <ToastProvider>
-            <ShareProvider>
-              <SurveyProvider>
-                <SuggestionsProvider>
+            <SurveyProvider>
+              <SuggestionsProvider>
+                <ShareProvider>
                   <Stack screenOptions={commonScreenOptions}>
                     <Stack.Screen name='survey' options={commonScreenOptions} />
                     <Stack.Screen name='swipe' options={commonScreenOptions} />
@@ -44,9 +44,9 @@ export default function RootLayout() {
                       }}
                     />
                   </Stack>
-                </SuggestionsProvider>
-              </SurveyProvider>
-            </ShareProvider>
+                </ShareProvider>
+              </SuggestionsProvider>
+            </SurveyProvider>
           </ToastProvider>
         </LocationProvider>
       </FontsProvider>

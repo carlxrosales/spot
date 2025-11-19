@@ -16,6 +16,7 @@ interface ShareModalProps {
   suggestion: Suggestion | null;
   onShareImage: () => void;
   onShareLink: () => void;
+  currentPhotoIndex: number;
 }
 
 export interface ShareModalRef {
@@ -32,10 +33,21 @@ export interface ShareModalRef {
  * @param suggestion - The suggestion to share, or null if no suggestion is available
  * @param onShareImage - Callback function called when share image button is pressed
  * @param onShareLink - Callback function called when share link button is pressed
+ * @param currentPhotoIndex - The initial photo index to display in the share card carousel
  * @param ref - Ref object with `capture` method to capture the card as an image
  */
 export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
-  ({ visible, onClose, suggestion, onShareImage, onShareLink }, ref) => {
+  (
+    {
+      visible,
+      onClose,
+      suggestion,
+      onShareImage,
+      onShareLink,
+      currentPhotoIndex,
+    },
+    ref
+  ) => {
     const viewShotRef = React.useRef<ViewShot>(null);
 
     useImperativeHandle(ref, () => ({
@@ -77,7 +89,10 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
                   <Logo />
                 </View>
                 <View className='flex-1 w-full'>
-                  <ShareCard suggestion={suggestion} />
+                  <ShareCard
+                    suggestion={suggestion}
+                    currentPhotoIndex={currentPhotoIndex}
+                  />
                 </View>
               </View>
             </ViewShot>

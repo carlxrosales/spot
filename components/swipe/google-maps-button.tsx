@@ -24,9 +24,9 @@ export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const openGoogleMaps = async () => {
-    if (!suggestion || isLoading) return;
+    if (!suggestion || !suggestion.shareLink || isLoading) return;
     setIsLoading(true);
-    const url = `https://www.google.com/maps/place/?q=place_id:${suggestion.id}`;
+    const url = suggestion.shareLink;
     Linking.openURL(url)
       .catch(() =>
         displayToast({ message: "Yikes! We failed to open Google Maps." })

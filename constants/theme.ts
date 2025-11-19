@@ -1,3 +1,7 @@
+/**
+ * Color palette for the application theme.
+ * Defines all color values used throughout the app.
+ */
 export const Colors = {
   neonGreen: "rgb(225, 255, 91)",
   white: "rgb(248, 248, 248)",
@@ -7,6 +11,10 @@ export const Colors = {
   shadow: "rgba(240, 46, 170, 0.4)",
 };
 
+/**
+ * Shadow configurations for different visual effects.
+ * Includes both CSS box-shadow and React Native shadow properties.
+ */
 export const Shadows = {
   neonPink: {
     boxShadow:
@@ -33,16 +41,26 @@ export const Shadows = {
   },
 };
 
+/**
+ * Spacing values for consistent layout spacing throughout the app.
+ */
 export const Spacing = {
   small: 16,
   medium: 32,
 };
 
+/**
+ * Overlay configuration for modal and overlay components.
+ */
 export const Overlay = {
   opacity: 0.6,
   backgroundColor: "rgba(0, 0, 0, 0.6)",
 };
 
+/**
+ * Animation configuration constants.
+ * Includes spring physics, durations, scales, opacities, translations, thresholds, and other animation parameters.
+ */
 export const Animation = {
   spring: {
     damping: 24,

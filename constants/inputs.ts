@@ -1,3 +1,7 @@
+/**
+ * Input field configurations and styling constants.
+ * Defines validation rules, placeholders, and style properties for different input types.
+ */
 export const Inputs = {
   answer: {
     placeholder: "Type your answer",

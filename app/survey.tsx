@@ -22,6 +22,12 @@ const copy = {
   lazyMode: "Lazy af mode",
 };
 
+/**
+ * Survey screen component.
+ * Displays interactive survey questions with animated choices and feedback.
+ * Supports custom input, lazy mode, and sponty quick selection.
+ * Automatically navigates to swipe screen when survey is complete.
+ */
 export default function Survey() {
   const {
     currentQuestion,

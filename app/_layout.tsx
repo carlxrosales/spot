@@ -8,6 +8,11 @@ import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
+/**
+ * Root layout component for the application.
+ * Sets up the navigation stack and provides all context providers.
+ * Configures screen options and presentation styles for different routes.
+ */
 export default function RootLayout() {
   const commonScreenOptions = {
     headerShown: false,

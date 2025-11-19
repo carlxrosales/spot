@@ -28,6 +28,12 @@ const copy = {
   noSuggestions: "Oof! No spots found",
 };
 
+/**
+ * Swipe screen component for browsing place suggestions.
+ * Displays swipeable cards with place suggestions based on survey answers.
+ * Provides actions to skip, view details, or select suggestions.
+ * Includes distance filtering and location permission handling.
+ */
 export default function Swipe() {
   const router = useRouter();
   const { answers } = useSurvey();

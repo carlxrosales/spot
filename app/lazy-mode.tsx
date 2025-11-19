@@ -24,6 +24,12 @@ const copy = {
 
 const MIN_LENGTH = 5;
 
+/**
+ * Lazy mode screen component.
+ * Allows users to input free-form text describing what they're looking for.
+ * Uses AI to extract tags from the input and automatically completes the survey.
+ * Navigates back to previous screen after processing.
+ */
 export default function LazyModeScreen() {
   const router = useRouter();
   const { setAnswers, setIsComplete } = useSurvey();

@@ -17,30 +17,41 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-interface ActionButtonProps {
+interface AnimatedButtonProps {
   label?: string;
   icon?: ButtonIcon;
   variant?: ButtonVariantType;
   size?: ButtonSizeType;
   onPress: () => void;
-  index: number;
-  isAnimatingOut: boolean;
+  index?: number;
+  isAnimatingOut?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-export function ActionButton({
+export function AnimatedButton({
   label,
   icon,
   variant = ButtonVariant.white,
   size = ButtonSize.md,
   onPress,
-  index,
+  index = 0,
   isAnimatingOut,
-}: ActionButtonProps) {
+  disabled = false,
+  loading = false,
+}: AnimatedButtonProps) {
   const scale = useSharedValue<number>(1);
   const opacity = useSharedValue<number>(1);
   const translateY = useSharedValue<number>(0);
 
   useEffect(() => {
+    if (isAnimatingOut === undefined) {
+      scale.value = 1;
+      opacity.value = 1;
+      translateY.value = 0;
+      return;
+    }
+
     if (isAnimatingOut) {
       scale.value = withDelay(
         index * Animation.delay.choiceStagger,
@@ -96,6 +107,8 @@ export function ActionButton({
           icon={icon}
           variant={variant}
           size={size}
+          disabled={disabled}
+          loading={loading}
         />
       ) : (
         <TextButton
@@ -103,6 +116,8 @@ export function ActionButton({
           label={label || ""}
           variant={variant}
           size={size}
+          disabled={disabled}
+          loading={loading}
         />
       )}
     </Animated.View>

@@ -80,7 +80,7 @@ export default function LazyModeScreen() {
         <IconButton onPress={handleCancel} icon='close' size={ButtonSize.md} />
         <IconButton
           onPress={handleSubmit}
-          icon='checkmark'
+          icon='checkmark-sharp'
           variant={ButtonVariant.black}
           size={ButtonSize.md}
           disabled={!isValid}

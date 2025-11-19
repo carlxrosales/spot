@@ -8,6 +8,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { Image } from "react-native";
 import { useLocation } from "./location-context";
 import { useSurvey } from "./survey-context";
 
@@ -89,6 +90,16 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     },
     [fetchSuggestions]
   );
+
+  useEffect(() => {
+    suggestions
+      .slice(currentIndex, currentIndex + 1)
+      .forEach((suggestion: Suggestion) => {
+        suggestion.photos.forEach((photo) => {
+          Image.prefetch(photo).catch(() => {});
+        });
+      });
+  }, [suggestions, currentIndex]);
 
   useEffect(() => {
     if (answers.length === 0) {

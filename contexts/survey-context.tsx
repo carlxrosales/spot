@@ -1,3 +1,4 @@
+import { Animation } from "@/constants/theme";
 import { generateInitialQuestion, Question } from "@/data/survey";
 import { generateNextQuestion } from "@/services/gemini";
 import {
@@ -52,6 +53,10 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
 
         if (currentQuestion?.isLast) {
           setAnswers(updatedAnswers);
+          setQuestions((prev) => [...prev, prev[prev.length - 1]]);
+          await new Promise((resolve) =>
+            setTimeout(resolve, Animation.duration.slow)
+          );
           setIsComplete(true);
           return;
         }

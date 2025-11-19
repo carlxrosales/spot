@@ -22,7 +22,7 @@ export function useChoiceFeedback() {
             require("@/assets/sounds/survey/choice.mp3"),
             {}
           );
-          choiceSound.volume = 0.5;
+          choiceSound.volume = 0.1;
           choiceSoundRef.current = choiceSound;
         } catch {}
       } catch {}

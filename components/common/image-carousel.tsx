@@ -1,6 +1,6 @@
-import { IndicatorBar } from "./indicator-bar";
 import { useEffect, useState } from "react";
 import { Image, LayoutChangeEvent, Pressable, View } from "react-native";
+import { IndicatorBar } from "./indicator-bar";
 
 interface ImageCarouselProps {
   images: string[];
@@ -24,9 +24,7 @@ export function ImageCarousel({
 
   useEffect(() => {
     images.forEach((uri) => {
-      Image.prefetch(uri).catch(() => {
-        // Silently fail if prefetch fails
-      });
+      Image.prefetch(uri).catch(() => {});
     });
   }, [images]);
 
@@ -78,4 +76,3 @@ export function ImageCarousel({
     </Pressable>
   );
 }
-

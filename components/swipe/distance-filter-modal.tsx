@@ -1,5 +1,6 @@
 import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
+import { Colors } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { DISTANCE_OPTIONS } from "@/data/suggestions/constants";
 import { Picker } from "@react-native-picker/picker";
@@ -63,6 +64,7 @@ export function DistanceFilterModal({
                 key={distance}
                 label={formatDistanceLabel(distance)}
                 value={distance}
+                color={Colors.black}
               />
             ))}
           </Picker>

@@ -29,6 +29,7 @@ const copy = {
   kmAway: "km away",
   closingIn: "Closing in",
   openingIn: "Opening in",
+  spotted: "SPOTTED",
 };
 
 const SWIPE_THRESHOLD = SCREEN_WIDTH * Animation.threshold.swipeCard;
@@ -242,11 +243,13 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
             <View className='flex-1 bg-white rounded-3xl overflow-hidden m-4 shadow-xl'>
               {isSelected && (
                 <View
-                  className='absolute top-6 right-[-52px] z-50'
+                  className='absolute top-8 right-[-60px] z-50'
                   style={{ transform: [{ rotate: "45deg" }] }}
                 >
                   <View className='bg-neonPink px-20 py-3'>
-                    <Text className='text-white font-bold text-md'>SAVED</Text>
+                    <Text className='text-white font-bold text-md'>
+                      {copy.spotted}
+                    </Text>
                   </View>
                 </View>
               )}

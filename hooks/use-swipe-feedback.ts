@@ -26,7 +26,7 @@ export function useSwipeFeedback() {
             require("@/assets/sounds/swipe/skip.mp3"),
             {}
           );
-          skipSound.volume = 0.3;
+          skipSound.volume = 0.1;
           skipSoundRef.current = skipSound;
         } catch {}
 

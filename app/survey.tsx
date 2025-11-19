@@ -1,8 +1,8 @@
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
+import { AnimatedButton } from "@/components/common/animated-button";
 import { FixedView } from "@/components/common/fixed-view";
 import { Logo } from "@/components/common/logo";
-import { ActionButton } from "@/components/survey/action-button";
 import { ChoiceButton } from "@/components/survey/choice-button";
 import { ChoiceFeedback } from "@/components/survey/choice-feedback";
 import { Question } from "@/components/survey/question";
@@ -92,7 +92,7 @@ export default function Survey() {
           className='items-center'
           withSafeAreaInsets
         >
-          <Logo />
+          <Logo isAnimated />
         </AbsoluteView>
         <View className='flex-1 justify-center items-start gap-8'>
           <ChoiceFeedback
@@ -136,14 +136,14 @@ export default function Survey() {
             <View className='w-full flex-1 flex-row items-center justify-end gap-4'>
               {answers.length > 0 ? (
                 <>
-                  <ActionButton
+                  <AnimatedButton
                     label={copy.showSpots}
                     variant={ButtonVariant.black}
                     onPress={handleShowSpots}
                     index={0}
                     isAnimatingOut={isLoading && !isComplete}
                   />
-                  <ActionButton
+                  <AnimatedButton
                     icon='reload'
                     variant={ButtonVariant.white}
                     onPress={handleStartOver}
@@ -153,14 +153,14 @@ export default function Survey() {
                 </>
               ) : (
                 <>
-                  <ActionButton
+                  <AnimatedButton
                     label={copy.feelingSponty}
                     variant={ButtonVariant.black}
                     onPress={handleFeelingSponty}
                     index={0}
                     isAnimatingOut={isLoading && !isComplete}
                   />
-                  <ActionButton
+                  <AnimatedButton
                     label={copy.lazyMode}
                     variant={ButtonVariant.white}
                     onPress={handleLazyModePress}

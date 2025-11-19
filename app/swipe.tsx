@@ -1,7 +1,7 @@
-import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { FixedView } from "@/components/common/fixed-view";
 import { IconButton } from "@/components/common/icon-button";
+import { Logo } from "@/components/common/logo";
 import { SafeView } from "@/components/common/safe-view";
 import { DistanceFilterModal } from "@/components/swipe/distance-filter-modal";
 import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
@@ -103,22 +103,12 @@ export default function Swipe() {
       <AnimatedBackground />
       <SafeView className='h-full w-full justify-center items-center'>
         {isLoading ? (
-          <>
-            <AbsoluteView top={16} left={16} withSafeAreaInsets>
-              <IconButton
-                onPress={handleBack}
-                icon='arrow-back'
-                variant={ButtonVariant.white}
-                size={ButtonSize.sm}
-              />
-            </AbsoluteView>
-            <View className='items-center gap-6'>
-              <ActivityIndicator size='large' color={Colors.black} />
-              <Text className='text-4xl font-groen font-semibold text-black'>
-                {copy.findingSpots}
-              </Text>
-            </View>
-          </>
+          <View className='items-center gap-6'>
+            <ActivityIndicator size='large' color={Colors.black} />
+            <Text className='text-4xl font-groen font-semibold text-black'>
+              {copy.findingSpots}
+            </Text>
+          </View>
         ) : (
           <View className='h-full w-full flex-1 flex-col'>
             <>
@@ -128,6 +118,9 @@ export default function Swipe() {
                   size={ButtonSize.sm}
                   icon='arrow-back'
                 />
+                <View className='flex-1 items-center justify-center'>
+                  <Logo />
+                </View>
                 <IconButton
                   onPress={distanceModal.handleOpen}
                   size={ButtonSize.sm}
@@ -153,7 +146,7 @@ export default function Swipe() {
                 <IconButton
                   onPress={handleSkip}
                   icon='close'
-                  variant={ButtonVariant.pink}
+                  variant={ButtonVariant.black}
                   loading={isSkipLoading}
                   disabled={isSkipLoading || isProceedLoading}
                 />
@@ -165,8 +158,8 @@ export default function Swipe() {
                 />
                 <IconButton
                   onPress={handleProceed}
-                  icon='checkmark'
-                  variant={ButtonVariant.black}
+                  icon='checkmark-sharp'
+                  variant={ButtonVariant.pink}
                   loading={isProceedLoading}
                   disabled={isSkipLoading || isProceedLoading}
                 />

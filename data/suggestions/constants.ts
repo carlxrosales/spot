@@ -1,9 +1,14 @@
 import { SuggestionFeedback } from "./types";
 
 /**
+ * Default minimum distance in kilometers for filtering place suggestions.
+ */
+export const DEFAULT_MIN_DISTANCE_IN_KM: number = 0;
+
+/**
  * Default maximum distance in kilometers for filtering place suggestions.
  */
-export const DEFAULT_MAX_DISTANCE_IN_KM: number = 20;
+export const DEFAULT_MAX_DISTANCE_IN_KM: number = 25;
 
 /**
  * Available distance filter options in kilometers.
@@ -11,8 +16,13 @@ export const DEFAULT_MAX_DISTANCE_IN_KM: number = 20;
  * Includes 0 for minimum distance filtering.
  */
 export const DISTANCE_OPTIONS = [
-  0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250,
+  0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 500, 1000,
 ] as const;
+
+/**
+ * Minimum number of suggestions to display.
+ */
+export const MINIMUM_SUGGESTIONS_COUNT = 8;
 
 /**
  * Array of feedback messages displayed when a user skips a suggestion.
@@ -45,7 +55,6 @@ export const suggestionSkipFeedbacks: SuggestionFeedback[] = [
   { text: "oof", emoji: "😮" },
   { text: "yikes", emoji: "😳" },
   { text: "bruh", emoji: "😑" },
-  { text: "L", emoji: "💀" },
   { text: "rip", emoji: "⚰️" },
   { text: "dead", emoji: "☠️" },
   { text: "cap", emoji: "🎩" },

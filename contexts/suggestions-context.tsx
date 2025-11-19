@@ -1,5 +1,10 @@
 import { generateSuggestions, Suggestion } from "@/data/suggestions";
-import { DEFAULT_MAX_DISTANCE_IN_KM } from "@/data/suggestions/constants";
+import {
+  DEFAULT_MAX_DISTANCE_IN_KM,
+  DEFAULT_MIN_DISTANCE_IN_KM,
+  DISTANCE_OPTIONS,
+  MINIMUM_SUGGESTIONS_COUNT,
+} from "@/data/suggestions/constants";
 import {
   createContext,
   ReactNode,
@@ -20,6 +25,8 @@ interface SuggestionsContextType {
   currentIndex: number;
   maxDistanceInKm: number;
   minDistanceInKm: number;
+  hasFetched: boolean;
+  setHasFetched: (hasFetched: boolean) => void;
   fetchSuggestions: () => void;
   error: string | null;
   handleSkip: () => void;
@@ -41,22 +48,32 @@ interface SuggestionsProviderProps {
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { answers, isComplete } = useSurvey();
   const { displayToast } = useToast();
-  const { location } = useLocation();
+  const { location, hasPermission } = useLocation();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
     []
   );
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [maxDistanceInKm, setMaxDistanceInKm] = useState<number>(
     DEFAULT_MAX_DISTANCE_IN_KM
   );
-  const [minDistanceInKm, setMinDistanceInKm] = useState<number>(0);
+  const [minDistanceInKm, setMinDistanceInKm] = useState<number>(
+    DEFAULT_MIN_DISTANCE_IN_KM
+  );
 
   const fetchSuggestions = useCallback(async () => {
-    if (!isComplete || answers.length === 0 || !location) {
+    if (
+      !isComplete ||
+      !location ||
+      !hasPermission ||
+      isLoading ||
+      hasFetched ||
+      answers.length === 0
+    ) {
       return;
     }
 
@@ -78,37 +95,52 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         }
       }
 
-      // Treat 250 as 1000 for maximum distance filtering
-      const effectiveMaxDistance =
-        maxDistanceInKm === 250 ? 1000 : maxDistanceInKm;
+      const filterByDistance = (maxDistance: number) =>
+        newSuggestions.filter(
+          (suggestion) =>
+            suggestion.distanceInKm !== undefined &&
+            suggestion.distanceInKm > DEFAULT_MIN_DISTANCE_IN_KM &&
+            suggestion.distanceInKm <= maxDistance
+        );
 
-      const filteredSuggestions = newSuggestions.filter(
-        (suggestion) =>
-          suggestion.distanceInKm !== undefined &&
-          suggestion.distanceInKm > minDistanceInKm &&
-          suggestion.distanceInKm <= effectiveMaxDistance
-      );
+      let filteredSuggestions = filterByDistance(DEFAULT_MAX_DISTANCE_IN_KM);
+      let finalMaxDistance = DEFAULT_MAX_DISTANCE_IN_KM;
 
+      if (filteredSuggestions.length < MINIMUM_SUGGESTIONS_COUNT) {
+        const defaultMaxIndex = DISTANCE_OPTIONS.findIndex(
+          (option) => option >= DEFAULT_MAX_DISTANCE_IN_KM
+        );
+        const startIndex = defaultMaxIndex >= 0 ? defaultMaxIndex + 1 : 0;
+
+        for (
+          let i = startIndex;
+          i < DISTANCE_OPTIONS.length && filteredSuggestions.length < 8;
+          i++
+        ) {
+          finalMaxDistance = DISTANCE_OPTIONS[i];
+          filteredSuggestions = filterByDistance(finalMaxDistance);
+        }
+
+        setMaxDistanceInKm(finalMaxDistance);
+      }
       setSuggestions(filteredSuggestions);
       setCurrentIndex(0);
     } catch {
       setError("Failed to load suggestions");
     } finally {
       setIsLoading(false);
+      setHasFetched(true);
     }
-  }, [answers, isComplete, location, minDistanceInKm, maxDistanceInKm]);
+  }, [answers, location, hasPermission, isLoading, hasFetched]);
 
   const filterSuggestions = useCallback(
     (minDistance: number, maxDistance: number) => {
-      // Treat 250 as 1000 for maximum distance filtering
-      const effectiveMaxDistance = maxDistance === 250 ? 1000 : maxDistance;
-
       setSuggestions(
         allSuggestions.filter(
           (suggestion) =>
             suggestion.distanceInKm !== undefined &&
             suggestion.distanceInKm > minDistance &&
-            suggestion.distanceInKm <= effectiveMaxDistance
+            suggestion.distanceInKm <= maxDistance
         )
       );
       setCurrentIndex(0);
@@ -129,7 +161,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   }, [suggestions.length]);
 
   const handleSelect = useCallback((suggestionId: string) => {
-    setSelectedSuggestionIds((prev) => [...prev, suggestionId]);
+    setSelectedSuggestionIds((prev) =>
+      prev.includes(suggestionId) ? prev : [...prev, suggestionId]
+    );
   }, []);
 
   const handleFilterByDistance = useCallback(
@@ -155,20 +189,24 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   }, [suggestions, currentIndex]);
 
   useEffect(() => {
-    if (suggestions.length === 1) {
+    if (!isLoading && suggestions.length === 1 && hasFetched) {
       setSuggestions((prev) => [...prev, ...prev]);
     }
-  }, [suggestions]);
+  }, [suggestions, isLoading, hasFetched]);
 
   useEffect(() => {
     if (answers.length === 0) {
+      setMinDistanceInKm(DEFAULT_MIN_DISTANCE_IN_KM);
+      setMaxDistanceInKm(DEFAULT_MAX_DISTANCE_IN_KM);
+      setAllSuggestions([]);
       setSuggestions([]);
       setCurrentIndex(0);
       setSelectedSuggestionIds([]);
-      setIsLoading(true);
+      setIsLoading(false);
+      setHasFetched(false);
       setError(null);
     }
-  }, [answers]);
+  }, [answers.length]);
 
   return (
     <SuggestionsContext.Provider
@@ -179,6 +217,8 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         currentIndex,
         maxDistanceInKm,
         minDistanceInKm,
+        hasFetched,
+        setHasFetched,
         fetchSuggestions,
         error,
         handleSkip,

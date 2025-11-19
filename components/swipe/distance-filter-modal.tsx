@@ -47,9 +47,12 @@ export function DistanceFilterModal({
     if (distance === 0) {
       return "Any distance";
     }
-    if (distance === 250) {
-      return "250+ km";
+
+    const lastDistanceOption = DISTANCE_OPTIONS[DISTANCE_OPTIONS.length - 1];
+    if (distance === lastDistanceOption) {
+      return `${lastDistanceOption}+ km`;
     }
+
     return `${distance} km`;
   };
 
@@ -98,7 +101,7 @@ export function DistanceFilterModal({
     <BottomModal
       visible={visible}
       onClose={onClose}
-      title='Distance Filter'
+      title="How far I'll go"
       description='Set minimum and maximum distance'
       showCancelButton
     >

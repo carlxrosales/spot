@@ -2,6 +2,7 @@ import { IconButton } from "@/components/common/icon-button";
 import { ButtonSize } from "@/constants/buttons";
 import { Shadows } from "@/constants/theme";
 import { Suggestion } from "@/data/suggestions";
+import { cleanAddress } from "@/utils/address";
 import { Modal, ScrollView, Text, View } from "react-native";
 import { GetDirectionsButton } from "./get-directions-button";
 import { GoogleMapsButton } from "./google-maps-button";
@@ -49,7 +50,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
               </Text>
 
               <Text className='text-xl text-black font-semibold opacity-90'>
-                📍 {suggestion.address}
+                📍 {cleanAddress(suggestion.address)}
               </Text>
 
               {suggestion.tags.length > 0 && (

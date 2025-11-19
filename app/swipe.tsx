@@ -1,8 +1,9 @@
+import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { FixedView } from "@/components/common/fixed-view";
 import { IconButton } from "@/components/common/icon-button";
-import { Logo } from "@/components/common/logo";
 import { SafeView } from "@/components/common/safe-view";
+import { TextButton } from "@/components/common/text-button";
 import { DistanceFilterModal } from "@/components/swipe/distance-filter-modal";
 import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
 import { SwipeModal } from "@/components/swipe/swipe-modal";
@@ -13,7 +14,6 @@ import {
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
-import { useLocation } from "@/contexts/location-context";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
@@ -38,9 +38,15 @@ export default function Swipe() {
   const router = useRouter();
   const { answers } = useSurvey();
   const { handleStartOver } = useSurvey();
-  const { location, hasPermission } = useLocation();
-  const { isLoading, suggestions, currentIndex, fetchSuggestions, error } =
-    useSuggestions();
+  const {
+    isLoading,
+    hasFetched,
+    suggestions,
+    selectedSuggestionIds,
+    fetchSuggestions,
+    currentIndex,
+    error,
+  } = useSuggestions();
   const { displayToast } = useToast();
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const swipeModal = useModal();
@@ -50,19 +56,13 @@ export default function Swipe() {
   const cardRef = useRef<SwipeableCardRef>(null);
 
   useEffect(() => {
-    if (!router) {
-      return;
-    }
-
     if (answers.length === 0) {
       router.navigate(Routes.survey);
       return;
     }
 
-    if (hasPermission && location && suggestions.length === 0) {
-      fetchSuggestions();
-    }
-  }, [hasPermission, location, suggestions.length, fetchSuggestions]);
+    fetchSuggestions();
+  }, [answers.length, fetchSuggestions]);
 
   useEffect(() => {
     if (error) {
@@ -108,7 +108,7 @@ export default function Swipe() {
     <FixedView className='h-screen w-screen bg-neonGreen' withSafeAreaInsets>
       <AnimatedBackground />
       <SafeView className='h-full w-full justify-center items-center'>
-        {isLoading ? (
+        {isLoading || !hasFetched ? (
           <View className='items-center gap-6'>
             <ActivityIndicator size='large' color={Colors.black} />
             <Text className='text-4xl font-groen font-semibold text-black'>
@@ -124,13 +124,20 @@ export default function Swipe() {
                   size={ButtonSize.sm}
                   icon='arrow-back'
                 />
-                <View className='flex-1 items-center justify-center'>
-                  <Logo />
-                </View>
+                <AbsoluteView top={14} left={0} right={0}>
+                  <View className='items-center justify-center'>
+                    <TextButton
+                      size={ButtonSize.sm}
+                      variant={ButtonVariant.black}
+                      label={`${currentIndex + 1} / ${suggestions.length}`}
+                    />
+                  </View>
+                </AbsoluteView>
                 <IconButton
-                  onPress={distanceModal.handleOpen}
                   size={ButtonSize.sm}
-                  icon='filter'
+                  onPress={distanceModal.handleOpen}
+                  icon='location-outline'
+                  variant={ButtonVariant.white}
                 />
               </View>
               {currentSuggestion ? (
@@ -172,7 +179,10 @@ export default function Swipe() {
                   variant={ButtonVariant.pink}
                   loading={isProceedLoading}
                   disabled={
-                    !currentSuggestion || isSkipLoading || isProceedLoading
+                    !currentSuggestion ||
+                    isSkipLoading ||
+                    isProceedLoading ||
+                    selectedSuggestionIds.includes(currentSuggestion.id)
                   }
                 />
               </View>

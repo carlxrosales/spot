@@ -16,6 +16,7 @@ interface IconButtonProps {
   size?: ButtonSizeType;
   disabled?: boolean;
   loading?: boolean;
+  reversed?: boolean;
 }
 
 /**
@@ -36,6 +37,7 @@ export function IconButton({
   size = ButtonSize.lg,
   disabled = false,
   loading = false,
+  reversed = false,
 }: IconButtonProps) {
   const getBackgroundColor = () => {
     switch (variant) {
@@ -90,8 +92,11 @@ export function IconButton({
       disabled={disabled || loading}
       className={`aspect-square ${getButtonPadding()} rounded-full items-center justify-center ${getBackgroundColor()} ${
         disabled || loading ? "opacity-50" : ""
-      }`}
-      style={Shadows.light}
+      } `}
+      style={{
+        ...Shadows.light,
+        ...(reversed ? { transform: [{ scaleX: -1 }] } : {}),
+      }}
     >
       {loading ? (
         <ActivityIndicator size='small' color={getIconColor()} />

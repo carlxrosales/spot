@@ -1,14 +1,17 @@
 import {
+  ButtonIcon,
   ButtonSize,
   ButtonSizeType,
   ButtonVariant,
   ButtonVariantType,
 } from "@/constants/buttons";
 import { Colors, Shadows } from "@/constants/theme";
-import { Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
-interface TextButtonProps {
-  onPress?: () => void | undefined;
+interface ButtonProps {
+  onPress: () => void;
+  icon: ButtonIcon;
   label: string;
   variant?: ButtonVariantType;
   size?: ButtonSizeType;
@@ -18,26 +21,28 @@ interface TextButtonProps {
 }
 
 /**
- * Text button component with variant and size options.
- * Displays a text label in a rounded button with loading state support.
+ * Button component with icon and text label.
+ * Displays an icon on the left and text label on the right in a rounded button.
  *
  * @param onPress - Callback function called when button is pressed
+ * @param icon - Icon name from Ionicons
  * @param label - Button text label
  * @param variant - Button color variant (default: "white")
- * @param size - Button text size (default: "lg")
+ * @param size - Button size (default: "lg")
  * @param disabled - Whether the button is disabled (default: false)
  * @param fullWidth - Whether the button should take full width (default: false)
  * @param loading - Whether the button is in loading state (default: false)
  */
-export function TextButton({
+export function Button({
   onPress,
+  icon,
   label,
   variant = ButtonVariant.white,
   size = ButtonSize.lg,
   disabled = false,
   fullWidth = false,
   loading = false,
-}: TextButtonProps) {
+}: ButtonProps) {
   const getBackgroundColor = () => {
     switch (variant) {
       case ButtonVariant.pink:
@@ -76,6 +81,18 @@ export function TextButton({
     }
   };
 
+  const getIconSize = () => {
+    switch (size) {
+      case ButtonSize.sm:
+        return 20;
+      case ButtonSize.md:
+        return 22;
+      case ButtonSize.lg:
+      default:
+        return 24;
+    }
+  };
+
   const getButtonPadding = () => {
     switch (size) {
       case ButtonSize.sm:
@@ -87,24 +104,43 @@ export function TextButton({
     }
   };
 
+  const getIconSpacing = () => {
+    switch (size) {
+      case ButtonSize.sm:
+        return "mr-2";
+      case ButtonSize.md:
+      case ButtonSize.lg:
+      default:
+        return "mr-3";
+    }
+  };
+
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
       className={`${
         fullWidth ? "w-full" : ""
-      } ${getButtonPadding()} rounded-[28px] items-center justify-center ${getBackgroundColor()} ${
+      } ${getButtonPadding()} rounded-[28px] flex-row items-center justify-center ${getBackgroundColor()} ${
         disabled || loading ? "opacity-50" : ""
       }`}
       style={Shadows.light}
-      {...(!onPress ? { activeOpacity: 1 } : {})}
     >
-      <Text
-        className={`${getTextSize()} font-semibold`}
-        style={{ color: getTextColor() }}
-      >
-        {loading ? "Loading..." : label}
-      </Text>
+      {loading ? (
+        <ActivityIndicator size='small' color={getTextColor()} />
+      ) : (
+        <>
+          <View className={getIconSpacing()}>
+            <Ionicons name={icon} size={getIconSize()} color={getTextColor()} />
+          </View>
+          <Text
+            className={`${getTextSize()} font-semibold`}
+            style={{ color: getTextColor() }}
+          >
+            {label}
+          </Text>
+        </>
+      )}
     </TouchableOpacity>
   );
 }

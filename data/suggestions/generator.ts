@@ -1,10 +1,11 @@
 import { LocationCoordinates } from "@/data/location";
-import { SpontyChoice } from "@/data/survey";
+import { LazyChoice, SpontyChoice } from "@/data/survey";
 import { generateEmbedding, generateQuery } from "@/services/gemini";
 import { getPhotoUris } from "@/services/places";
 import { suggestPlaces } from "@/services/supabase";
 import {
   DEFAULT_THRESHOLD,
+  LAZY_THRESHOLD,
   SHOW_NOW_THRESHOLD,
   SPONTY_THRESHOLD,
 } from "@/services/supabase/constants";
@@ -36,6 +37,8 @@ export const generateSuggestions = async (
     threshold = SPONTY_THRESHOLD;
   } else if (answers.length <= 4) {
     threshold = SHOW_NOW_THRESHOLD;
+  } else if (answers.includes(LazyChoice.value)) {
+    threshold = LAZY_THRESHOLD;
   }
 
   const suggestions: Suggestion[] = await suggestPlaces({
@@ -77,10 +80,12 @@ export const generateSuggestions = async (
     })
   );
 
-  return suggestionsWithComputedFields.filter(
+  const filteredSuggestions = suggestionsWithComputedFields.filter(
     (suggestion) =>
       suggestion.photoUris &&
       suggestion.photoUris.length > 0 &&
       suggestion.distanceInKm !== undefined
   );
+
+  return filteredSuggestions;
 };

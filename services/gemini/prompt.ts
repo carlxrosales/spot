@@ -1,3 +1,5 @@
+import { SpontyChoice } from "@/data/survey";
+
 /**
  * System and user prompts for generating survey questions.
  * These prompts guide the AI to create context-aware questions that extract
@@ -98,6 +100,12 @@ Transform the provided tags into a detailed sentence or paragraph (2-4 sentences
 - Make it specific and detailed enough for accurate matching
 - Use descriptive language that captures the essence of the place
 - Focus on characteristics that would appear in place descriptions (atmosphere, cuisine, vibe, setting, etc.)
+
+## Special Handling: "${SpontyChoice.value}" Tag
+**When "${SpontyChoice.value}" is the ONLY tag (solo):**
+- Generate a completely random, diverse query description
+- Create a varied description that could match a random but specific type of cafe or restaurant
+- Include specific combinations of: cuisine types, ambiance styles, atmosphere qualities, group size accommodations, budget ranges, etc.
 
 ## Style
 - Write in third person, present tense (e.g., "A cozy cafe with...", "This restaurant offers...", "The place features...")

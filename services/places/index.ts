@@ -1,5 +1,9 @@
 import { places } from "./client";
-import { PHOTO_MAX_HEIGHT_PX, PHOTO_MAX_WIDTH_PX } from "./constants";
+import {
+  DEFAULT_PHOTO_LIMIT_COUNT,
+  PHOTO_MAX_HEIGHT_PX,
+  PHOTO_MAX_WIDTH_PX,
+} from "./constants";
 
 /**
  * Fetches photo URIs from Google Places API for given photo resource names.
@@ -9,21 +13,26 @@ import { PHOTO_MAX_HEIGHT_PX, PHOTO_MAX_WIDTH_PX } from "./constants";
  *
  * @see https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places.photos/getMedia
  */
-export const getPhotoUris = async (photoNames: string[]): Promise<string[]> => {
+export const getPhotoUris = async (
+  photoNames: string[],
+  limitCount: number = DEFAULT_PHOTO_LIMIT_COUNT
+): Promise<string[]> => {
   if (photoNames.length === 0) {
     return [];
   }
 
   try {
-    const photoUriPromises = photoNames.map(async (photoName) => {
-      const photoUri = await places.getPhotoUri({
-        photoName,
-        maxWidthPx: PHOTO_MAX_WIDTH_PX,
-        maxHeightPx: PHOTO_MAX_HEIGHT_PX,
-      });
+    const photoUriPromises = photoNames
+      .slice(0, limitCount)
+      .map(async (photoName) => {
+        const photoUri = await places.getPhotoUri({
+          photoName,
+          maxWidthPx: PHOTO_MAX_WIDTH_PX,
+          maxHeightPx: PHOTO_MAX_HEIGHT_PX,
+        });
 
-      return photoUri;
-    });
+        return photoUri;
+      });
 
     const photoUris = await Promise.all(photoUriPromises);
     return photoUris.filter((uri) => uri != null);

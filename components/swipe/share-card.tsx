@@ -6,6 +6,7 @@ import {
   isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
+import { cleanAddress } from "@/utils/address";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
@@ -101,7 +102,10 @@ export function ShareCard({
         pointerEvents='box-none'
       >
         <View className='flex-1 justify-center h-full' pointerEvents='box-none'>
-          <View className='py-4 gap-4' pointerEvents='box-none'>
+          <View
+            className='flex-1 py-4 gap-4 justify-center'
+            pointerEvents='box-none'
+          >
             <Text
               className='text-5xl font-bold font-groen text-white'
               pointerEvents='box-none'
@@ -154,6 +158,14 @@ export function ShareCard({
                 )}
               </View>
             )}
+          </View>
+          <View className='flex-row items-center gap-2'>
+            <Text className='text-lg font-semibold text-white opacity-90'>
+              📍
+            </Text>
+            <Text className='flex-1 text-md font-semibold text-white opacity-90 text-left'>
+              {cleanAddress(suggestion.address)}
+            </Text>
           </View>
         </View>
       </View>

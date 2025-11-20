@@ -23,6 +23,8 @@ export const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
 });
 
+const MODEL = "gemini-2.5-flash-lite";
+
 // ============================================================================
 // PROMPTS
 // ============================================================================
@@ -263,7 +265,7 @@ async function generateQuestion(
   message: string
 ): Promise<Question> {
   const chat = ai.chats.create({
-    model: "gemini-2.5-flash-lite",
+    model: MODEL,
     history: history.length > 0 ? history : undefined,
     config: {
       systemInstruction: SURVEY_PROMPT.SYSTEM,
@@ -356,7 +358,7 @@ export async function generateNextQuestion(
  */
 export async function generateTags(input: string): Promise<string[]> {
   const chat = ai.chats.create({
-    model: "gemini-2.5-flash-lite",
+    model: MODEL,
     config: {
       systemInstruction: TAGS_PROMPT,
       responseMimeType: "application/json",
@@ -393,7 +395,7 @@ export async function generateTags(input: string): Promise<string[]> {
  */
 export async function generateQuery(tags: string[]): Promise<string> {
   const chat = ai.chats.create({
-    model: "gemini-2.5-flash-lite",
+    model: MODEL,
     config: {
       systemInstruction: QUERY_PROMPT,
       temperature: 0.7,

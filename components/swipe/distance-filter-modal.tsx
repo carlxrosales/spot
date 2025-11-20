@@ -29,13 +29,16 @@ export function DistanceFilterModal({
     useSuggestions();
 
   const [activeTab, setActiveTab] = useState<TabType>("min");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedMinDistance, setSelectedMinDistance] =
     useState<number>(minDistanceInKm);
   const [selectedMaxDistance, setSelectedMaxDistance] =
     useState<number>(maxDistanceInKm);
 
-  const handleSave = useCallback(() => {
-    handleFilterByDistance(selectedMinDistance, selectedMaxDistance);
+  const handleSave = useCallback(async () => {
+    setIsLoading(true);
+    await handleFilterByDistance(selectedMinDistance, selectedMaxDistance);
+    setIsLoading(false);
     onClose();
   }, [
     selectedMinDistance,
@@ -182,6 +185,7 @@ export function DistanceFilterModal({
           onPress={handleSave}
           label='Save'
           variant='black'
+          loading={isLoading}
           fullWidth
         />
       </View>

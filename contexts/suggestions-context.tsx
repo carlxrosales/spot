@@ -37,7 +37,7 @@ interface SuggestionsContextType {
   handleFilterByDistance: (
     minDistanceInKm: number,
     maxDistanceInKm: number
-  ) => void;
+  ) => Promise<void>;
   loadPhotoByName: (suggestionId: string, photoName: string) => Promise<void>;
   getPhotoUris: (suggestionId: string) => string[] | undefined;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
@@ -241,10 +241,10 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   }, []);
 
   const handleFilterByDistance = useCallback(
-    (minDistance: number, maxDistance: number) => {
+    async (minDistance: number, maxDistance: number) => {
       setMinDistanceInKm(minDistance);
       setMaxDistanceInKm(maxDistance);
-      filterSuggestions(minDistance, maxDistance);
+      await filterSuggestions(minDistance, maxDistance);
     },
     [filterSuggestions]
   );

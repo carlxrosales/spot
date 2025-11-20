@@ -20,6 +20,7 @@ const copy = {
 interface ShareCardProps {
   suggestion: Suggestion;
   currentPhotoIndex: number;
+  photoUris?: string[];
 }
 
 /**
@@ -33,8 +34,9 @@ interface ShareCardProps {
 export function ShareCard({
   suggestion,
   currentPhotoIndex: initialPhotoIndex,
+  photoUris,
 }: ShareCardProps) {
-  const photoCount = suggestion.photoUris?.length || 0;
+  const photoCount = photoUris?.length || 0;
   const safeInitialIndex =
     photoCount > 0
       ? Math.max(0, Math.min(initialPhotoIndex, photoCount - 1))
@@ -45,7 +47,7 @@ export function ShareCard({
   const [countdown, setCountdown] = useState<string>("");
 
   useEffect(() => {
-    const photoCount = suggestion.photoUris?.length || 0;
+    const photoCount = photoUris?.length || 0;
     if (photoCount > 0) {
       const safeIndex = Math.max(
         0,
@@ -55,7 +57,7 @@ export function ShareCard({
     } else {
       setCurrentPhotoIndex(0);
     }
-  }, [initialPhotoIndex, suggestion.photoUris]);
+  }, [initialPhotoIndex, photoUris]);
 
   useEffect(() => {
     if (suggestion.opensAt || suggestion.closesAt) {
@@ -86,9 +88,9 @@ export function ShareCard({
           <Text className='text-white font-bold text-md'>{copy.spotted}</Text>
         </View>
       </View>
-      {suggestion.photoUris && suggestion.photoUris.length > 0 && (
+      {photoUris && photoUris.length > 0 && (
         <ImageCarousel
-          images={suggestion.photoUris}
+          images={photoUris}
           currentIndex={currentPhotoIndex}
           onIndexChange={setCurrentPhotoIndex}
           showIndicator={false}

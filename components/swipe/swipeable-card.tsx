@@ -60,8 +60,13 @@ export interface SwipeableCardRef {
  */
 export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
   ({ suggestion }, ref) => {
-    const { selectedSuggestionIds, handleSkip, handleSelect } =
-      useSuggestions();
+    const {
+      selectedSuggestionIds,
+      handleSkip,
+      handleSelect,
+      loadNextPhoto,
+      getPhotoUris,
+    } = useSuggestions();
     const { onSwipeStart, onSwipeThreshold, onSwipeSkip, onSwipeSelect } =
       useSwipeFeedback();
     const translateX = useSharedValue<number>(0);
@@ -75,6 +80,19 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       emoji: string;
     } | null>(null);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
+    const photoUris = getPhotoUris(suggestion.id);
+
+    const handlePhotoIndexChange = (index: number) => {
+      setCurrentPhotoIndex(index);
+      const loadedPhotoCount = photoUris?.length || 0;
+      if (
+        index === loadedPhotoCount - 1 &&
+        suggestion.photos.length > loadedPhotoCount
+      ) {
+        loadNextPhoto(suggestion.id);
+      }
+    };
+
     const [countdown, setCountdown] = useState<string>("");
     const [skipFeedback] = useState(() => getRandomUnusedSkipFeedback());
     const [selectFeedback] = useState(() => getRandomUnusedSelectFeedback());
@@ -273,11 +291,11 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                 </View>
               )}
               <>
-                {suggestion.photoUris && suggestion.photoUris.length > 0 && (
+                {photoUris && photoUris.length > 0 && (
                   <ImageCarousel
-                    images={suggestion.photoUris}
+                    images={photoUris}
                     currentIndex={currentPhotoIndex}
-                    onIndexChange={setCurrentPhotoIndex}
+                    onIndexChange={handlePhotoIndexChange}
                     showIndicator={!isSelected}
                   />
                 )}

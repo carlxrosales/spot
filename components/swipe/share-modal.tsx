@@ -4,6 +4,7 @@ import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
 import { ButtonVariant } from "@/constants/buttons";
 import { Colors } from "@/constants/theme";
+import { useSuggestions } from "@/contexts/suggestions-context";
 import { Suggestion } from "@/data/suggestions";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { Modal, View } from "react-native";
@@ -48,6 +49,7 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
     },
     ref
   ) => {
+    const { getPhotoUris } = useSuggestions();
     const viewShotRef = React.useRef<ViewShot>(null);
 
     useImperativeHandle(ref, () => ({
@@ -92,6 +94,7 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
                   <ShareCard
                     suggestion={suggestion}
                     currentPhotoIndex={currentPhotoIndex}
+                    photoUris={getPhotoUris(suggestion.id)}
                   />
                 </View>
               </View>

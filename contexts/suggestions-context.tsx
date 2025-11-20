@@ -1,4 +1,10 @@
-import { generateSuggestions, Suggestion } from "@/data/suggestions";
+import {
+  generateSuggestions,
+  loadFirstPhoto,
+  loadNextPhotoForSuggestion,
+  loadPhotosForCurrentAndNextSuggestions,
+  Suggestion,
+} from "@/data/suggestions";
 import {
   DEFAULT_MAX_DISTANCE_IN_KM,
   DEFAULT_MIN_DISTANCE_IN_KM,
@@ -11,6 +17,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { Image } from "react-native";
@@ -35,6 +42,8 @@ interface SuggestionsContextType {
     minDistanceInKm: number,
     maxDistanceInKm: number
   ) => void;
+  loadNextPhoto: (suggestionId: string) => Promise<void>;
+  getPhotoUris: (suggestionId: string) => string[] | undefined;
 }
 
 const SuggestionsContext = createContext<SuggestionsContextType | undefined>(
@@ -51,6 +60,11 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { location, hasPermission } = useLocation();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [photoUrisMap, setPhotoUrisMap] = useState<Map<string, string[]>>(
+    new Map()
+  );
+  const photoUrisMapRef = useRef(photoUrisMap);
+  photoUrisMapRef.current = photoUrisMap;
   const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
     []
   );
@@ -84,17 +98,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       const newSuggestions = await generateSuggestions(answers, location);
       setAllSuggestions(newSuggestions);
 
-      if (newSuggestions.length > 0) {
-        const firstSuggestion = newSuggestions[0];
-        if (firstSuggestion.photoUris && firstSuggestion.photoUris.length > 0) {
-          await Promise.all(
-            firstSuggestion.photoUris.map((photo) =>
-              Image.prefetch(photo).catch(() => {})
-            )
-          );
-        }
-      }
-
       const filterByDistance = (maxDistance: number) =>
         newSuggestions.filter(
           (suggestion) =>
@@ -125,6 +128,21 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       }
       setSuggestions(filteredSuggestions);
       setCurrentIndex(0);
+
+      if (filteredSuggestions.length > 0) {
+        const firstSuggestion = filteredSuggestions[0];
+        if (firstSuggestion.photos.length > 0) {
+          const firstPhotoUri = await loadFirstPhoto(firstSuggestion);
+          if (firstPhotoUri) {
+            setPhotoUrisMap((prev) => {
+              const updated = new Map(prev);
+              updated.set(firstSuggestion.id, [firstPhotoUri]);
+              return updated;
+            });
+            await Image.prefetch(firstPhotoUri).catch(() => {});
+          }
+        }
+      }
     } catch {
       setError("Failed to load suggestions");
     } finally {
@@ -148,17 +166,52 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     [allSuggestions]
   );
 
-  const handleSkip = useCallback(() => {
-    setCurrentIndex((prev) => {
-      const next = prev + 1;
-      if (next >= suggestions.length) {
-        displayToast({
-          message: "Aw! We've run out of spots, looping back...",
-        });
+  const handleSkip = useCallback(async () => {
+    const nextIndex =
+      currentIndex + 1 >= suggestions.length ? 0 : currentIndex + 1;
+
+    if (nextIndex >= suggestions.length) {
+      displayToast({
+        message: "Aw! We've run out of spots, looping back...",
+      });
+    }
+
+    const nextSuggestion = suggestions[nextIndex];
+    const nextNextSuggestion = suggestions[nextIndex + 1];
+    const updatedMap = new Map(photoUrisMap);
+
+    const loadPromises: Promise<void>[] = [];
+
+    if (nextSuggestion && nextSuggestion.photos.length > 0) {
+      const nextPhotoUris = updatedMap.get(nextSuggestion.id);
+      if (!nextPhotoUris || nextPhotoUris.length === 0) {
+        loadPromises.push(
+          loadFirstPhoto(nextSuggestion).then((photoUri) => {
+            if (photoUri) {
+              updatedMap.set(nextSuggestion.id, [photoUri]);
+            }
+          })
+        );
       }
-      return next >= suggestions.length ? 0 : next;
-    });
-  }, [suggestions.length]);
+    }
+
+    if (nextNextSuggestion && nextNextSuggestion.photos.length > 0) {
+      const nextNextPhotoUris = updatedMap.get(nextNextSuggestion.id);
+      if (!nextNextPhotoUris || nextNextPhotoUris.length === 0) {
+        loadPromises.push(
+          loadFirstPhoto(nextNextSuggestion).then((photoUri) => {
+            if (photoUri) {
+              updatedMap.set(nextNextSuggestion.id, [photoUri]);
+            }
+          })
+        );
+      }
+    }
+
+    await Promise.all(loadPromises);
+    setPhotoUrisMap(updatedMap);
+    setCurrentIndex(nextIndex);
+  }, [currentIndex, suggestions, photoUrisMap, displayToast]);
 
   const handleSelect = useCallback((suggestionId: string) => {
     setSelectedSuggestionIds((prev) =>
@@ -175,18 +228,92 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     [filterSuggestions]
   );
 
+  const getPhotoUris = useCallback(
+    (suggestionId: string) => {
+      return photoUrisMap.get(suggestionId);
+    },
+    [photoUrisMap]
+  );
+
+  const loadNextPhoto = useCallback(
+    async (suggestionId: string) => {
+      const suggestion = suggestions.find((s) => s.id === suggestionId);
+      if (!suggestion) return;
+
+      const loadedPhotoCount = photoUrisMap.get(suggestionId)?.length || 0;
+      const remainingPhotoUris = await loadNextPhotoForSuggestion(
+        suggestion,
+        loadedPhotoCount
+      );
+
+      if (remainingPhotoUris.length > 0) {
+        setPhotoUrisMap((prev) => {
+          const updated = new Map(prev);
+          const existing = updated.get(suggestionId) || [];
+          updated.set(suggestionId, [...existing, ...remainingPhotoUris]);
+          return updated;
+        });
+      }
+    },
+    [suggestions, photoUrisMap]
+  );
+
   useEffect(() => {
-    suggestions
-      .slice(currentIndex, currentIndex + 2)
-      .forEach((suggestion: Suggestion) => {
-        const photosToPrefetch = suggestion.photoUris;
-        if (photosToPrefetch) {
-          photosToPrefetch.forEach((photo) => {
-            Image.prefetch(photo).catch(() => {});
-          });
+    const loadPhotos = async () => {
+      if (suggestions.length === 0) return;
+
+      const currentSuggestion = suggestions[currentIndex];
+      const nextSuggestion = suggestions[currentIndex + 1];
+      const currentMap = photoUrisMapRef.current;
+
+      const currentPhotoUris = currentMap.get(currentSuggestion?.id);
+      const nextPhotoUris = currentMap.get(nextSuggestion?.id);
+
+      const needsCurrentLoad =
+        currentSuggestion &&
+        currentSuggestion.photos.length > 0 &&
+        (!currentPhotoUris || currentPhotoUris.length === 0);
+
+      const needsNextLoad =
+        nextSuggestion &&
+        nextSuggestion.photos.length > 0 &&
+        (!nextPhotoUris || nextPhotoUris.length === 0);
+
+      if (!needsCurrentLoad && !needsNextLoad) {
+        if (currentPhotoUris?.[0]) {
+          Image.prefetch(currentPhotoUris[0]).catch(() => {});
         }
-      });
-  }, [suggestions, currentIndex]);
+        if (nextPhotoUris?.[0]) {
+          Image.prefetch(nextPhotoUris[0]).catch(() => {});
+        }
+        return;
+      }
+
+      const updatedMap = await loadPhotosForCurrentAndNextSuggestions(
+        suggestions,
+        currentIndex,
+        currentMap
+      );
+
+      const updatedCurrentPhotoUris = updatedMap.get(
+        suggestions[currentIndex]?.id
+      );
+      const updatedNextPhotoUris = updatedMap.get(
+        suggestions[currentIndex + 1]?.id
+      );
+
+      if (updatedCurrentPhotoUris?.[0]) {
+        Image.prefetch(updatedCurrentPhotoUris[0]).catch(() => {});
+      }
+      if (updatedNextPhotoUris?.[0]) {
+        Image.prefetch(updatedNextPhotoUris[0]).catch(() => {});
+      }
+
+      setPhotoUrisMap(updatedMap);
+    };
+
+    loadPhotos();
+  }, [currentIndex, suggestions.length]);
 
   useEffect(() => {
     if (!isLoading && suggestions.length === 1 && hasFetched) {
@@ -200,6 +327,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setMaxDistanceInKm(DEFAULT_MAX_DISTANCE_IN_KM);
       setAllSuggestions([]);
       setSuggestions([]);
+      setPhotoUrisMap(new Map());
       setCurrentIndex(0);
       setSelectedSuggestionIds([]);
       setIsLoading(false);
@@ -224,6 +352,8 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         handleSkip,
         handleSelect,
         handleFilterByDistance,
+        loadNextPhoto,
+        getPhotoUris,
       }}
     >
       {children}

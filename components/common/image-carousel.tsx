@@ -1,5 +1,11 @@
-import { useEffect, useState } from "react";
-import { Image, LayoutChangeEvent, Pressable, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Image,
+  LayoutChangeEvent,
+  Pressable,
+  View,
+} from "react-native";
 import { IndicatorBar } from "./indicator-bar";
 
 interface ImageCarouselProps {
@@ -32,12 +38,32 @@ export function ImageCarousel({
 }: ImageCarouselProps) {
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const hasMultipleImages = images.length > 1;
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     images.forEach((uri) => {
       Image.prefetch(uri).catch(() => {});
     });
   }, [images]);
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmerAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmerAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [shimmerAnim]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
@@ -67,7 +93,16 @@ export function ImageCarousel({
       onLayout={handleLayout}
       className={className}
     >
-      <View className='w-full h-full'>
+      <View className='w-full h-full bg-white'>
+        <Animated.View
+          className='w-full h-full absolute inset-0 bg-gray-200'
+          style={{
+            opacity: shimmerAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.5, 0.8],
+            }),
+          }}
+        />
         {images.map((photo, index) => (
           <Image
             key={index}

@@ -267,8 +267,8 @@ export const getRandomUnusedSelectFeedback = (): SuggestionFeedback => {
 /**
  * Extracts the opening time for today from weekday opening hours descriptions.
  *
- * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...]
- * @returns Opening time string in "HH:MM AM/PM" format, or empty string if not found
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...] or ["Monday: Open 24 hours"] or ["Monday: Closed"]
+ * @returns Opening time string in "HH:MM AM/PM" format, or empty string if not found or for special cases (24 hours, closed)
  */
 const getOpeningTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
@@ -284,6 +284,9 @@ const getOpeningTimeForToday = (weekdayText: string[]): string => {
   const dayIndex = dayMap[today];
   const todaySchedule = weekdayText[dayIndex];
   if (!todaySchedule) return "";
+
+  if (/open\s+24\s+hours/i.test(todaySchedule)) return "";
+  if (/closed/i.test(todaySchedule)) return "";
 
   const matchWithAMPM = todaySchedule.match(
     /(\d{1,2}:\d{2}\s*(?:AM|PM))\s*[-–]/
@@ -303,8 +306,8 @@ const getOpeningTimeForToday = (weekdayText: string[]): string => {
 /**
  * Extracts the closing time for today from weekday opening hours descriptions.
  *
- * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...]
- * @returns Closing time string in "HH:MM AM/PM" format, or empty string if not found
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...] or ["Monday: Open 24 hours"] or ["Monday: Closed"]
+ * @returns Closing time string in "HH:MM AM/PM" format, or empty string if not found or for special cases (24 hours, closed)
  */
 const getClosingTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
@@ -320,6 +323,10 @@ const getClosingTimeForToday = (weekdayText: string[]): string => {
   const dayIndex = dayMap[today];
   const todaySchedule = weekdayText[dayIndex];
   if (!todaySchedule) return "";
+
+  if (/open\s+24\s+hours/i.test(todaySchedule)) return "";
+  if (/closed/i.test(todaySchedule)) return "";
+
   const match = todaySchedule.match(/[-–]\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/i);
   return match ? match[1] : "";
 };
@@ -327,8 +334,8 @@ const getClosingTimeForToday = (weekdayText: string[]): string => {
 /**
  * Gets the full opening hours range for today from weekday opening hours descriptions.
  *
- * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...]
- * @returns Opening hours string in "HH:MM AM/PM - HH:MM AM/PM" format, or empty string if not found
+ * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...] or ["Monday: Open 24 hours"] or ["Monday: Closed"]
+ * @returns Opening hours string in "HH:MM AM/PM - HH:MM AM/PM" format, "Open 24 hours", "Closed", or empty string if not found
  */
 export const getOpeningHoursForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
@@ -344,6 +351,9 @@ export const getOpeningHoursForToday = (weekdayText: string[]): string => {
   const dayIndex = dayMap[today];
   const todaySchedule = weekdayText[dayIndex];
   if (!todaySchedule) return "";
+
+  if (/open\s+24\s+hours/i.test(todaySchedule)) return "Open 24 hours";
+  if (/closed/i.test(todaySchedule)) return "Closed";
 
   const matchWithBothAMPM = todaySchedule.match(
     /(\d{1,2}:\d{2}\s*(?:AM|PM))\s*[-–]\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/i
@@ -560,7 +570,7 @@ export const generateSuggestions = async (
  * @param suggestion - The suggestion to load the first photo for
  * @returns Promise resolving to the first photo URI, or undefined if no photos
  */
-export const loadFirstPhoto = async (
+export const loadFirstPhotoForSuggestion = async (
   suggestion: Suggestion
 ): Promise<string | undefined> => {
   if (suggestion.photos.length === 0) {
@@ -626,7 +636,7 @@ export const loadPhotosForCurrentAndNextSuggestions = async (
     const currentPhotoUris = updatedMap.get(currentSuggestion.id);
     if (!currentPhotoUris || currentPhotoUris.length === 0) {
       loadPromises.push(
-        loadFirstPhoto(currentSuggestion).then((photoUri) => {
+        loadFirstPhotoForSuggestion(currentSuggestion).then((photoUri) => {
           if (photoUri) {
             updatedMap.set(currentSuggestion.id, [photoUri]);
           }
@@ -639,7 +649,7 @@ export const loadPhotosForCurrentAndNextSuggestions = async (
     const nextPhotoUris = updatedMap.get(nextSuggestion.id);
     if (!nextPhotoUris || nextPhotoUris.length === 0) {
       loadPromises.push(
-        loadFirstPhoto(nextSuggestion).then((photoUri) => {
+        loadFirstPhotoForSuggestion(nextSuggestion).then((photoUri) => {
           if (photoUri) {
             updatedMap.set(nextSuggestion.id, [photoUri]);
           }

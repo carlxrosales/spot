@@ -3,7 +3,7 @@ import {
   DEFAULT_MIN_DISTANCE_IN_KM,
   DISTANCE_OPTIONS,
   generateSuggestions,
-  loadFirstPhoto,
+  loadFirstPhotoForSuggestion,
   loadNextPhotoForSuggestion,
   loadPhotosForCurrentAndNextSuggestions,
   MINIMUM_SUGGESTIONS_COUNT,
@@ -130,7 +130,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       if (filteredSuggestions.length > 0) {
         const firstSuggestion = filteredSuggestions[0];
         if (firstSuggestion.photos.length > 0) {
-          const firstPhotoUri = await loadFirstPhoto(firstSuggestion);
+          const firstPhotoUri = await loadFirstPhotoForSuggestion(
+            firstSuggestion
+          );
           if (firstPhotoUri) {
             setPhotoUrisMap((prev) => {
               const updated = new Map(prev);
@@ -184,7 +186,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       const nextPhotoUris = updatedMap.get(nextSuggestion.id);
       if (!nextPhotoUris || nextPhotoUris.length === 0) {
         loadPromises.push(
-          loadFirstPhoto(nextSuggestion).then((photoUri) => {
+          loadFirstPhotoForSuggestion(nextSuggestion).then((photoUri) => {
             if (photoUri) {
               updatedMap.set(nextSuggestion.id, [photoUri]);
             }
@@ -197,7 +199,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       const nextNextPhotoUris = updatedMap.get(nextNextSuggestion.id);
       if (!nextNextPhotoUris || nextNextPhotoUris.length === 0) {
         loadPromises.push(
-          loadFirstPhoto(nextNextSuggestion).then((photoUri) => {
+          loadFirstPhotoForSuggestion(nextNextSuggestion).then((photoUri) => {
             if (photoUri) {
               updatedMap.set(nextNextSuggestion.id, [photoUri]);
             }

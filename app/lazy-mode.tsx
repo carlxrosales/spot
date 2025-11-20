@@ -1,12 +1,12 @@
 import { IconButton } from "@/components/common/icon-button";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Inputs } from "@/constants/inputs";
-import { Shadows } from "@/constants/theme";
 import { Timeouts } from "@/constants/timeouts";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
 import { LazyChoice } from "@/data/survey";
 import { generateTags } from "@/services/gemini";
+import { getShadow } from "@/utils/shadows";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -109,7 +109,7 @@ export default function LazyModeScreen() {
             {
               maxWidth: Inputs.lazyMode.style.maxWidth,
             },
-            Shadows.neonPink,
+            getShadow("neonPink"),
           ]}
         >
           <TextInput

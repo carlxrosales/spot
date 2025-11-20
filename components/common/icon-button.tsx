@@ -5,7 +5,8 @@ import {
   ButtonVariant,
   ButtonVariantType,
 } from "@/constants/buttons";
-import { Colors, Shadows } from "@/constants/theme";
+import { Colors } from "@/constants/theme";
+import { getShadow } from "@/utils/shadows";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, TouchableOpacity } from "react-native";
 
@@ -94,7 +95,7 @@ export function IconButton({
         disabled || loading ? "opacity-50" : ""
       } `}
       style={{
-        ...Shadows.light,
+        ...getShadow("light"),
         ...(reversed ? { transform: [{ scaleX: -1 }] } : {}),
       }}
     >

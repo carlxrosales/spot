@@ -4,7 +4,8 @@ import {
   ButtonVariant,
   ButtonVariantType,
 } from "@/constants/buttons";
-import { Colors, Shadows } from "@/constants/theme";
+import { Colors } from "@/constants/theme";
+import { getShadow } from "@/utils/shadows";
 import { Text, TouchableOpacity } from "react-native";
 
 interface TextButtonProps {
@@ -96,7 +97,7 @@ export function TextButton({
       } ${getButtonPadding()} rounded-[28px] items-center justify-center ${getBackgroundColor()} ${
         disabled || loading ? "opacity-50" : ""
       }`}
-      style={Shadows.light}
+      style={getShadow("light")}
       {...(!onPress ? { activeOpacity: 1 } : {})}
     >
       <Text

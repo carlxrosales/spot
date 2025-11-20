@@ -18,7 +18,8 @@ const copy = {
  * Automatically shows/hides based on permission status.
  */
 export function LocationPermissionModal() {
-  const { hasPermission, isLoading, requestPermission } = useLocation();
+  const { hasPermission, location, isLoading, requestPermission } =
+    useLocation();
   const { fetchSuggestions } = useSuggestions();
 
   const handleRequestPermission = useCallback(async () => {
@@ -30,7 +31,7 @@ export function LocationPermissionModal() {
 
   return (
     <BottomModal
-      visible={!hasPermission && !isLoading}
+      visible={(!hasPermission || !location) && !isLoading}
       onClose={() => {}}
       title={copy.title}
       description={copy.description}

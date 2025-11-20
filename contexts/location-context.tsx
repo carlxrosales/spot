@@ -1,5 +1,7 @@
+import { Routes } from "@/constants/routes";
 import { LocationCoordinates } from "@/data/types";
 import * as Location from "expo-location";
+import { useRouter } from "expo-router";
 import {
   createContext,
   ReactNode,
@@ -26,6 +28,8 @@ interface LocationProviderProps {
 }
 
 export function LocationProvider({ children }: LocationProviderProps) {
+  const router = useRouter();
+
   const [location, setLocation] = useState<LocationCoordinates | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -61,6 +65,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
         setHasPermission(false);
         setIsLoading(false);
         setError("Oof! Can't find your location");
+        router.navigate(Routes.survey);
         return null;
       }
     }, []);
@@ -89,6 +94,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
         setHasPermission(false);
         setIsLoading(false);
         setError("Oof! Can't find your location");
+        router.navigate(Routes.survey);
       }
     };
 

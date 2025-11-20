@@ -5,7 +5,8 @@ import {
   ButtonVariant,
   ButtonVariantType,
 } from "@/constants/buttons";
-import { Colors, Shadows } from "@/constants/theme";
+import { Colors } from "@/constants/theme";
+import { getShadow } from "@/utils/shadows";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
@@ -124,7 +125,7 @@ export function Button({
       } ${getButtonPadding()} rounded-[28px] flex-row items-center justify-center ${getBackgroundColor()} ${
         disabled || loading ? "opacity-50" : ""
       }`}
-      style={Shadows.light}
+      style={getShadow("light")}
     >
       {loading ? (
         <ActivityIndicator size='small' color={getTextColor()} />

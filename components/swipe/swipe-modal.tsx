@@ -1,8 +1,8 @@
 import { IconButton } from "@/components/common/icon-button";
 import { ButtonSize } from "@/constants/buttons";
-import { Shadows } from "@/constants/theme";
 import { Suggestion } from "@/data/suggestions";
 import { cleanAddress } from "@/utils/address";
+import { getShadow } from "@/utils/shadows";
 import { Modal, ScrollView, Text, View } from "react-native";
 import { GetDirectionsButton } from "./get-directions-button";
 import { GoogleMapsButton } from "./google-maps-button";
@@ -61,7 +61,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                       <View
                         key={idx}
                         className='bg-black rounded-full px-4 py-2'
-                        style={Shadows.light}
+                        style={getShadow("light")}
                       >
                         <Text className='text-md font-semibold text-white capitalize'>
                           {tag.replace(/_/g, " ")}

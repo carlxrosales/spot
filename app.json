@@ -9,13 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "android": {
-      "package": "com.carlrosales.spot"
+      "package": "com.carlrosales.spot",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.carlrosales.spot",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "We need your location to find the best spots near you."
+        "NSLocationWhenInUseUsageDescription": "We need your location to find the best spots near you.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "web": {

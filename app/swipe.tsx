@@ -23,7 +23,7 @@ import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
@@ -58,6 +58,12 @@ function Swipe() {
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
   const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
   const cardRef = useRef<SwipeableCardRef>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleStartOver();
+    }, [handleStartOver])
+  );
 
   useEffect(() => {
     if (answers.length === 0) {
@@ -104,7 +110,6 @@ function Swipe() {
   }, [isSkipLoading, isProceedLoading, onSwipeSelect]);
 
   const handleBack = useCallback(() => {
-    handleStartOver();
     router.navigate(Routes.survey);
   }, [handleStartOver, router]);
 

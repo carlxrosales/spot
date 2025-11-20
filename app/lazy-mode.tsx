@@ -96,7 +96,7 @@ export default function LazyModeScreen() {
       </View>
 
       <View className='flex-1 px-8 pt-8 items-center'>
-        <Text className='text-5xl font-bold text-black text-center font-groen mb-8 px-4'>
+        <Text className='font-groen text-5xl font-bold text-black text-center mb-8 px-4'>
           {copy.question}
         </Text>
 
@@ -111,6 +111,8 @@ export default function LazyModeScreen() {
             Shadows.neonPink,
           ]}
           value={value}
+          textAlign='left'
+          textAlignVertical='top'
           onChangeText={setValue}
           placeholder={copy.placeholder}
           placeholderTextColor='rgb(100, 100, 100)'

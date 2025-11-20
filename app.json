@@ -16,6 +16,7 @@
       ]
     },
     "ios": {
+      "buildNumber": "2",
       "supportsTablet": true,
       "bundleIdentifier": "com.carlrosales.spot",
       "infoPlist": {

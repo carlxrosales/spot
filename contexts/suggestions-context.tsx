@@ -121,8 +121,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
         setMaxDistanceInKm(finalMaxDistance);
       }
-      setSuggestions(filteredSuggestions);
-      setCurrentIndex(0);
 
       if (filteredSuggestions.length > 0) {
         const firstSuggestion = filteredSuggestions[0];
@@ -142,6 +140,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
           }
         }
       }
+
+      setSuggestions(filteredSuggestions);
+      setCurrentIndex(0);
     } catch {
       setError("Yikes! Somethin' went wrong");
     } finally {
@@ -151,15 +152,34 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   }, [answers, location, hasPermission, isLoading, hasFetched]);
 
   const filterSuggestions = useCallback(
-    (minDistance: number, maxDistance: number) => {
-      setSuggestions(
-        allSuggestions.filter(
-          (suggestion) =>
-            suggestion.distanceInKm !== undefined &&
-            suggestion.distanceInKm > minDistance &&
-            suggestion.distanceInKm <= maxDistance
-        )
+    async (minDistance: number, maxDistance: number) => {
+      const filteredSuggestions = allSuggestions.filter(
+        (suggestion) =>
+          suggestion.distanceInKm !== undefined &&
+          suggestion.distanceInKm > minDistance &&
+          suggestion.distanceInKm <= maxDistance
       );
+
+      if (filteredSuggestions.length > 0) {
+        const firstSuggestion = filteredSuggestions[0];
+        if (firstSuggestion.photos.length > 0) {
+          const firstPhotoUri = await loadFirstPhotoForSuggestion(
+            firstSuggestion
+          );
+          if (firstPhotoUri) {
+            setPhotoUrisMap((prev) => {
+              const updated = new Map(prev);
+              const photoMap = new Map<string, string>();
+              photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
+              updated.set(firstSuggestion.id, photoMap);
+              return updated;
+            });
+            await Image.prefetch(firstPhotoUri).catch(() => {});
+          }
+        }
+      }
+
+      setSuggestions(filteredSuggestions);
       setCurrentIndex(0);
     },
     [allSuggestions]

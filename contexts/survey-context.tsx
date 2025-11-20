@@ -51,9 +51,9 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
 
       try {
         const updatedAnswers = [...answers, choice];
+        setAnswers(updatedAnswers);
 
         if (currentQuestion?.isLast) {
-          setAnswers(updatedAnswers);
           setQuestions((prev) => [...prev, prev[prev.length - 1]]);
           await new Promise((resolve) =>
             setTimeout(resolve, Animation.duration.slow)
@@ -71,7 +71,6 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         }
 
         setQuestions((prev) => [...prev, nextQuestion]);
-        setAnswers(updatedAnswers);
       } catch {
         setError("Yo! Somethin' went wrong, let's start over");
       } finally {

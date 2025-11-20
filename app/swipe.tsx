@@ -14,7 +14,11 @@ import {
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
-import { useSuggestions } from "@/contexts/suggestions-context";
+import { ShareProvider } from "@/contexts/share-context";
+import {
+  SuggestionsProvider,
+  useSuggestions,
+} from "@/contexts/suggestions-context";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
@@ -34,7 +38,7 @@ const copy = {
  * Provides actions to skip, view details, or select suggestions.
  * Includes distance filtering and location permission handling.
  */
-export default function Swipe() {
+function Swipe() {
   const router = useRouter();
   const { answers } = useSurvey();
   const { handleStartOver } = useSurvey();
@@ -201,5 +205,15 @@ export default function Swipe() {
       />
       <LocationPermissionModal />
     </FixedView>
+  );
+}
+
+export default function SwipeWithProviders() {
+  return (
+    <SuggestionsProvider>
+      <ShareProvider>
+        <Swipe />
+      </ShareProvider>
+    </SuggestionsProvider>
   );
 }

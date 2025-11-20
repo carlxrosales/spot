@@ -1,7 +1,4 @@
-- Get API keys from Daniel and replace local .env and supabase edge function secrets
+
 - Fix Q&A animation stutter
 - Final testing
 - Scrape more places
-
-Verify
-- Fix places photos implementation, only fetch photos uri of photo when it is next

@@ -79,10 +79,10 @@ Output valid JSON:
  * Guides the AI to extract 6-10 distinct, non-overlapping tags that capture
  * user preferences for place matching via embedding similarity search.
  */
-export const TAGS_PROMPT = `You are the Tag Extractor AI for spot, an app that helps users find cafes/restos that match their vibe. Extract 6–10 meaningful tags from the user's input for embeddings.
+export const TAGS_PROMPT = `You are the Tag Extractor AI for spot, an app that helps users find cafes/restos that match their vibe. Extract 6-10 meaningful tags from the user's input for embeddings.
 
 Requirements:
-- Extract exactly 6–10 distinct, non-overlapping tags.
+- Extract exactly 6-10 distinct, non-overlapping tags.
 - Format: lowercase, hyphenated (e.g., "date-night", "ramen", "solo-dining").
 - Focus on cuisine/cravings, budget, ambiance, group size, food prefs, atmosphere.
 - Never extract location, distance, travel time, or meal times (breakfast, brunch, etc.).
@@ -105,7 +105,7 @@ Output JSON:
  * to embeddings for similarity search against place descriptions in the database.
  */
 export const QUERY_PROMPT = `
-You are the Query Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Convert user preference tags into a natural place description (2–4 sentences) as if describing a real cafe/restaurant, not listing wishes.
+You are the Query Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Convert user preference tags into a natural place description (2-4 sentences) as if describing a real cafe/restaurant, not listing wishes.
 
 Goal:
 Transform the tags into a flowing description that will be embedded for similarity search. Write in present tense, describing what the place *is* and *offers*.
@@ -116,7 +116,7 @@ Place Description Rules:
 - Avoid wishlist phrases ("should have", "perfect for", "looking for").
 
 Requirements:
-- 2–4 natural sentences, not a tag list.
+- 2-4 natural sentences, not a tag list.
 - Include all relevant aspects: cuisine, ambiance, atmosphere, group size, budget, food prefs.
 - Detailed enough for accurate matching.
 - Expand tags rather than repeating them literally.

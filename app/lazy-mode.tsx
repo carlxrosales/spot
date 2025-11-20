@@ -47,9 +47,9 @@ export default function LazyModeScreen() {
 
   const isValid = value.trim().length >= MIN_LENGTH;
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
   const handleSubmit = useCallback(async () => {
     if (!isValid || isLoading) return;

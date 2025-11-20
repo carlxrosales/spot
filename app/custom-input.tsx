@@ -5,7 +5,7 @@ import { Shadows } from "@/constants/theme";
 import { Timeouts } from "@/constants/timeouts";
 import { useSurvey } from "@/contexts/survey-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -41,11 +41,11 @@ export default function CustomInputScreen() {
     value.trim().length >= Inputs.answer.validation.minLength &&
     value.trim().length <= Inputs.answer.validation.maxLength;
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const trimmedInput = value.trim();
     if (
       trimmedInput.length >= Inputs.answer.validation.minLength &&
@@ -55,7 +55,7 @@ export default function CustomInputScreen() {
       handleChoicePress(trimmedInput);
       router.back();
     }
-  };
+  }, [value, isLoading, handleChoicePress, router]);
 
   return (
     <KeyboardAvoidingView

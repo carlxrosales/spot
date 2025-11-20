@@ -20,7 +20,7 @@ import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
 const copy = {
@@ -79,7 +79,7 @@ export default function Swipe() {
   const currentSuggestion =
     suggestions.length > 0 ? suggestions[currentIndex] : null;
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     if (isSkipLoading || isProceedLoading) return;
     onSwipeSkip();
     setIsSkipLoading(true);
@@ -87,9 +87,9 @@ export default function Swipe() {
     setTimeout(() => {
       setIsSkipLoading(false);
     }, Animation.duration.slow);
-  };
+  }, [isSkipLoading, isProceedLoading, onSwipeSkip]);
 
-  const handleProceed = () => {
+  const handleProceed = useCallback(() => {
     if (isSkipLoading || isProceedLoading) return;
     onSwipeSelect();
     setIsProceedLoading(true);
@@ -97,12 +97,12 @@ export default function Swipe() {
     setTimeout(() => {
       setIsProceedLoading(false);
     }, Animation.duration.slow);
-  };
+  }, [isSkipLoading, isProceedLoading, onSwipeSelect]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     handleStartOver();
     router.navigate(Routes.survey);
-  };
+  }, [handleStartOver, router]);
 
   return (
     <FixedView className='h-screen w-screen bg-neonGreen' withSafeAreaInsets>

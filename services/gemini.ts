@@ -61,7 +61,7 @@ Question rules:
   • value: lowercase, hyphenated
 - Feedback:
   • one varied emoji
-  • label: short Gen-Z slang and experessions only, lowercase, no repeats, no "choice", no mention of any of the choices or question
+  • label: short Gen-Z slang and experessions only, lowercase, no repeats, no "choice", must not bias towards any of the choices, must not mention anything from the question
 - Set isLast: true once enough tags or max questions.
 
 Output valid JSON:

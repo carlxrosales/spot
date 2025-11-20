@@ -66,7 +66,7 @@ function Swipe() {
     }
 
     fetchSuggestions();
-  }, [answers.length, fetchSuggestions]);
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -133,7 +133,9 @@ function Swipe() {
                     <TextButton
                       size={ButtonSize.sm}
                       variant={ButtonVariant.black}
-                      label={`${currentIndex + 1} / ${suggestions.length}`}
+                      label={`${
+                        suggestions.length > 0 ? currentIndex + 1 : 0
+                      } / ${suggestions.length}`}
                     />
                   </View>
                 </AbsoluteView>

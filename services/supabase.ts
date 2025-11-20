@@ -28,10 +28,10 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  * Default threshold for similarity search (0-1, where 1 is most similar).
  * Only places with similarity scores above this threshold will be returned.
  */
-export const DEFAULT_THRESHOLD = 0.58;
-export const SHOW_NOW_THRESHOLD = 0.55;
-export const SPONTY_THRESHOLD = 0.38;
-export const LAZY_THRESHOLD = 0.38;
+export const DEFAULT_THRESHOLD = 0.7;
+export const SHOW_NOW_THRESHOLD = 0.6;
+export const SPONTY_THRESHOLD = 0.5;
+export const LAZY_THRESHOLD = 0.5;
 
 /**
  * Default maximum number of places to return from similarity search.

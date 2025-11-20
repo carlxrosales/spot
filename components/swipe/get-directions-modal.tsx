@@ -33,6 +33,7 @@ export function GetDirectionsModal({
   suggestion,
 }: GetDirectionsModalProps) {
   const { displayToast } = useToast();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const openGoogleMaps = async () => {

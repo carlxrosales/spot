@@ -21,6 +21,7 @@ const copy = {
  */
 export function ViewReviewsButton({ suggestion }: ViewReviewsButtonProps) {
   const { displayToast } = useToast();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const openReviews = async () => {

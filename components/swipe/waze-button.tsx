@@ -21,6 +21,7 @@ const copy = {
  */
 export function WazeButton({ suggestion }: WazeButtonProps) {
   const { displayToast } = useToast();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const openWaze = () => {

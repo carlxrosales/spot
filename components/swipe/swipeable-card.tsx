@@ -70,12 +70,14 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     } = useSuggestions();
     const { onSwipeStart, onSwipeThreshold, onSwipeSkip, onSwipeSelect } =
       useSwipeFeedback();
+
     const translateX = useSharedValue<number>(0);
     const translateY = useSharedValue<number>(0);
     const scale = useSharedValue<number>(Animation.scale.hidden);
     const opacity = useSharedValue<number>(Animation.opacity.hidden);
     const swipeProgress = useSharedValue<number>(0);
     const hasTriggeredThreshold = useSharedValue<boolean>(false);
+
     const [selectedFeedback, setSelectedFeedback] = useState<{
       text: string;
       emoji: string;

@@ -21,6 +21,7 @@ const copy = {
  */
 export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
   const { displayToast } = useToast();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const openGoogleMaps = async () => {

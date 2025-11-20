@@ -21,6 +21,7 @@ const copy = {
  */
 export function AppleMapsButton({ suggestion }: AppleMapsButtonProps) {
   const { displayToast } = useToast();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const openAppleMaps = () => {

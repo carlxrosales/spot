@@ -29,6 +29,8 @@ const copy = {
  * Automatically navigates to swipe screen when survey is complete.
  */
 export default function Survey() {
+  const router = useRouter();
+
   const {
     questions,
     currentQuestion,
@@ -42,7 +44,6 @@ export default function Survey() {
     handleStartOver,
   } = useSurvey();
   const { displayToast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     if (error) {

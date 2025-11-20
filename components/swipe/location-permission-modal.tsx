@@ -22,9 +22,12 @@ export function LocationPermissionModal() {
   const { fetchSuggestions } = useSuggestions();
 
   const handleRequestPermission = useCallback(async () => {
-    await requestPermission();
-    fetchSuggestions();
+    const location = await requestPermission();
+    if (location) {
+      fetchSuggestions(location);
+    }
   }, [requestPermission, fetchSuggestions]);
+
   return (
     <BottomModal
       visible={!hasPermission && !isLoading}

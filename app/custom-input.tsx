@@ -26,9 +26,12 @@ const copy = {
  */
 export default function CustomInputScreen() {
   const router = useRouter();
+
   const { question } = useLocalSearchParams<{ question: string }>();
   const { handleChoicePress, isLoading } = useSurvey();
+
   const [value, setValue] = useState<string>("");
+
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {

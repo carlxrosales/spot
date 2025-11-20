@@ -33,10 +33,13 @@ const MIN_LENGTH = 5;
  */
 export default function LazyModeScreen() {
   const router = useRouter();
+
   const { setAnswers, setIsComplete } = useSurvey();
   const { displayToast } = useToast();
+
   const [value, setValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {

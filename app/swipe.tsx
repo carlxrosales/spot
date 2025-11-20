@@ -14,6 +14,7 @@ import {
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
+import { useLocation } from "@/contexts/location-context";
 import { ShareProvider } from "@/contexts/share-context";
 import {
   SuggestionsProvider,
@@ -40,8 +41,9 @@ const copy = {
  */
 function Swipe() {
   const router = useRouter();
-  const { answers } = useSurvey();
-  const { handleStartOver } = useSurvey();
+
+  const { location } = useLocation();
+  const { answers, handleStartOver } = useSurvey();
   const {
     isLoading,
     hasFetched,
@@ -51,12 +53,14 @@ function Swipe() {
     currentIndex,
     error,
   } = useSuggestions();
-  const { displayToast } = useToast();
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
+  const { displayToast } = useToast();
   const swipeModal = useModal();
   const distanceModal = useModal();
+
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
   const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
+
   const cardRef = useRef<SwipeableCardRef>(null);
 
   useFocusEffect(
@@ -71,7 +75,9 @@ function Swipe() {
       return;
     }
 
-    fetchSuggestions();
+    if (location) {
+      fetchSuggestions(location);
+    }
   }, []);
 
   useEffect(() => {

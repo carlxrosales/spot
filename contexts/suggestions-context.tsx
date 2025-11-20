@@ -8,6 +8,7 @@ import {
   MINIMUM_SUGGESTIONS_COUNT,
   Suggestion,
 } from "@/data/suggestions";
+import { LocationCoordinates } from "@/data/types";
 import {
   createContext,
   ReactNode,
@@ -17,7 +18,6 @@ import {
   useState,
 } from "react";
 import { Image } from "react-native";
-import { useLocation } from "./location-context";
 import { useSurvey } from "./survey-context";
 import { useToast } from "./toast-context";
 
@@ -30,7 +30,7 @@ interface SuggestionsContextType {
   minDistanceInKm: number;
   hasFetched: boolean;
   setHasFetched: (hasFetched: boolean) => void;
-  fetchSuggestions: () => void;
+  fetchSuggestions: (location: LocationCoordinates) => void;
   error: string | null;
   handleSkip: () => void;
   handleSelect: (suggestionId: string) => void;
@@ -54,7 +54,6 @@ interface SuggestionsProviderProps {
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { answers, isComplete } = useSurvey();
   const { displayToast } = useToast();
-  const { location, hasPermission } = useLocation();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
@@ -74,96 +73,100 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     DEFAULT_MIN_DISTANCE_IN_KM
   );
 
-  const fetchSuggestions = useCallback(async () => {
-    if (
-      !isComplete ||
-      !location ||
-      !hasPermission ||
-      isLoading ||
-      hasFetched ||
-      answers.length === 0
-    ) {
-      return;
-    }
+  const fetchSuggestions = useCallback(
+    async (location: LocationCoordinates) => {
+      if (
+        !isComplete ||
+        !location ||
+        isLoading ||
+        hasFetched ||
+        answers.length === 0
+      ) {
+        return;
+      }
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    const MAX_RETRIES = 3;
+      const MAX_RETRIES = 3;
 
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        const newSuggestions = await generateSuggestions(answers, location);
-        setAllSuggestions(newSuggestions);
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const newSuggestions = await generateSuggestions(answers, location);
+          setAllSuggestions(newSuggestions);
 
-        const filterByDistance = (maxDistance: number) =>
-          newSuggestions.filter(
-            (suggestion) =>
-              suggestion.distanceInKm !== undefined &&
-              suggestion.distanceInKm > DEFAULT_MIN_DISTANCE_IN_KM &&
-              suggestion.distanceInKm <= maxDistance
+          const filterByDistance = (maxDistance: number) =>
+            newSuggestions.filter(
+              (suggestion) =>
+                suggestion.distanceInKm !== undefined &&
+                suggestion.distanceInKm > DEFAULT_MIN_DISTANCE_IN_KM &&
+                suggestion.distanceInKm <= maxDistance
+            );
+
+          let filteredSuggestions = filterByDistance(
+            DEFAULT_MAX_DISTANCE_IN_KM
           );
+          let finalMaxDistance = DEFAULT_MAX_DISTANCE_IN_KM;
 
-        let filteredSuggestions = filterByDistance(DEFAULT_MAX_DISTANCE_IN_KM);
-        let finalMaxDistance = DEFAULT_MAX_DISTANCE_IN_KM;
+          if (filteredSuggestions.length < MINIMUM_SUGGESTIONS_COUNT) {
+            const defaultMaxIndex = DISTANCE_OPTIONS.findIndex(
+              (option) => option >= DEFAULT_MAX_DISTANCE_IN_KM
+            );
+            const startIndex = defaultMaxIndex >= 0 ? defaultMaxIndex + 1 : 0;
 
-        if (filteredSuggestions.length < MINIMUM_SUGGESTIONS_COUNT) {
-          const defaultMaxIndex = DISTANCE_OPTIONS.findIndex(
-            (option) => option >= DEFAULT_MAX_DISTANCE_IN_KM
-          );
-          const startIndex = defaultMaxIndex >= 0 ? defaultMaxIndex + 1 : 0;
+            for (
+              let i = startIndex;
+              i < DISTANCE_OPTIONS.length && filteredSuggestions.length < 8;
+              i++
+            ) {
+              finalMaxDistance = DISTANCE_OPTIONS[i];
+              filteredSuggestions = filterByDistance(finalMaxDistance);
+            }
 
-          for (
-            let i = startIndex;
-            i < DISTANCE_OPTIONS.length && filteredSuggestions.length < 8;
-            i++
-          ) {
-            finalMaxDistance = DISTANCE_OPTIONS[i];
-            filteredSuggestions = filterByDistance(finalMaxDistance);
+            setMaxDistanceInKm(finalMaxDistance);
           }
 
-          setMaxDistanceInKm(finalMaxDistance);
-        }
-
-        if (filteredSuggestions.length > 0) {
-          const firstSuggestion = filteredSuggestions[0];
-          if (firstSuggestion.photos.length > 0) {
-            const firstPhotoUri = await loadFirstPhotoForSuggestion(
-              firstSuggestion
-            );
-            if (firstPhotoUri) {
-              setPhotoUrisMap((prev) => {
-                const updated = new Map(prev);
-                const photoMap = new Map<string, string>();
-                photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
-                updated.set(firstSuggestion.id, photoMap);
-                return updated;
-              });
-              await Image.prefetch(firstPhotoUri).catch(() => {});
+          if (filteredSuggestions.length > 0) {
+            const firstSuggestion = filteredSuggestions[0];
+            if (firstSuggestion.photos.length > 0) {
+              const firstPhotoUri = await loadFirstPhotoForSuggestion(
+                firstSuggestion
+              );
+              if (firstPhotoUri) {
+                setPhotoUrisMap((prev) => {
+                  const updated = new Map(prev);
+                  const photoMap = new Map<string, string>();
+                  photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
+                  updated.set(firstSuggestion.id, photoMap);
+                  return updated;
+                });
+                await Image.prefetch(firstPhotoUri).catch(() => {});
+              }
             }
           }
-        }
 
-        setSuggestions(filteredSuggestions);
-        setCurrentIndex(0);
-        setIsLoading(false);
-        setHasFetched(true);
-        return;
-      } catch {
-        const isLastAttempt = attempt === MAX_RETRIES;
+          setSuggestions(filteredSuggestions);
+          setCurrentIndex(0);
+          setIsLoading(false);
+          setHasFetched(true);
+          return;
+        } catch {
+          const isLastAttempt = attempt === MAX_RETRIES;
 
-        if (isLastAttempt) {
-          setError("Yikes! Somethin' went wrong");
-          displayToast({
-            message: "Yikes! Somethin' went wrong",
-          });
+          if (isLastAttempt) {
+            setError("Yikes! Somethin' went wrong");
+            displayToast({
+              message: "Yikes! Somethin' went wrong",
+            });
+          }
         }
       }
-    }
 
-    setIsLoading(false);
-    setHasFetched(true);
-  }, [answers, location, hasPermission, isLoading, hasFetched, displayToast]);
+      setIsLoading(false);
+      setHasFetched(true);
+    },
+    [answers, isLoading, hasFetched, displayToast]
+  );
 
   const filterSuggestions = useCallback(
     async (minDistance: number, maxDistance: number) => {

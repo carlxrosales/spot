@@ -25,18 +25,9 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ============================================================================
 
 /**
- * Default threshold for similarity search (0-1, where 1 is most similar).
- * Only places with similarity scores above this threshold will be returned.
- */
-export const DEFAULT_THRESHOLD = 0.7;
-export const SHOW_NOW_THRESHOLD = 0.6;
-export const SPONTY_THRESHOLD = 0.5;
-export const LAZY_THRESHOLD = 0.5;
-
-/**
  * Default maximum number of places to return from similarity search.
  */
-export const DEFAULT_LIMIT_COUNT = 100;
+export const DEFAULT_LIMIT_COUNT = 50;
 export const DEFAULT_SPONTY_LIMIT_COUNT = 100;
 
 /**
@@ -50,7 +41,6 @@ export const DEFAULT_PHOTO_LIMIT_COUNT = 4;
 
 export interface SuggestPlacesOptions {
   queryEmbedding: number[];
-  threshold?: number;
   limitCount?: number;
 }
 
@@ -85,13 +75,11 @@ export async function suggestPlaces(
 ): Promise<Suggestion[]> {
   const {
     queryEmbedding,
-    threshold = DEFAULT_THRESHOLD,
     limitCount = DEFAULT_LIMIT_COUNT,
   } = options;
 
   const { data, error } = await supabase.rpc("suggest_places", {
     query_embedding: queryEmbedding,
-    threshold,
     limit_count: limitCount,
   });
 

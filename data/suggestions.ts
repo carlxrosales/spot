@@ -4,13 +4,7 @@ import {
   PHOTO_MAX_WIDTH_PX,
   places,
 } from "@/services/places";
-import {
-  DEFAULT_THRESHOLD,
-  LAZY_THRESHOLD,
-  SHOW_NOW_THRESHOLD,
-  SPONTY_THRESHOLD,
-  suggestPlaces,
-} from "@/services/supabase";
+import { suggestPlaces } from "@/services/supabase";
 import { LazyChoice, SpontyChoice } from "./survey";
 import { LocationCoordinates } from "./types";
 
@@ -515,18 +509,8 @@ export const generateSuggestions = async (
   const query = await generateQuery(answers);
   const embeddings = await generateEmbedding(query);
 
-  let threshold = DEFAULT_THRESHOLD;
-  if (answers.includes(SpontyChoice.value)) {
-    threshold = SPONTY_THRESHOLD;
-  } else if (answers.length <= 4) {
-    threshold = SHOW_NOW_THRESHOLD;
-  } else if (answers.includes(LazyChoice.value)) {
-    threshold = LAZY_THRESHOLD;
-  }
-
   const suggestions: Suggestion[] = await suggestPlaces({
     queryEmbedding: embeddings,
-    threshold,
   });
 
   const suggestionsWithComputedFields = suggestions.map(

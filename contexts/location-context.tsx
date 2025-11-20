@@ -14,7 +14,7 @@ interface LocationContextType {
   hasPermission: boolean;
   isLoading: boolean;
   error: string | null;
-  requestPermission: () => Promise<void>;
+  requestPermission: () => Promise<LocationCoordinates | null>;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(
@@ -31,35 +31,39 @@ export function LocationProvider({ children }: LocationProviderProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const requestPermission = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const requestPermission =
+    useCallback(async (): Promise<LocationCoordinates | null> => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setLocation(null);
+          setHasPermission(false);
+          setIsLoading(false);
+          setError("Oof! You denied us access to your location");
+          return null;
+        }
+
+        const locationData = await Location.getCurrentPositionAsync({});
+        const coordinates: LocationCoordinates = {
+          lat: locationData.coords.latitude,
+          lng: locationData.coords.longitude,
+        };
+        setLocation(coordinates);
+        setHasPermission(true);
+        setIsLoading(false);
+        setError(null);
+        return coordinates;
+      } catch {
         setLocation(null);
         setHasPermission(false);
         setIsLoading(false);
-        setError("Oof! You denied us access to your location");
-        return;
+        setError("Oof! Can't find your location");
+        return null;
       }
-
-      const locationData = await Location.getCurrentPositionAsync({});
-      setLocation({
-        lat: locationData.coords.latitude,
-        lng: locationData.coords.longitude,
-      });
-      setHasPermission(true);
-      setIsLoading(false);
-      setError(null);
-    } catch {
-      setLocation(null);
-      setHasPermission(false);
-      setIsLoading(false);
-      setError("Oof! Can't find your location");
-    }
-  }, []);
+    }, []);
 
   useEffect(() => {
     const checkPermission = async () => {

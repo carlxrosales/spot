@@ -13,7 +13,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import "../../global.css";
 
 const copy = {
   charactersOnly: "characters only",

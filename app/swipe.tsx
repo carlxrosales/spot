@@ -139,7 +139,7 @@ function Swipe() {
                   size={ButtonSize.sm}
                   icon='arrow-back'
                 />
-                <AbsoluteView top={14} left={0} right={0}>
+                <AbsoluteView top={14} left={56} right={56}>
                   <View className='items-center justify-center'>
                     <TextButton
                       size={ButtonSize.sm}

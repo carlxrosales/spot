@@ -9,8 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Image, Share } from "react-native";
-import { useSuggestions } from "./suggestions-context";
+import { Share } from "react-native";
 import { useToast } from "./toast-context";
 
 interface ShareContextType {
@@ -27,7 +26,6 @@ interface ShareProviderProps {
 
 export function ShareProvider({ children }: ShareProviderProps) {
   const { displayToast } = useToast();
-  const { selectedSuggestionIds, suggestions } = useSuggestions();
   const [isSharing, setIsSharing] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [currentSuggestion, setCurrentSuggestion] = useState<Suggestion | null>(
@@ -88,8 +86,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
       } else {
         displayToast({ message: "Cancelled" });
       }
-    } catch (error) {
-      console.error("Share error:", error);
+    } catch {
       setIsModalVisible(false);
       setCurrentSuggestion(null);
       displayToast({ message: "Oof! Share failed" });
@@ -129,8 +126,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
       } else {
         displayToast({ message: "Cancelled" });
       }
-    } catch (error) {
-      console.error("Share error:", error);
+    } catch {
       setIsModalVisible(false);
       setCurrentSuggestion(null);
       displayToast({ message: "Oof! Share failed" });
@@ -151,33 +147,15 @@ export function ShareProvider({ children }: ShareProviderProps) {
     []
   );
 
-  const getPhotoIndex = useCallback(
-    (suggestionId: string) => {
-      return photoIndices[suggestionId] ?? 0;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  const getPhotoIndex = useCallback((suggestionId: string) => {
+    return photoIndices[suggestionId] ?? 0;
+  }, []);
 
   const handleClose = useCallback(() => {
     setIsModalVisible(false);
     setIsSharing(false);
     setCurrentSuggestion(null);
   }, []);
-
-  useEffect(() => {
-    selectedSuggestionIds.forEach((suggestionId) => {
-      const suggestion = suggestions.find((s) => s.id === suggestionId);
-      if (suggestion) {
-        const photosToPrefetch = suggestion.photoUris;
-        if (photosToPrefetch) {
-          photosToPrefetch.forEach((photo) => {
-            Image.prefetch(photo).catch(() => {});
-          });
-        }
-      }
-    });
-  }, [selectedSuggestionIds, suggestions]);
 
   return (
     <ShareContext.Provider

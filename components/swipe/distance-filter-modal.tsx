@@ -2,7 +2,7 @@ import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { Colors } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";
-import { DISTANCE_OPTIONS } from "@/data/suggestions/constants";
+import { DISTANCE_OPTIONS } from "@/data/suggestions";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";

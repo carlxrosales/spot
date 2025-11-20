@@ -1,16 +1,14 @@
 import {
+  DEFAULT_MAX_DISTANCE_IN_KM,
+  DEFAULT_MIN_DISTANCE_IN_KM,
+  DISTANCE_OPTIONS,
   generateSuggestions,
   loadFirstPhoto,
   loadNextPhotoForSuggestion,
   loadPhotosForCurrentAndNextSuggestions,
+  MINIMUM_SUGGESTIONS_COUNT,
   Suggestion,
 } from "@/data/suggestions";
-import {
-  DEFAULT_MAX_DISTANCE_IN_KM,
-  DEFAULT_MIN_DISTANCE_IN_KM,
-  DISTANCE_OPTIONS,
-  MINIMUM_SUGGESTIONS_COUNT,
-} from "@/data/suggestions/constants";
 import {
   createContext,
   ReactNode,

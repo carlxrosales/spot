@@ -1,4 +1,4 @@
-import { LocationCoordinates } from "@/data/location";
+import { LocationCoordinates } from "@/data/types";
 import * as Location from "expo-location";
 import {
   createContext,

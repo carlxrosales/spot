@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { SafeView } from "./safe-view";
 
 interface BottomModalProps {
   visible: boolean;
@@ -62,12 +63,15 @@ export function BottomModal({
             {showCancelButton && (
               <TouchableOpacity
                 onPress={onClose}
-                className='bg-gray-200 rounded-[24px] px-6 pt-4 pb-6 items-center'
+                className='bg-gray-200 rounded-[24px] px-6 py-4 items-center'
               >
                 <Text className='text-lg font-semibold text-black'>Cancel</Text>
               </TouchableOpacity>
             )}
           </View>
+          <SafeView edges={["bottom"]}>
+            <View></View>
+          </SafeView>
         </TouchableOpacity>
       </TouchableOpacity>
     </Modal>

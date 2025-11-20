@@ -221,9 +221,7 @@ function Swipe() {
         visible={distanceModal.isVisible}
         onClose={distanceModal.handleClose}
       />
-      {(!hasPermission || !location) && !hasFetched && (
-        <LocationPermissionModal />
-      )}
+      {(!hasPermission || !location) && <LocationPermissionModal />}
     </FixedView>
   );
 }

@@ -25,6 +25,10 @@ export const ai = new GoogleGenAI({
 
 const MODEL = "gemini-2.5-flash-lite";
 
+const TAG_COUNT_MIN = 6;
+const TAG_COUNT_MAX = 12;
+const TAG_COUNT_RANGE = `${TAG_COUNT_MIN}-${TAG_COUNT_MAX}`;
+
 // ============================================================================
 // PROMPTS
 // ============================================================================
@@ -35,10 +39,10 @@ const MODEL = "gemini-2.5-flash-lite";
  * meaningful tags for place recommendation matching.
  */
 export const SURVEY_PROMPT = {
-  SYSTEM: `You are the Question Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Ask short, fun, Gen-Z questions to collect 6-8 unique tags for embeddings. One question = one tag. Never repeat a category.
+  SYSTEM: `You are the Question Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Ask short, fun, Gen-Z questions to collect ${TAG_COUNT_RANGE} unique tags for embeddings. One question = one tag. Never repeat a category.
 
 Goal:
-Collect 6-10 meaningful, non-overlapping tags. Every question must produce a new tag. Prioritize big dimensions first (cuisine/cravings, budget, ambiance, group size, food/drink types).
+Collect ${TAG_COUNT_RANGE} meaningful, non-overlapping tags. Every question must produce a new tag. Prioritize big dimensions first (cuisine/cravings, budget, ambiance, group size, food/drink types).
 
 Tag rules:
 - Each question extracts 1 tag.
@@ -76,13 +80,13 @@ Output valid JSON:
 
 /**
  * System prompt for extracting tags from user input.
- * Guides the AI to extract 6-10 distinct, non-overlapping tags that capture
+ * Guides the AI to extract 8-12 distinct, non-overlapping tags that capture
  * user preferences for place matching via embedding similarity search.
  */
-export const TAGS_PROMPT = `You are the Tag Extractor AI for spot, an app that helps users find cafes/restos that match their vibe. Extract 6-10 meaningful tags from the user's input for embeddings.
+export const TAGS_PROMPT = `You are the Tag Extractor AI for spot, an app that helps users find cafes/restos that match their vibe. Extract ${TAG_COUNT_RANGE} meaningful tags from the user's input for embeddings.
 
 Requirements:
-- Extract exactly 6-10 distinct, non-overlapping tags.
+- Extract exactly ${TAG_COUNT_RANGE} distinct, non-overlapping tags.
 - Format: lowercase, hyphenated (e.g., "date-night", "ramen", "solo-dining").
 - Focus on cuisine/cravings, budget, ambiance, group size, food prefs, atmosphere.
 - Never extract location, distance, travel time, or meal times (breakfast, brunch, etc.).
@@ -171,15 +175,15 @@ export const QuestionZodSchema = z.object({
 
 /**
  * Zod schema for tag extraction response.
- * Validates that exactly 6-10 tags are extracted from user input.
+ * Validates that exactly 8-12 tags are extracted from user input.
  */
 export const TagsZodSchema = z.object({
   tags: z
     .array(z.string())
-    .min(6)
-    .max(10)
+    .min(TAG_COUNT_MIN)
+    .max(TAG_COUNT_MAX)
     .describe(
-      "Array of 6-10 lowercase, hyphenated tag values extracted from the user's input"
+      `Array of ${TAG_COUNT_RANGE} lowercase, hyphenated tag values extracted from the user's input`
     ),
 });
 
@@ -228,8 +232,8 @@ export const TagsSchema = {
     tags: {
       type: "array",
       items: { type: "string" },
-      minItems: 6,
-      maxItems: 10,
+      minItems: TAG_COUNT_MIN,
+      maxItems: TAG_COUNT_MAX,
     },
   },
   required: ["tags"],
@@ -339,12 +343,12 @@ export async function generateNextQuestion(
 }
 
 /**
- * Extracts 6-10 meaningful tags from user input using Gemini AI.
+ * Extracts 8-12 meaningful tags from user input using Gemini AI.
  * Tags are formatted as lowercase, hyphenated strings suitable for embedding-based similarity search.
  * Includes retry logic (up to 3 attempts) for reliability.
  *
  * @param input - The user input text to extract tags from
- * @returns Promise resolving to an array of 6-10 tag strings
+ * @returns Promise resolving to an array of 8-12 tag strings
  * @throws Error if tag extraction fails after all retry attempts
  */
 export async function generateTags(input: string): Promise<string[]> {
@@ -365,7 +369,7 @@ export async function generateTags(input: string): Promise<string[]> {
       });
 
       const response = await chat.sendMessage({
-        message: `Extract 6-10 meaningful tags from this user input: "${input}"`,
+        message: `Extract ${TAG_COUNT_RANGE} meaningful tags from this user input: "${input}"`,
       });
 
       const text = response.text;

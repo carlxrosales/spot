@@ -22,11 +22,11 @@ export function cleanAddress(address: string): string {
     .replace(/^,\s*|\s*,$/g, "")
     .trim();
 
-  // Split by comma, filter out parts with numbers, and take only the first 4 parts
+  // Split by comma and take only the first 4 parts (do not remove numbers)
   const parts = cleaned
     .split(",")
     .map((part) => part.trim())
-    .filter((part) => part && !/\d/.test(part));
+    .filter((part) => part);
   const limitedParts = parts.slice(0, 4);
 
   return limitedParts.join(", ");

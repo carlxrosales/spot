@@ -115,7 +115,7 @@ export function ShareCard({
             pointerEvents='box-none'
           >
             <Text
-              className='text-5xl font-bold font-groen text-white'
+              className='text-5xl font-groen text-white'
               pointerEvents='box-none'
             >
               {suggestion.name}

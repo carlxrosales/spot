@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/common/icon-button";
+import { SafeView } from "@/components/common/safe-view";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Inputs } from "@/constants/inputs";
 import { Timeouts } from "@/constants/timeouts";
@@ -86,6 +87,12 @@ export default function LazyModeScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className='flex-1 bg-neonGreen'
     >
+      {Platform.OS === "android" && (
+        <SafeView edges={["top"]}>
+          <View></View>
+        </SafeView>
+      )}
+
       <View className='flex-row justify-between items-center p-8'>
         <IconButton onPress={handleCancel} icon='close' size={ButtonSize.md} />
         <IconButton
@@ -99,7 +106,7 @@ export default function LazyModeScreen() {
       </View>
 
       <View className='flex-1 px-8 pt-8 items-center'>
-        <Text className='font-groen text-5xl font-bold text-black text-center mb-8 px-4'>
+        <Text className='font-groen text-5xl text-black text-center mb-8 px-4'>
           {copy.question}
         </Text>
 

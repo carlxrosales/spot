@@ -45,7 +45,7 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
         <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
           {suggestion && (
             <View className='px-8 pb-8 gap-6'>
-              <Text className='text-5xl font-groen font-bold text-black'>
+              <Text className='text-5xl font-groen text-black'>
                 {suggestion.name}
               </Text>
 

@@ -327,7 +327,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                     >
                       <View className='py-4 gap-4' pointerEvents='box-none'>
                         <Text
-                          className='text-5xl font-bold font-groen text-white'
+                          className='text-5xl font-groen text-white'
                           pointerEvents='none'
                         >
                           {suggestion.name}
@@ -395,7 +395,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                   ) : (
                     <>
                       <Text
-                        className='text-5xl font-bold font-groen text-white'
+                        className='text-5xl font-groen text-white'
                         pointerEvents='none'
                       >
                         {suggestion.name}

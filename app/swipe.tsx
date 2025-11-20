@@ -126,7 +126,7 @@ function Swipe() {
         {isLoading || !hasFetched ? (
           <View className='items-center gap-6'>
             <ActivityIndicator size='large' color={Colors.black} />
-            <Text className='text-4xl font-groen font-semibold text-black'>
+            <Text className='text-4xl font-groen text-black'>
               {copy.findingSpots}
             </Text>
           </View>
@@ -167,7 +167,7 @@ function Swipe() {
                 </View>
               ) : (
                 <View className=' flex-1 items-center justify-center'>
-                  <Text className='text-5xl text-center font-groen font-semibold text-black'>
+                  <Text className='text-5xl text-center font-groen text-black'>
                     {copy.noSuggestions}
                   </Text>
                 </View>

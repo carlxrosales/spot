@@ -27,8 +27,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /**
  * Default maximum number of places to return from similarity search.
  */
-export const DEFAULT_LIMIT_COUNT = 50;
-export const DEFAULT_SPONTY_LIMIT_COUNT = 100;
+export const DEFAULT_LIMIT_COUNT = 80;
 
 /**
  * Default maximum number of photos to return from similarity search.
@@ -73,10 +72,7 @@ export interface SuggestPlacesResult {
 export async function suggestPlaces(
   options: SuggestPlacesOptions
 ): Promise<Suggestion[]> {
-  const {
-    queryEmbedding,
-    limitCount = DEFAULT_LIMIT_COUNT,
-  } = options;
+  const { queryEmbedding, limitCount = DEFAULT_LIMIT_COUNT } = options;
 
   const { data, error } = await supabase.rpc("suggest_places", {
     query_embedding: queryEmbedding,

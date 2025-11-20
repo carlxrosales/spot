@@ -5,6 +5,7 @@ import {
   Animated,
   Image,
   LayoutChangeEvent,
+  Platform,
   Pressable,
   View,
 } from "react-native";
@@ -56,12 +57,12 @@ export function ImageCarousel({
         Animated.timing(shimmerAnim, {
           toValue: 1,
           duration: Animation.shimmer.duration,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== "web",
         }),
         Animated.timing(shimmerAnim, {
           toValue: 0,
           duration: Animation.shimmer.duration,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== "web",
         }),
       ])
     );

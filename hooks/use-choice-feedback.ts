@@ -20,7 +20,7 @@ export function useChoiceFeedback() {
       try {
         await setAudioModeAsync({
           playsInSilentMode: true,
-          shouldPlayInBackground: false,
+          shouldPlayInBackground: true,
         });
 
         try {
@@ -52,6 +52,7 @@ export function useChoiceFeedback() {
       if (choiceSoundRef.current) {
         await choiceSoundRef.current.seekTo(0);
         choiceSoundRef.current.play();
+        await choiceSoundRef.current.seekTo(0);
       }
     } catch {}
   };

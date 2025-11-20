@@ -5,7 +5,6 @@ import {
   places,
 } from "@/services/places";
 import { suggestPlaces } from "@/services/supabase";
-import { LazyChoice, SpontyChoice } from "./survey";
 import { LocationCoordinates } from "./types";
 
 // ============================================================================

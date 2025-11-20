@@ -28,7 +28,7 @@ export function DistanceFilterModal({
   const { maxDistanceInKm, minDistanceInKm, handleFilterByDistance } =
     useSuggestions();
 
-  const [activeTab, setActiveTab] = useState<TabType>("min");
+  const [activeTab, setActiveTab] = useState<TabType>("max");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedMinDistance, setSelectedMinDistance] =
     useState<number>(minDistanceInKm);

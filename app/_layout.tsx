@@ -29,6 +29,7 @@ export default function RootLayout() {
                   options={{
                     ...commonScreenOptions,
                     presentation: "modal",
+                    animation: "slide_from_bottom",
                   }}
                 />
                 <Stack.Screen
@@ -36,6 +37,7 @@ export default function RootLayout() {
                   options={{
                     ...commonScreenOptions,
                     presentation: "modal",
+                    animation: "slide_from_bottom",
                   }}
                 />
                 <Stack.Screen name='swipe' options={commonScreenOptions} />

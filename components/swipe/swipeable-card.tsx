@@ -11,6 +11,7 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
+import { getShadow } from "@/utils/shadows";
 import {
   forwardRef,
   useEffect,
@@ -285,7 +286,10 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
         )}
         <Animated.View style={cardStyle} pointerEvents='auto'>
           <GestureDetector gesture={panGesture}>
-            <View className='flex-1 bg-white rounded-3xl overflow-hidden m-4 shadow-xl'>
+            <View
+              className='flex-1 bg-white rounded-3xl overflow-hidden m-4'
+              style={getShadow("dark")}
+            >
               {isSelected && (
                 <View
                   className='absolute top-8 right-[-55px] z-50'

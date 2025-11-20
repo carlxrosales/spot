@@ -8,6 +8,7 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { cleanAddress } from "@/utils/address";
+import { getShadow } from "@/utils/shadows";
 import { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 
@@ -81,7 +82,10 @@ export function ShareCard({
   }, [suggestion.opensAt, suggestion.closesAt]);
 
   return (
-    <View className='flex-1 bg-white rounded-3xl overflow-hidden m-4 shadow-xl'>
+    <View
+      className='flex-1 bg-white rounded-3xl overflow-hidden m-4'
+      style={getShadow("dark")}
+    >
       <View
         className='absolute top-8 right-[-55px] z-50'
         style={{ transform: [{ rotate: "45deg" }] }}

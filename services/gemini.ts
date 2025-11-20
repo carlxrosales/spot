@@ -414,9 +414,9 @@ export async function generateQuery(tags: string[]): Promise<string> {
       });
 
       const response = await chat.sendMessage({
-        message: `Convert these tags into a comprehensive description: ${tags.join(
-          ", "
-        )}`,
+        message: `Convert these tags into a comprehensive description: ${
+          tags.length > 0 ? tags.join(", ") : SpontyChoice.value
+        }`,
       });
 
       const text = response.text;

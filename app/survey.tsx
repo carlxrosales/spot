@@ -55,7 +55,7 @@ export default function Survey() {
     if (isComplete) {
       router.navigate(Routes.swipe);
     }
-  }, [isComplete]);
+  }, [isComplete, router]);
 
   if (!currentQuestion) {
     return null;

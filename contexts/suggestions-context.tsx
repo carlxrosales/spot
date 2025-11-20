@@ -52,7 +52,7 @@ interface SuggestionsProviderProps {
 }
 
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
-  const { answers, isComplete } = useSurvey();
+  const { answers } = useSurvey();
   const { displayToast } = useToast();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -75,13 +75,14 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
   const fetchSuggestions = useCallback(
     async (location: LocationCoordinates) => {
-      if (
-        !isComplete ||
-        !location ||
-        isLoading ||
-        hasFetched ||
+      console.log(
+        "fetchSuggestions",
+        location,
+        isLoading,
+        hasFetched,
         answers.length === 0
-      ) {
+      );
+      if (!location || isLoading || hasFetched || answers.length === 0) {
         return;
       }
 
@@ -165,7 +166,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(false);
       setHasFetched(true);
     },
-    [answers, isLoading, hasFetched, displayToast]
+    [answers, isLoading, hasFetched]
   );
 
   const filterSuggestions = useCallback(

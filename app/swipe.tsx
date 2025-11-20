@@ -24,7 +24,8 @@ import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
@@ -41,8 +42,9 @@ const copy = {
  */
 function Swipe() {
   const router = useRouter();
+  const navigation = useNavigation();
 
-  const { location } = useLocation();
+  const { hasPermission, location } = useLocation();
   const { answers, handleStartOver } = useSurvey();
   const {
     isLoading,
@@ -63,11 +65,13 @@ function Swipe() {
 
   const cardRef = useRef<SwipeableCardRef>(null);
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", () => {
       handleStartOver();
-    }, [handleStartOver])
-  );
+    });
+
+    return unsubscribe;
+  }, [navigation, handleStartOver]);
 
   useEffect(() => {
     if (answers.length === 0) {
@@ -116,6 +120,7 @@ function Swipe() {
   }, [isSkipLoading, isProceedLoading, onSwipeSelect]);
 
   const handleBack = useCallback(() => {
+    handleStartOver();
     router.navigate(Routes.survey);
   }, [handleStartOver, router]);
 
@@ -216,7 +221,9 @@ function Swipe() {
         visible={distanceModal.isVisible}
         onClose={distanceModal.handleClose}
       />
-      <LocationPermissionModal />
+      {(!hasPermission || !location) && !hasFetched && (
+        <LocationPermissionModal />
+      )}
     </FixedView>
   );
 }

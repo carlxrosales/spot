@@ -32,7 +32,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
 
   const [location, setLocation] = useState<LocationCoordinates | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const requestPermission =

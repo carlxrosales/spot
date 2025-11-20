@@ -1,6 +1,7 @@
 import { Animation } from "@/constants/theme";
 import { generateInitialQuestion, Question } from "@/data/survey";
 import { generateNextQuestion } from "@/services/gemini";
+import { ensureMinimumDelay } from "@/utils/delay";
 import {
   createContext,
   ReactNode,
@@ -60,10 +61,8 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
           setIsComplete(true);
           return;
         }
-
-        const nextQuestion = await generateNextQuestion(
-          questions,
-          updatedAnswers
+        const nextQuestion = await ensureMinimumDelay(Animation.duration.slow)(
+          () => generateNextQuestion(questions, updatedAnswers)
         );
 
         if (!nextQuestion) {

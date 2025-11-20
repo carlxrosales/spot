@@ -1,6 +1,5 @@
 import { generateEmbedding, generateQuery } from "@/services/gemini";
 import {
-  getPhotoUris,
   PHOTO_MAX_HEIGHT_PX,
   PHOTO_MAX_WIDTH_PX,
   places,
@@ -587,29 +586,25 @@ export const loadFirstPhotoForSuggestion = async (
 };
 
 /**
- * Loads all remaining photo URIs for a suggestion.
- * This is used when the user navigates the image carousel.
+ * Loads a specific photo URI by its resource name.
+ * This supports loading photos in any order, including going back in the carousel.
  *
- * @param suggestion - The suggestion to load additional photos for
- * @param loadedPhotoCount - Number of photos already loaded
- * @returns Promise resolving to array of remaining photo URIs
+ * @param photoName - Photo resource name in format: places/{placeId}/photos/{photo_reference}
+ * @returns Promise resolving to the photo URI, or undefined if loading fails
  */
-export const loadNextPhotoForSuggestion = async (
-  suggestion: Suggestion,
-  loadedPhotoCount: number
-): Promise<string[]> => {
-  if (suggestion.photos.length === 0) {
-    return [];
+export const loadPhotoByName = async (
+  photoName: string
+): Promise<string | undefined> => {
+  try {
+    const photoUri = await places.getPhotoUri({
+      photoName,
+      maxWidthPx: PHOTO_MAX_WIDTH_PX,
+      maxHeightPx: PHOTO_MAX_HEIGHT_PX,
+    });
+    return photoUri;
+  } catch {
+    return undefined;
   }
-
-  if (loadedPhotoCount >= suggestion.photos.length) {
-    return [];
-  }
-
-  const remainingPhotoNames = suggestion.photos.slice(loadedPhotoCount);
-  const remainingPhotoUris = await getPhotoUris(remainingPhotoNames);
-
-  return remainingPhotoUris;
 };
 
 /**
@@ -618,14 +613,14 @@ export const loadNextPhotoForSuggestion = async (
  *
  * @param suggestions - Array of suggestions
  * @param currentIndex - Index of the current suggestion
- * @param photoUrisMap - Map of suggestion IDs to their photo URIs
- * @returns Promise resolving to a map of loaded photo URIs (suggestion ID -> photo URI)
+ * @param photoUrisMap - Map of suggestion IDs to their photo maps (photo name -> photo URI)
+ * @returns Promise resolving to a map of loaded photo URIs (suggestion ID -> photo name -> photo URI)
  */
-export const loadPhotosForCurrentAndNextSuggestions = async (
+export const loadFirstPhotoForCurrentAndNextSuggestions = async (
   suggestions: Suggestion[],
   currentIndex: number,
-  photoUrisMap: Map<string, string[]>
-): Promise<Map<string, string[]>> => {
+  photoUrisMap: Map<string, Map<string, string>>
+): Promise<Map<string, Map<string, string>>> => {
   const updatedMap = new Map(photoUrisMap);
   const currentSuggestion = suggestions[currentIndex];
   const nextSuggestion = suggestions[currentIndex + 1];
@@ -633,12 +628,15 @@ export const loadPhotosForCurrentAndNextSuggestions = async (
   const loadPromises: Promise<void>[] = [];
 
   if (currentSuggestion && currentSuggestion.photos.length > 0) {
-    const currentPhotoUris = updatedMap.get(currentSuggestion.id);
-    if (!currentPhotoUris || currentPhotoUris.length === 0) {
+    const currentPhotoMap = updatedMap.get(currentSuggestion.id);
+    const firstPhotoName = currentSuggestion.photos[0];
+    if (!currentPhotoMap || !currentPhotoMap.has(firstPhotoName)) {
       loadPromises.push(
         loadFirstPhotoForSuggestion(currentSuggestion).then((photoUri) => {
           if (photoUri) {
-            updatedMap.set(currentSuggestion.id, [photoUri]);
+            const photoMap = new Map<string, string>();
+            photoMap.set(firstPhotoName, photoUri);
+            updatedMap.set(currentSuggestion.id, photoMap);
           }
         })
       );
@@ -646,12 +644,15 @@ export const loadPhotosForCurrentAndNextSuggestions = async (
   }
 
   if (nextSuggestion && nextSuggestion.photos.length > 0) {
-    const nextPhotoUris = updatedMap.get(nextSuggestion.id);
-    if (!nextPhotoUris || nextPhotoUris.length === 0) {
+    const nextPhotoMap = updatedMap.get(nextSuggestion.id);
+    const firstPhotoName = nextSuggestion.photos[0];
+    if (!nextPhotoMap || !nextPhotoMap.has(firstPhotoName)) {
       loadPromises.push(
         loadFirstPhotoForSuggestion(nextSuggestion).then((photoUri) => {
           if (photoUri) {
-            updatedMap.set(nextSuggestion.id, [photoUri]);
+            const photoMap = new Map<string, string>();
+            photoMap.set(firstPhotoName, photoUri);
+            updatedMap.set(nextSuggestion.id, photoMap);
           }
         })
       );

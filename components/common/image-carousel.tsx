@@ -1,3 +1,5 @@
+import { Animation, Colors } from "@/constants/theme";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -8,8 +10,13 @@ import {
 } from "react-native";
 import { IndicatorBar } from "./indicator-bar";
 
+interface ImageItem {
+  name: string;
+  uri?: string;
+}
+
 interface ImageCarouselProps {
-  images: string[];
+  images: ImageItem[];
   currentIndex: number;
   onIndexChange: (index: number) => void;
   showIndicator?: boolean;
@@ -21,7 +28,7 @@ interface ImageCarouselProps {
  * Image carousel component with tap-to-navigate functionality.
  * Displays multiple images with an indicator bar and allows navigation by tapping left/right sides.
  *
- * @param images - Array of image URIs to display
+ * @param images - Array of image items with name and optional uri
  * @param currentIndex - Currently displayed image index
  * @param onIndexChange - Callback function called when image index changes
  * @param showIndicator - Whether to show the indicator bar (default: true)
@@ -37,36 +44,38 @@ export function ImageCarousel({
   className = "w-full h-full",
 }: ImageCarouselProps) {
   const [containerWidth, setContainerWidth] = useState<number>(0);
+  const [containerHeight, setContainerHeight] = useState<number>(0);
   const hasMultipleImages = images.length > 1;
+  const currentImage = images[currentIndex];
+  const currentUri = currentImage?.uri;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    images.forEach((uri) => {
-      Image.prefetch(uri).catch(() => {});
-    });
-  }, [images]);
 
   useEffect(() => {
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(shimmerAnim, {
           toValue: 1,
-          duration: 1000,
+          duration: Animation.shimmer.duration,
           useNativeDriver: true,
         }),
         Animated.timing(shimmerAnim, {
           toValue: 0,
-          duration: 1000,
+          duration: Animation.shimmer.duration,
           useNativeDriver: true,
         }),
       ])
     );
     animation.start();
-    return () => animation.stop();
-  }, [shimmerAnim]);
+    return () => {
+      animation.stop();
+      animation.reset();
+    };
+  }, []);
 
   const handleLayout = (event: LayoutChangeEvent) => {
-    setContainerWidth(event.nativeEvent.layout.width);
+    const { width, height } = event.nativeEvent.layout;
+    setContainerWidth(width);
+    setContainerHeight(height);
   };
 
   const handlePress = (event: { nativeEvent: { locationX: number } }) => {
@@ -94,25 +103,48 @@ export function ImageCarousel({
       className={className}
     >
       <View className='w-full h-full bg-white'>
-        <Animated.View
-          className='w-full h-full absolute inset-0 bg-gray-200'
-          style={{
-            opacity: shimmerAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.5, 0.8],
-            }),
-          }}
+        <View
+          className='w-full h-full absolute inset-0'
+          style={{ backgroundColor: Colors.skeletonBase }}
         />
-        {images.map((photo, index) => (
+        {containerWidth > 0 && (
+          <View className='w-full h-full absolute inset-0 overflow-hidden'>
+            <Animated.View
+              style={{
+                width: containerWidth * 2,
+                height: containerHeight || "100%",
+                transform: [
+                  {
+                    translateX: shimmerAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-containerWidth, containerWidth],
+                    }),
+                  },
+                ],
+              }}
+            >
+              <LinearGradient
+                colors={[
+                  Colors.skeletonBase,
+                  Colors.skeletonHighlight,
+                  Colors.skeletonBase,
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </Animated.View>
+          </View>
+        )}
+        {currentUri && (
           <Image
-            key={index}
-            source={{ uri: photo }}
-            className={`w-full h-full absolute inset-0 ${
-              currentIndex === index ? "opacity-100" : "opacity-0"
-            }`}
+            key={`${currentIndex}-${currentUri}`}
+            source={{ uri: currentUri }}
+            className='w-full h-full absolute inset-0'
             resizeMode='cover'
+            style={{ backgroundColor: "transparent" }}
           />
-        ))}
+        )}
       </View>
       {hasMultipleImages && showIndicator && (
         <View className={indicatorClassName}>

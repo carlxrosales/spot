@@ -15,6 +15,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -64,8 +65,8 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       selectedSuggestionIds,
       handleSkip,
       handleSelect,
-      loadNextPhoto,
-      getPhotoUris,
+      loadPhotoByName,
+      getPhotoUri,
     } = useSuggestions();
     const { onSwipeStart, onSwipeThreshold, onSwipeSkip, onSwipeSelect } =
       useSwipeFeedback();
@@ -80,16 +81,21 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       emoji: string;
     } | null>(null);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
-    const photoUris = getPhotoUris(suggestion.id);
+
+    const imageItems = useMemo(
+      () =>
+        suggestion.photos.map((photo) => ({
+          name: photo,
+          uri: getPhotoUri(suggestion.id, photo),
+        })),
+      [suggestion.photos, suggestion.id, getPhotoUri]
+    );
 
     const handlePhotoIndexChange = (index: number) => {
       setCurrentPhotoIndex(index);
-      const loadedPhotoCount = photoUris?.length || 0;
-      if (
-        index === loadedPhotoCount - 1 &&
-        suggestion.photos.length > loadedPhotoCount
-      ) {
-        loadNextPhoto(suggestion.id);
+      const photoName = imageItems[index].name;
+      if (!imageItems[index].uri && photoName) {
+        loadPhotoByName(suggestion.id, photoName);
       }
     };
 
@@ -291,9 +297,9 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
                 </View>
               )}
               <>
-                {photoUris && photoUris.length > 0 && (
+                {suggestion.photos.length > 0 && (
                   <ImageCarousel
-                    images={photoUris}
+                    images={imageItems}
                     currentIndex={currentPhotoIndex}
                     onIndexChange={handlePhotoIndexChange}
                     showIndicator={!isSelected}

@@ -49,7 +49,6 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
     },
     ref
   ) => {
-    const { getPhotoUris } = useSuggestions();
     const viewShotRef = React.useRef<ViewShot>(null);
 
     useImperativeHandle(ref, () => ({
@@ -94,7 +93,6 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
                   <ShareCard
                     suggestion={suggestion}
                     currentPhotoIndex={currentPhotoIndex}
-                    photoUris={getPhotoUris(suggestion.id)}
                   />
                 </View>
               </View>

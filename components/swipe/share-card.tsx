@@ -1,5 +1,6 @@
 import { ImageCarousel } from "@/components/common/image-carousel";
 import { Overlay } from "@/constants/theme";
+import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
@@ -7,7 +8,7 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { cleanAddress } from "@/utils/address";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 
 const copy = {
@@ -20,7 +21,6 @@ const copy = {
 interface ShareCardProps {
   suggestion: Suggestion;
   currentPhotoIndex: number;
-  photoUris?: string[];
 }
 
 /**
@@ -34,9 +34,19 @@ interface ShareCardProps {
 export function ShareCard({
   suggestion,
   currentPhotoIndex: initialPhotoIndex,
-  photoUris,
 }: ShareCardProps) {
-  const photoCount = photoUris?.length || 0;
+  const { getPhotoUri } = useSuggestions();
+
+  const imageItems = useMemo(
+    () =>
+      suggestion.photos.map((photo) => ({
+        name: photo,
+        uri: getPhotoUri(suggestion.id, photo),
+      })),
+    [suggestion.photos, suggestion.id, getPhotoUri]
+  );
+
+  const photoCount = suggestion.photos.length;
   const safeInitialIndex =
     photoCount > 0
       ? Math.max(0, Math.min(initialPhotoIndex, photoCount - 1))
@@ -47,17 +57,9 @@ export function ShareCard({
   const [countdown, setCountdown] = useState<string>("");
 
   useEffect(() => {
-    const photoCount = photoUris?.length || 0;
-    if (photoCount > 0) {
-      const safeIndex = Math.max(
-        0,
-        Math.min(initialPhotoIndex, photoCount - 1)
-      );
-      setCurrentPhotoIndex(safeIndex);
-    } else {
-      setCurrentPhotoIndex(0);
-    }
-  }, [initialPhotoIndex, photoUris]);
+    const safeIndex = Math.max(0, Math.min(initialPhotoIndex, photoCount - 1));
+    setCurrentPhotoIndex(safeIndex);
+  }, [initialPhotoIndex, photoCount]);
 
   useEffect(() => {
     if (suggestion.opensAt || suggestion.closesAt) {
@@ -88,9 +90,9 @@ export function ShareCard({
           <Text className='text-white font-bold text-md'>{copy.spotted}</Text>
         </View>
       </View>
-      {photoUris && photoUris.length > 0 && (
+      {suggestion.photos.length > 0 && (
         <ImageCarousel
-          images={photoUris}
+          images={imageItems}
           currentIndex={currentPhotoIndex}
           onIndexChange={setCurrentPhotoIndex}
           showIndicator={false}

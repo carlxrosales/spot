@@ -39,6 +39,11 @@ export const LAZY_THRESHOLD = 0.2;
 export const DEFAULT_LIMIT_COUNT = 20;
 export const DEFAULT_SPONTY_LIMIT_COUNT = 100;
 
+/**
+ * Default maximum number of photos to return from similarity search.
+ */
+export const DEFAULT_PHOTO_LIMIT_COUNT = 4;
+
 // ============================================================================
 // FUNCTIONS
 // ============================================================================
@@ -105,7 +110,9 @@ export async function suggestPlaces(
     address: result.address,
     rating: Number(result.rating),
     priceLevel: result.price_level ?? undefined,
-    photos: result.photos,
+    photos: Array.isArray(result.photos)
+      ? result.photos.slice(0, DEFAULT_PHOTO_LIMIT_COUNT)
+      : [],
     tags: result.tags,
     lat: Number(result.lat),
     lng: Number(result.lng),

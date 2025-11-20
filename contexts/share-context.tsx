@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -39,9 +40,9 @@ export function ShareProvider({ children }: ShareProviderProps) {
     photoIndicesRef.current = photoIndices;
   }, [photoIndices]);
 
-  const currentPhotoIndex = currentSuggestion
-    ? photoIndices[currentSuggestion.id] ?? 0
-    : 0;
+  const currentPhotoIndex = useMemo(() => {
+    return currentSuggestion ? photoIndices[currentSuggestion.id] ?? 0 : 0;
+  }, [currentSuggestion, photoIndices]);
 
   const shareImage = useCallback(async () => {
     try {
@@ -148,7 +149,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
   );
 
   const getPhotoIndex = useCallback((suggestionId: string) => {
-    return photoIndices[suggestionId] ?? 0;
+    return photoIndicesRef.current[suggestionId] ?? 0;
   }, []);
 
   const handleClose = useCallback(() => {

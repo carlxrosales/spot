@@ -9,6 +9,8 @@ export const Colors = {
   gray: "rgb(100, 100, 100)",
   black: "rgb(30, 30, 30)",
   shadow: "rgba(240, 46, 170, 0.4)",
+  skeletonBase: "rgb(66, 66, 66)",
+  skeletonHighlight: "rgb(38, 38, 38)",
 };
 
 /**
@@ -139,5 +141,8 @@ export const Animation = {
   feedback: {
     scaleMin: 0.6,
     scaleRange: 0.4,
+  },
+  shimmer: {
+    duration: 1500,
   },
 };

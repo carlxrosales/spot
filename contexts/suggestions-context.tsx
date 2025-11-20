@@ -4,8 +4,7 @@ import {
   DISTANCE_OPTIONS,
   generateSuggestions,
   loadFirstPhotoForSuggestion,
-  loadNextPhotoForSuggestion,
-  loadPhotosForCurrentAndNextSuggestions,
+  loadPhotoByName as loadPhotoByNameUtil,
   MINIMUM_SUGGESTIONS_COUNT,
   Suggestion,
 } from "@/data/suggestions";
@@ -15,7 +14,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { Image } from "react-native";
@@ -40,8 +38,9 @@ interface SuggestionsContextType {
     minDistanceInKm: number,
     maxDistanceInKm: number
   ) => void;
-  loadNextPhoto: (suggestionId: string) => Promise<void>;
+  loadPhotoByName: (suggestionId: string, photoName: string) => Promise<void>;
   getPhotoUris: (suggestionId: string) => string[] | undefined;
+  getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
 }
 
 const SuggestionsContext = createContext<SuggestionsContextType | undefined>(
@@ -58,11 +57,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { location, hasPermission } = useLocation();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [photoUrisMap, setPhotoUrisMap] = useState<Map<string, string[]>>(
-    new Map()
-  );
-  const photoUrisMapRef = useRef(photoUrisMap);
-  photoUrisMapRef.current = photoUrisMap;
+  const [photoUrisMap, setPhotoUrisMap] = useState<
+    Map<string, Map<string, string>>
+  >(new Map());
   const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
     []
   );
@@ -136,7 +133,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
           if (firstPhotoUri) {
             setPhotoUrisMap((prev) => {
               const updated = new Map(prev);
-              updated.set(firstSuggestion.id, [firstPhotoUri]);
+              const photoMap = new Map<string, string>();
+              photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
+              updated.set(firstSuggestion.id, photoMap);
               return updated;
             });
             await Image.prefetch(firstPhotoUri).catch(() => {});
@@ -144,7 +143,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         }
       }
     } catch {
-      setError("Failed to load suggestions");
+      setError("Yikes! Somethin' went wrong");
     } finally {
       setIsLoading(false);
       setHasFetched(true);
@@ -177,38 +176,23 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     }
 
     const nextSuggestion = suggestions[nextIndex];
-    const nextNextSuggestion = suggestions[nextIndex + 1];
     const updatedMap = new Map(photoUrisMap);
 
-    const loadPromises: Promise<void>[] = [];
-
     if (nextSuggestion && nextSuggestion.photos.length > 0) {
-      const nextPhotoUris = updatedMap.get(nextSuggestion.id);
-      if (!nextPhotoUris || nextPhotoUris.length === 0) {
-        loadPromises.push(
-          loadFirstPhotoForSuggestion(nextSuggestion).then((photoUri) => {
-            if (photoUri) {
-              updatedMap.set(nextSuggestion.id, [photoUri]);
-            }
-          })
-        );
+      const nextPhotoMap = updatedMap.get(nextSuggestion.id);
+      const firstPhotoName = nextSuggestion.photos[0];
+      if (!nextPhotoMap || !nextPhotoMap.has(firstPhotoName)) {
+        const photoUri = await loadFirstPhotoForSuggestion(nextSuggestion);
+        if (photoUri) {
+          const photoMap = new Map<string, string>();
+          photoMap.set(firstPhotoName, photoUri);
+          updatedMap.set(nextSuggestion.id, photoMap);
+
+          await Image.prefetch(photoUri).catch(() => {});
+        }
       }
     }
 
-    if (nextNextSuggestion && nextNextSuggestion.photos.length > 0) {
-      const nextNextPhotoUris = updatedMap.get(nextNextSuggestion.id);
-      if (!nextNextPhotoUris || nextNextPhotoUris.length === 0) {
-        loadPromises.push(
-          loadFirstPhotoForSuggestion(nextNextSuggestion).then((photoUri) => {
-            if (photoUri) {
-              updatedMap.set(nextNextSuggestion.id, [photoUri]);
-            }
-          })
-        );
-      }
-    }
-
-    await Promise.all(loadPromises);
     setPhotoUrisMap(updatedMap);
     setCurrentIndex(nextIndex);
   }, [currentIndex, suggestions, photoUrisMap, displayToast]);
@@ -230,90 +214,47 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
   const getPhotoUris = useCallback(
     (suggestionId: string) => {
-      return photoUrisMap.get(suggestionId);
+      const photoMap = photoUrisMap.get(suggestionId);
+      if (!photoMap) return undefined;
+      const suggestion = suggestions.find((s) => s.id === suggestionId);
+      if (!suggestion) return undefined;
+      return suggestion.photos
+        .map((photoName) => photoMap.get(photoName))
+        .filter((uri): uri is string => uri !== undefined);
+    },
+    [photoUrisMap, suggestions]
+  );
+
+  const getPhotoUri = useCallback(
+    (suggestionId: string, photoName: string) => {
+      const photoMap = photoUrisMap.get(suggestionId);
+      return photoMap?.get(photoName);
     },
     [photoUrisMap]
   );
 
-  const loadNextPhoto = useCallback(
-    async (suggestionId: string) => {
-      const suggestion = suggestions.find((s) => s.id === suggestionId);
-      if (!suggestion) return;
-
-      const loadedPhotoCount = photoUrisMap.get(suggestionId)?.length || 0;
-      const remainingPhotoUris = await loadNextPhotoForSuggestion(
-        suggestion,
-        loadedPhotoCount
-      );
-
-      if (remainingPhotoUris.length > 0) {
-        setPhotoUrisMap((prev) => {
-          const updated = new Map(prev);
-          const existing = updated.get(suggestionId) || [];
-          updated.set(suggestionId, [...existing, ...remainingPhotoUris]);
-          return updated;
-        });
-      }
-    },
-    [suggestions, photoUrisMap]
-  );
-
-  useEffect(() => {
-    const loadPhotos = async () => {
-      if (suggestions.length === 0) return;
-
-      const currentSuggestion = suggestions[currentIndex];
-      const nextSuggestion = suggestions[currentIndex + 1];
-      const currentMap = photoUrisMapRef.current;
-
-      const currentPhotoUris = currentMap.get(currentSuggestion?.id);
-      const nextPhotoUris = currentMap.get(nextSuggestion?.id);
-
-      const needsCurrentLoad =
-        currentSuggestion &&
-        currentSuggestion.photos.length > 0 &&
-        (!currentPhotoUris || currentPhotoUris.length === 0);
-
-      const needsNextLoad =
-        nextSuggestion &&
-        nextSuggestion.photos.length > 0 &&
-        (!nextPhotoUris || nextPhotoUris.length === 0);
-
-      if (!needsCurrentLoad && !needsNextLoad) {
-        if (currentPhotoUris?.[0]) {
-          Image.prefetch(currentPhotoUris[0]).catch(() => {});
-        }
-        if (nextPhotoUris?.[0]) {
-          Image.prefetch(nextPhotoUris[0]).catch(() => {});
-        }
+  const loadPhotoByName = useCallback(
+    async (suggestionId: string, photoName: string) => {
+      const photoMap = photoUrisMap.get(suggestionId);
+      if (photoMap?.has(photoName)) {
         return;
       }
 
-      const updatedMap = await loadPhotosForCurrentAndNextSuggestions(
-        suggestions,
-        currentIndex,
-        currentMap
-      );
-
-      const updatedCurrentPhotoUris = updatedMap.get(
-        suggestions[currentIndex]?.id
-      );
-      const updatedNextPhotoUris = updatedMap.get(
-        suggestions[currentIndex + 1]?.id
-      );
-
-      if (updatedCurrentPhotoUris?.[0]) {
-        Image.prefetch(updatedCurrentPhotoUris[0]).catch(() => {});
+      const photoUri = await loadPhotoByNameUtil(photoName);
+      if (photoUri) {
+        setPhotoUrisMap((prev) => {
+          const updated = new Map(prev);
+          const existing =
+            updated.get(suggestionId) || new Map<string, string>();
+          existing.set(photoName, photoUri);
+          updated.set(suggestionId, existing);
+          return updated;
+        });
+        await Image.prefetch(photoUri).catch(() => {});
       }
-      if (updatedNextPhotoUris?.[0]) {
-        Image.prefetch(updatedNextPhotoUris[0]).catch(() => {});
-      }
-
-      setPhotoUrisMap(updatedMap);
-    };
-
-    loadPhotos();
-  }, [currentIndex, suggestions.length]);
+    },
+    [photoUrisMap]
+  );
 
   useEffect(() => {
     if (!isLoading && suggestions.length === 1 && hasFetched) {
@@ -327,7 +268,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setMaxDistanceInKm(DEFAULT_MAX_DISTANCE_IN_KM);
       setAllSuggestions([]);
       setSuggestions([]);
-      setPhotoUrisMap(new Map());
+      setPhotoUrisMap(new Map<string, Map<string, string>>());
       setCurrentIndex(0);
       setSelectedSuggestionIds([]);
       setIsLoading(false);
@@ -352,8 +293,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         handleSkip,
         handleSelect,
         handleFilterByDistance,
-        loadNextPhoto,
+        loadPhotoByName,
         getPhotoUris,
+        getPhotoUri,
       }}
     >
       {children}

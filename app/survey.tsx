@@ -103,10 +103,10 @@ export default function Survey() {
         </AbsoluteView>
         <View className='flex-1 justify-center items-start gap-8'>
           <ChoiceFeedback
-            visible={isLoading && !isComplete}
+            visible={isLoading}
             feedback={currentQuestion?.feedback}
           />
-          {!isLoading && !isComplete && currentQuestion && (
+          {!isLoading && currentQuestion && (
             <>
               <Question
                 key={`question-${currentQuestion.question}`}
@@ -120,7 +120,7 @@ export default function Survey() {
                     choice={choice}
                     index={index}
                     onPress={() => handleChoice(choice.value)}
-                    isAnimatingOut={isLoading && !isComplete}
+                    isAnimatingOut={isLoading}
                   />
                 ))}
                 {questions.length > 1 && (
@@ -133,14 +133,14 @@ export default function Survey() {
                     }}
                     index={currentQuestion.choices.length}
                     onPress={handleCustomInputPress}
-                    isAnimatingOut={isLoading && !isComplete}
+                    isAnimatingOut={isLoading}
                   />
                 )}
               </View>
             </>
           )}
         </View>
-        {!isLoading && !isComplete && (
+        {!isLoading && (
           <AbsoluteView bottom={32} left={32} right={32} withSafeAreaInsets>
             {answers.length > 0 ? (
               <View className='w-full flex-1 flex-row items-center justify-end gap-4'>
@@ -149,14 +149,14 @@ export default function Survey() {
                   variant={ButtonVariant.black}
                   onPress={handleShowSpots}
                   index={0}
-                  isAnimatingOut={isLoading && !isComplete}
+                  isAnimatingOut={isLoading}
                 />
                 <AnimatedButton
                   icon='reload'
                   variant={ButtonVariant.white}
                   onPress={handleStartOver}
                   index={1}
-                  isAnimatingOut={isLoading && !isComplete}
+                  isAnimatingOut={isLoading}
                 />
               </View>
             ) : (
@@ -166,14 +166,14 @@ export default function Survey() {
                   variant={ButtonVariant.black}
                   onPress={handleFeelingSponty}
                   index={0}
-                  isAnimatingOut={isLoading && !isComplete}
+                  isAnimatingOut={isLoading}
                 />
                 <AnimatedButton
                   label={copy.lazyMode}
                   variant={ButtonVariant.white}
                   onPress={handleLazyModePress}
                   index={1}
-                  isAnimatingOut={isLoading && !isComplete}
+                  isAnimatingOut={isLoading}
                 />
               </View>
             )}

@@ -67,14 +67,14 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
 
         if (!nextQuestion) {
           setError("Yo! Somethin' went wrong");
+          setIsLoading(false);
           return;
         }
 
         setQuestions((prev) => [...prev, nextQuestion]);
+        setIsLoading(false);
       } catch {
         setError("Yo! Somethin' went wrong, let's start over");
-      } finally {
-        setIsLoading(false);
       }
     },
     [answers, currentQuestion, questions]

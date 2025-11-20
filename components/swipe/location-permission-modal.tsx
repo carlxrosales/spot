@@ -2,6 +2,8 @@ import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { ButtonVariant } from "@/constants/buttons";
 import { useLocation } from "@/contexts/location-context";
+import { useSuggestions } from "@/contexts/suggestions-context";
+import { useCallback } from "react";
 
 const copy = {
   title: "FBI wants to know your location",
@@ -17,6 +19,12 @@ const copy = {
  */
 export function LocationPermissionModal() {
   const { hasPermission, isLoading, requestPermission } = useLocation();
+  const { fetchSuggestions } = useSuggestions();
+
+  const handleRequestPermission = useCallback(async () => {
+    await requestPermission();
+    fetchSuggestions();
+  }, [requestPermission, fetchSuggestions]);
   return (
     <BottomModal
       visible={!hasPermission && !isLoading}
@@ -27,7 +35,7 @@ export function LocationPermissionModal() {
     >
       <TextButton
         label={copy.enableLocation}
-        onPress={requestPermission}
+        onPress={handleRequestPermission}
         variant={ButtonVariant.black}
         fullWidth
         loading={isLoading}

@@ -89,67 +89,81 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const newSuggestions = await generateSuggestions(answers, location);
-      setAllSuggestions(newSuggestions);
+    const MAX_RETRIES = 3;
 
-      const filterByDistance = (maxDistance: number) =>
-        newSuggestions.filter(
-          (suggestion) =>
-            suggestion.distanceInKm !== undefined &&
-            suggestion.distanceInKm > DEFAULT_MIN_DISTANCE_IN_KM &&
-            suggestion.distanceInKm <= maxDistance
-        );
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const newSuggestions = await generateSuggestions(answers, location);
+        setAllSuggestions(newSuggestions);
 
-      let filteredSuggestions = filterByDistance(DEFAULT_MAX_DISTANCE_IN_KM);
-      let finalMaxDistance = DEFAULT_MAX_DISTANCE_IN_KM;
+        const filterByDistance = (maxDistance: number) =>
+          newSuggestions.filter(
+            (suggestion) =>
+              suggestion.distanceInKm !== undefined &&
+              suggestion.distanceInKm > DEFAULT_MIN_DISTANCE_IN_KM &&
+              suggestion.distanceInKm <= maxDistance
+          );
 
-      if (filteredSuggestions.length < MINIMUM_SUGGESTIONS_COUNT) {
-        const defaultMaxIndex = DISTANCE_OPTIONS.findIndex(
-          (option) => option >= DEFAULT_MAX_DISTANCE_IN_KM
-        );
-        const startIndex = defaultMaxIndex >= 0 ? defaultMaxIndex + 1 : 0;
+        let filteredSuggestions = filterByDistance(DEFAULT_MAX_DISTANCE_IN_KM);
+        let finalMaxDistance = DEFAULT_MAX_DISTANCE_IN_KM;
 
-        for (
-          let i = startIndex;
-          i < DISTANCE_OPTIONS.length && filteredSuggestions.length < 8;
-          i++
-        ) {
-          finalMaxDistance = DISTANCE_OPTIONS[i];
-          filteredSuggestions = filterByDistance(finalMaxDistance);
+        if (filteredSuggestions.length < MINIMUM_SUGGESTIONS_COUNT) {
+          const defaultMaxIndex = DISTANCE_OPTIONS.findIndex(
+            (option) => option >= DEFAULT_MAX_DISTANCE_IN_KM
+          );
+          const startIndex = defaultMaxIndex >= 0 ? defaultMaxIndex + 1 : 0;
+
+          for (
+            let i = startIndex;
+            i < DISTANCE_OPTIONS.length && filteredSuggestions.length < 8;
+            i++
+          ) {
+            finalMaxDistance = DISTANCE_OPTIONS[i];
+            filteredSuggestions = filterByDistance(finalMaxDistance);
+          }
+
+          setMaxDistanceInKm(finalMaxDistance);
         }
 
-        setMaxDistanceInKm(finalMaxDistance);
-      }
-
-      if (filteredSuggestions.length > 0) {
-        const firstSuggestion = filteredSuggestions[0];
-        if (firstSuggestion.photos.length > 0) {
-          const firstPhotoUri = await loadFirstPhotoForSuggestion(
-            firstSuggestion
-          );
-          if (firstPhotoUri) {
-            setPhotoUrisMap((prev) => {
-              const updated = new Map(prev);
-              const photoMap = new Map<string, string>();
-              photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
-              updated.set(firstSuggestion.id, photoMap);
-              return updated;
-            });
-            await Image.prefetch(firstPhotoUri).catch(() => {});
+        if (filteredSuggestions.length > 0) {
+          const firstSuggestion = filteredSuggestions[0];
+          if (firstSuggestion.photos.length > 0) {
+            const firstPhotoUri = await loadFirstPhotoForSuggestion(
+              firstSuggestion
+            );
+            if (firstPhotoUri) {
+              setPhotoUrisMap((prev) => {
+                const updated = new Map(prev);
+                const photoMap = new Map<string, string>();
+                photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
+                updated.set(firstSuggestion.id, photoMap);
+                return updated;
+              });
+              await Image.prefetch(firstPhotoUri).catch(() => {});
+            }
           }
         }
-      }
 
-      setSuggestions(filteredSuggestions);
-      setCurrentIndex(0);
-    } catch {
-      setError("Yikes! Somethin' went wrong");
-    } finally {
-      setIsLoading(false);
-      setHasFetched(true);
+        setSuggestions(filteredSuggestions);
+        setCurrentIndex(0);
+        setIsLoading(false);
+        setHasFetched(true);
+        return;
+      } catch {
+        const isLastAttempt = attempt === MAX_RETRIES;
+
+        if (isLastAttempt) {
+          setError("Yikes! Somethin' went wrong");
+          displayToast({
+            message: "Yikes! Somethin' went wrong",
+          });
+        }
+      }
     }
-  }, [answers, location, hasPermission, isLoading, hasFetched]);
+
+    setIsLoading(false);
+    setHasFetched(true);
+  }, [answers, location, hasPermission, isLoading, hasFetched, displayToast]);
 
   const filterSuggestions = useCallback(
     async (minDistance: number, maxDistance: number) => {

@@ -100,28 +100,35 @@ export default function LazyModeScreen() {
           {copy.question}
         </Text>
 
-        <TextInput
-          ref={inputRef}
-          className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black outline-none'
+        <View
+          className='w-full rounded-[24px]'
           style={[
             {
               maxWidth: Inputs.lazyMode.style.maxWidth,
-              minHeight: Inputs.lazyMode.style.minHeight,
             },
             Shadows.neonPink,
           ]}
-          value={value}
-          textAlign='left'
-          textAlignVertical='top'
-          onChangeText={setValue}
-          placeholder={copy.placeholder}
-          placeholderTextColor='rgb(100, 100, 100)'
-          multiline={true}
-          returnKeyType='default'
-          autoFocus={true}
-          autoCorrect={false}
-          editable={!isLoading}
-        />
+        >
+          <TextInput
+            ref={inputRef}
+            className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black'
+            style={{
+              minHeight: Inputs.lazyMode.style.minHeight,
+            }}
+            value={value}
+            textAlign='left'
+            textAlignVertical='top'
+            onChangeText={setValue}
+            placeholder={copy.placeholder}
+            placeholderTextColor='rgb(100, 100, 100)'
+            multiline={true}
+            numberOfLines={5}
+            returnKeyType='default'
+            autoFocus={true}
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+        </View>
 
         <Text className='mt-8 text-base text-black opacity-50'>
           {copy.minCharacters}

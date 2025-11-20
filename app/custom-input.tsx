@@ -78,23 +78,32 @@ export default function CustomInputScreen() {
           {question || ""}
         </Text>
 
-        <TextInput
-          ref={inputRef}
-          className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black text-center outline-none'
-          style={[{ maxWidth: Inputs.answer.style.maxWidth }, Shadows.neonPink]}
-          value={value}
-          onChangeText={setValue}
-          textAlign='center'
-          textAlignVertical='top'
-          placeholder={Inputs.answer.placeholder}
-          placeholderTextColor={Inputs.answer.style.placeholderColor}
-          maxLength={Inputs.answer.validation.maxLength}
-          returnKeyType='done'
-          onSubmitEditing={isValid ? handleSubmit : undefined}
-          autoFocus={true}
-          autoCorrect={false}
-          editable={!isLoading}
-        />
+        <View
+          className='w-full rounded-[24px]'
+          style={[
+            {
+              maxWidth: Inputs.answer.style.maxWidth,
+            },
+            Shadows.neonPink,
+          ]}
+        >
+          <TextInput
+            ref={inputRef}
+            className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black text-center'
+            value={value}
+            onChangeText={setValue}
+            textAlign='center'
+            textAlignVertical='top'
+            placeholder={Inputs.answer.placeholder}
+            placeholderTextColor={Inputs.answer.style.placeholderColor}
+            maxLength={Inputs.answer.validation.maxLength}
+            returnKeyType='done'
+            onSubmitEditing={isValid ? handleSubmit : undefined}
+            autoFocus={true}
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+        </View>
 
         <Text className='mt-8 text-base text-black opacity-50'>
           {Inputs.answer.validation.minLength}-

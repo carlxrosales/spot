@@ -41,9 +41,9 @@ export function ChoiceButton({
   isAnimatingOut,
 }: ChoiceButtonProps) {
   const { onChoicePress } = useChoiceFeedback();
-  const scale = useSharedValue<number>(1);
-  const opacity = useSharedValue<number>(1);
-  const translateY = useSharedValue<number>(0);
+  const scale = useSharedValue<number>(Animation.scale.hidden);
+  const opacity = useSharedValue<number>(Animation.opacity.hidden);
+  const translateY = useSharedValue<number>(Animation.translate.choice.down);
 
   useEffect(() => {
     if (isAnimatingOut) {

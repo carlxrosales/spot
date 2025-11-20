@@ -55,15 +55,15 @@ export function AnimatedButton({
   disabled = false,
   loading = false,
 }: AnimatedButtonProps) {
-  const scale = useSharedValue<number>(1);
-  const opacity = useSharedValue<number>(1);
-  const translateY = useSharedValue<number>(0);
+  const scale = useSharedValue<number>(Animation.scale.hidden);
+  const opacity = useSharedValue<number>(Animation.opacity.hidden);
+  const translateY = useSharedValue<number>(Animation.translate.choice.down);
 
   useEffect(() => {
     if (isAnimatingOut === undefined) {
-      scale.value = 1;
-      opacity.value = 1;
-      translateY.value = 0;
+      scale.value = Animation.scale.normal;
+      opacity.value = Animation.opacity.visible;
+      translateY.value = Animation.translate.choice.down;
       return;
     }
 

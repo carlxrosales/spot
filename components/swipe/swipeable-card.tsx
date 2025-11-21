@@ -107,25 +107,11 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
 
     const isSelected = selectedSuggestionIds.includes(suggestion.id);
 
-    const resetCard = () => {
-      translateX.value = 0;
-      translateY.value = 0;
-      swipeProgress.value = 0;
-      hasTriggeredThreshold.value = false;
-
-      scale.value = Animation.scale.hidden;
-      opacity.value = Animation.opacity.hidden;
-
+    useEffect(() => {
       scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
       opacity.value = withTiming(Animation.opacity.visible, {
         duration: Animation.duration.normal,
       });
-    };
-
-    useEffect(() => {
-      resetCard();
-      setSelectedFeedback(null);
-      setCurrentPhotoIndex(0);
     }, []);
 
     useEffect(() => {
@@ -149,6 +135,21 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
         return () => clearInterval(interval);
       }
     }, [suggestion.opensAt, suggestion.closesAt]);
+
+    const resetCard = () => {
+      translateX.value = 0;
+      translateY.value = 0;
+      swipeProgress.value = 0;
+      hasTriggeredThreshold.value = false;
+
+      scale.value = Animation.scale.hidden;
+      opacity.value = Animation.opacity.hidden;
+
+      scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
+      opacity.value = withTiming(Animation.opacity.visible, {
+        duration: Animation.duration.normal,
+      });
+    };
 
     const performSwipeLeft = () => {
       scheduleOnRN(onSwipeSkip);

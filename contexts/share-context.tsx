@@ -1,5 +1,6 @@
 import { ShareModal, ShareModalRef } from "@/components/swipe/share-modal";
 import { Suggestion } from "@/data/suggestions";
+import * as MediaLibrary from "expo-media-library";
 import {
   createContext,
   ReactNode,
@@ -10,7 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Share } from "react-native";
+import { Platform, Share } from "react-native";
 import { useToast } from "./toast-context";
 
 interface ShareContextType {
@@ -64,26 +65,38 @@ export function ShareProvider({ children }: ShareProviderProps) {
         return;
       }
 
-      const shareOptions: {
-        url: string;
-      } = {
-        url: uri,
-      };
+      if (Platform.OS === "android") {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== "granted") {
+          setIsModalVisible(false);
+          setCurrentSuggestion(null);
+          displayToast({ message: "Oof! Permission denied" });
+          return;
+        }
 
-      const result = await Share.share(shareOptions);
-
-      setIsModalVisible(false);
-      setCurrentSuggestion(null);
-
-      if (result.action === Share.sharedAction) {
-        displayToast({ message: "Shared" });
+        await MediaLibrary.saveToLibraryAsync(uri);
+        setIsModalVisible(false);
+        setCurrentSuggestion(null);
+        displayToast({ message: "Saved" });
       } else {
-        displayToast({ message: "Cancelled" });
+        const result = await Share.share({ url: uri });
+
+        setIsModalVisible(false);
+        setCurrentSuggestion(null);
+
+        if (result.action === Share.sharedAction) {
+          displayToast({ message: "Shared" });
+        } else {
+          displayToast({ message: "Cancelled" });
+        }
       }
     } catch {
       setIsModalVisible(false);
       setCurrentSuggestion(null);
-      displayToast({ message: "Oof! Share failed" });
+      displayToast({
+        message:
+          Platform.OS === "android" ? "Oof! Save failed" : "Oof! Share failed",
+      });
     } finally {
       setIsSharing(false);
     }

@@ -102,6 +102,7 @@ export function TextButton({
     >
       <Text
         className={`${getTextSize()} font-semibold w-full text-center`}
+        numberOfLines={1}
         style={{ color: getTextColor() }}
       >
         {loading ? "Loading..." : label}

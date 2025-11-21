@@ -4,12 +4,17 @@ import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
 import { ButtonVariant } from "@/constants/buttons";
 import { Colors } from "@/constants/theme";
-import { useSuggestions } from "@/contexts/suggestions-context";
 import { Suggestion } from "@/data/suggestions";
 import React, { forwardRef, useImperativeHandle } from "react";
-import { Modal, View } from "react-native";
+import { Modal, Platform, View } from "react-native";
 import ViewShot from "react-native-view-shot";
 import { ShareCard } from "./share-card";
+
+const copy = {
+  shareImage: "Share Image",
+  saveImage: "Save Image",
+  shareLink: "Share Link",
+};
 
 interface ShareModalProps {
   visible: boolean;
@@ -99,13 +104,15 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
             </ViewShot>
             <View className='w-full px-6 pb-8 gap-3'>
               <TextButton
-                label='Share Image'
+                label={
+                  Platform.OS === "android" ? copy.saveImage : copy.shareImage
+                }
                 onPress={onShareImage}
                 variant={ButtonVariant.white}
                 fullWidth
               />
               <TextButton
-                label='Share Link'
+                label={copy.shareLink}
                 onPress={onShareLink}
                 variant={ButtonVariant.black}
                 fullWidth

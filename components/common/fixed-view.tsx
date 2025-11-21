@@ -41,16 +41,22 @@ export function FixedView({
   const positionStyle: ViewStyle = {
     position: "fixed",
     ...(top !== undefined && {
-      top: top + (withSafeAreaInsets ? insets.top : 0),
+      top,
     }),
     ...(bottom !== undefined && {
-      bottom: bottom + (withSafeAreaInsets ? insets.bottom : 0),
+      bottom,
     }),
     ...(left !== undefined && {
-      left: left + (withSafeAreaInsets ? insets.left : 0),
+      left,
     }),
     ...(right !== undefined && {
-      right: right + (withSafeAreaInsets ? insets.right : 0),
+      right,
+    }),
+    ...(withSafeAreaInsets && {
+      paddingTop: top ? insets.top : 0,
+      paddingBottom: bottom ? insets.bottom : 0,
+      paddingLeft: left ? insets.left : 0,
+      paddingRight: right ? insets.right : 0,
     }),
   };
 

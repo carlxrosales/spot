@@ -87,11 +87,9 @@ export default function LazyModeScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className='flex-1 bg-neonGreen'
     >
-      {Platform.OS === "android" && (
-        <SafeView edges={["top"]}>
-          <View></View>
-        </SafeView>
-      )}
+      <SafeView edges={Platform.OS === "android" ? ["top"] : []}>
+        <View></View>
+      </SafeView>
 
       <View className='flex-row justify-between items-center p-8'>
         <IconButton onPress={handleCancel} icon='close' size={ButtonSize.md} />

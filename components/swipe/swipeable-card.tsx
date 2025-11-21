@@ -17,7 +17,6 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { Text, View } from "react-native";
@@ -105,7 +104,6 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     const [countdown, setCountdown] = useState<string>("");
     const [skipFeedback] = useState(() => getRandomUnusedSkipFeedback());
     const [selectFeedback] = useState(() => getRandomUnusedSelectFeedback());
-    const previousSuggestionIdRef = useRef<string>(suggestion.id);
 
     const isSelected = selectedSuggestionIds.includes(suggestion.id);
 
@@ -125,16 +123,10 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
     };
 
     useEffect(() => {
-      const previousId = previousSuggestionIdRef.current;
-      const currentId = suggestion.id;
-
       resetCard();
-      if (previousId !== currentId) {
-        setSelectedFeedback(null);
-        setCurrentPhotoIndex(0);
-        previousSuggestionIdRef.current = currentId;
-      }
-    }, [suggestion.id]);
+      setSelectedFeedback(null);
+      setCurrentPhotoIndex(0);
+    }, []);
 
     useEffect(() => {
       if (suggestion.opensAt || suggestion.closesAt) {

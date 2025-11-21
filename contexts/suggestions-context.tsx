@@ -19,7 +19,6 @@ import {
 } from "react";
 import { Image } from "react-native";
 import { useSurvey } from "./survey-context";
-import { useToast } from "./toast-context";
 
 interface SuggestionsContextType {
   isLoading: boolean;
@@ -53,7 +52,6 @@ interface SuggestionsProviderProps {
 
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { answers } = useSurvey();
-  const { displayToast } = useToast();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
@@ -149,9 +147,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
           if (isLastAttempt) {
             setError("Yikes! Somethin' went wrong");
-            displayToast({
-              message: "Yikes! Somethin' went wrong",
-            });
           }
         }
       }
@@ -200,12 +195,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     const nextIndex =
       currentIndex + 1 >= suggestions.length ? 0 : currentIndex + 1;
 
-    if (nextIndex >= suggestions.length) {
-      displayToast({
-        message: "Aw! We've run out of spots, looping back...",
-      });
-    }
-
     const nextSuggestion = suggestions[nextIndex];
     const updatedMap = new Map(photoUrisMap);
 
@@ -226,7 +215,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
     setPhotoUrisMap(updatedMap);
     setCurrentIndex(nextIndex);
-  }, [currentIndex, suggestions, photoUrisMap, displayToast]);
+  }, [currentIndex, suggestions, photoUrisMap]);
 
   const handleSelect = useCallback((suggestionId: string) => {
     setSelectedSuggestionIds((prev) =>

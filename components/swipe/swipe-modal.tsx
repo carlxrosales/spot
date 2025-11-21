@@ -1,8 +1,14 @@
 import { IconButton } from "@/components/common/icon-button";
 import { ButtonSize } from "@/constants/buttons";
-import { Suggestion } from "@/data/suggestions";
+import {
+  getCountdown,
+  getOpeningHoursForToday,
+  isCurrentlyOpen,
+  Suggestion,
+} from "@/data/suggestions";
 import { cleanAddress } from "@/utils/address";
 import { getShadow } from "@/utils/shadows";
+import { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 import { GetDirectionsButton } from "./get-directions-button";
 import { GoogleMapsButton } from "./google-maps-button";
@@ -10,8 +16,8 @@ import { ViewReviewsButton } from "./view-reviews-button";
 
 const copy = {
   kmAway: "km away",
-  opensAt: "Opens at",
-  closesAt: "Closes at",
+  openingIn: "Opening in",
+  closingIn: "Closing in",
 };
 
 interface SwipeModalProps {
@@ -30,6 +36,27 @@ interface SwipeModalProps {
  * @param suggestion - The suggestion to display, or null if no suggestion is available
  */
 export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
+  const [countdown, setCountdown] = useState<string>("");
+
+  useEffect(() => {
+    if (suggestion?.opensAt || suggestion?.closesAt) {
+      const updateCountdown = () => {
+        const isOpen = isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt);
+
+        if (!isOpen && suggestion.opensAt) {
+          setCountdown(getCountdown(suggestion.opensAt));
+        } else if (suggestion.closesAt) {
+          setCountdown(getCountdown(suggestion.closesAt));
+        }
+      };
+
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 60000);
+
+      return () => clearInterval(interval);
+    }
+  }, [suggestion?.opensAt, suggestion?.closesAt]);
+
   return (
     <Modal
       visible={visible}
@@ -88,16 +115,20 @@ export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
                 )}
               </View>
 
-              {(suggestion.opensAt || suggestion.closesAt) && (
+              {(suggestion.openingHours ||
+                suggestion.opensAt ||
+                suggestion.closesAt) && (
                 <View className='flex-row items-center justify-between'>
-                  {suggestion.opensAt && (
+                  {suggestion.openingHours && (
                     <Text className='text-lg text-black font-medium opacity-90'>
-                      {copy.opensAt} {suggestion.opensAt}
+                      {getOpeningHoursForToday(suggestion.openingHours)}
                     </Text>
                   )}
-                  {suggestion.closesAt && (
+                  {countdown && (
                     <Text className='text-lg text-black font-medium opacity-90'>
-                      {copy.closesAt} {suggestion.closesAt}
+                      {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
+                        ? `${copy.closingIn} ${countdown}`
+                        : `${copy.openingIn} ${countdown}`}
                     </Text>
                   )}
                 </View>

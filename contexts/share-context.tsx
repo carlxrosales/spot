@@ -64,16 +64,9 @@ export function ShareProvider({ children }: ShareProviderProps) {
         return;
       }
 
-      const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${currentSuggestion.id}`;
-      const message = `Found our spot: ${currentSuggestion.name}\n\n👉 ${googleMapsUrl}`;
-
       const shareOptions: {
-        message: string;
-        title: string;
         url: string;
       } = {
-        message,
-        title: currentSuggestion.name,
         url: uri,
       };
 

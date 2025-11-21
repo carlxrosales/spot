@@ -101,7 +101,7 @@ export function TextButton({
       {...(!onPress ? { activeOpacity: 1 } : {})}
     >
       <Text
-        className={`${getTextSize()} font-semibold`}
+        className={`${getTextSize()} font-semibold w-full text-center`}
         style={{ color: getTextColor() }}
       >
         {loading ? "Loading..." : label}

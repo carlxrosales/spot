@@ -75,13 +75,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
   const fetchSuggestions = useCallback(
     async (location: LocationCoordinates) => {
-      console.log(
-        "fetchSuggestions",
-        location,
-        isLoading,
-        hasFetched,
-        answers.length === 0
-      );
       if (!location || isLoading || hasFetched || answers.length === 0) {
         return;
       }

@@ -219,7 +219,6 @@ async function generateQuestion(
       responseSchema: QuestionSchema,
       responseJsonSchema: zodToJsonSchema(QuestionZodSchema),
       temperature: 0.7,
-      maxOutputTokens: 1500,
     },
   });
 
@@ -322,7 +321,6 @@ export async function generateQuery(
         config: {
           systemInstruction: QUERY_PROMPT,
           temperature: 0.7,
-          maxOutputTokens: 300,
         },
       });
 

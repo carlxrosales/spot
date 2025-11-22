@@ -1,4 +1,4 @@
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
+import { Dimensions } from "@/constants/dimensions";
 import { Animation } from "@/constants/theme";
 import { useEffect } from "react";
 import Animated, {
@@ -30,8 +30,8 @@ export function Sparkle({ startX, startY, duration }: SparkleProps) {
   const opacity = useSharedValue<number>(Animation.sparkle.opacityMin);
 
   useEffect(() => {
-    const movementRangeX = SCREEN_WIDTH * Animation.sparkle.movementRange;
-    const movementRangeY = SCREEN_HEIGHT * Animation.sparkle.movementRange;
+    const movementRangeX = Dimensions.width * Animation.sparkle.movementRange;
+    const movementRangeY = Dimensions.height * Animation.sparkle.movementRange;
     const randomX = (Math.random() - 0.5) * movementRangeX;
     const randomY = (Math.random() - 0.5) * movementRangeY;
 

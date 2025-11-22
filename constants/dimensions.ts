@@ -1,15 +1,19 @@
-import { Dimensions } from "react-native";
+import { Dimensions as RNDimensions } from "react-native";
 
-const { width, height } = Dimensions.get("window");
-
-/**
- * Screen width in pixels.
- * Retrieved from device window dimensions.
- */
-export const SCREEN_WIDTH = width;
+const { width, height } = RNDimensions.get("window");
 
 /**
- * Screen height in pixels.
- * Retrieved from device window dimensions.
+ * Screen dimension constants.
+ * Contains width and height values retrieved from device window dimensions.
  */
-export const SCREEN_HEIGHT = height;
+export const Dimensions = {
+  /**
+   * Screen width in pixels.
+   */
+  width,
+
+  /**
+   * Screen height in pixels.
+   */
+  height,
+};

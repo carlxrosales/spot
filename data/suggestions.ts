@@ -1,3 +1,5 @@
+import { SpontyChoice } from "@/data/survey";
+import { LocationCoordinates } from "@/data/types";
 import { generateEmbedding, generateQuery } from "@/services/gemini";
 import {
   PHOTO_MAX_HEIGHT_PX,
@@ -5,7 +7,6 @@ import {
   places,
 } from "@/services/places";
 import { suggestPlaces } from "@/services/supabase";
-import { LocationCoordinates } from "./types";
 
 // ============================================================================
 // TYPES
@@ -120,7 +121,7 @@ export const DISTANCE_OPTIONS = [
 /**
  * Minimum number of suggestions to display.
  */
-export const MINIMUM_SUGGESTIONS_COUNT = 8;
+export const MINIMUM_SUGGESTIONS_COUNT = 12;
 
 /**
  * Array of feedback messages displayed when a user skips a suggestion.
@@ -505,7 +506,10 @@ export const generateSuggestions = async (
   answers: string[],
   userLocation: LocationCoordinates
 ): Promise<Suggestion[]> => {
-  const query = await generateQuery(answers);
+  const query = // No need to generate query for lazy mode
+    answers.length === 1 && answers[0] !== SpontyChoice.value
+      ? answers[0]
+      : await generateQuery(answers);
   const embeddings = await generateEmbedding(query);
 
   const suggestions: Suggestion[] = await suggestPlaces({

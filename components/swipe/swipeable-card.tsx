@@ -1,5 +1,8 @@
 import { ImageCarousel } from "@/components/common/image-carousel";
-import { SCREEN_WIDTH } from "@/constants/dimensions";
+import { GetDirectionsButton } from "@/components/swipe/get-directions-button";
+import { ShareButton } from "@/components/swipe/share-button";
+import { SwipeFeedback } from "@/components/swipe/swipe-feedback";
+import { Dimensions } from "@/constants/dimensions";
 import { Animation, Overlay } from "@/constants/theme";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import {
@@ -28,9 +31,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
-import { GetDirectionsButton } from "./get-directions-button";
-import { ShareButton } from "./share-button";
-import { SwipeFeedback } from "./swipe-feedback";
 
 const copy = {
   kmAway: "km away",
@@ -39,7 +39,7 @@ const copy = {
   spotted: "spotted",
 };
 
-const SWIPE_THRESHOLD = SCREEN_WIDTH * Animation.threshold.swipeCard;
+const SWIPE_THRESHOLD = Dimensions.width * Animation.threshold.swipeCard;
 
 interface SwipeableCardProps {
   suggestion: Suggestion;
@@ -156,7 +156,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       setSelectedFeedback(skipFeedback);
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
-        -SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
+        -Dimensions.width * Animation.swipe.distanceMultiplier,
         { duration: Animation.duration.normal }
       );
       opacity.value = withTiming(Animation.opacity.hidden, {
@@ -173,7 +173,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
       setSelectedFeedback(selectFeedback);
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
-        SCREEN_WIDTH * Animation.swipe.distanceMultiplier,
+        Dimensions.width * Animation.swipe.distanceMultiplier,
         { duration: Animation.duration.normal }
       );
       opacity.value = withTiming(Animation.opacity.hidden, {

@@ -1,4 +1,7 @@
 import { IconButton } from "@/components/common/icon-button";
+import { GetDirectionsButton } from "@/components/swipe/get-directions-button";
+import { GoogleMapsButton } from "@/components/swipe/google-maps-button";
+import { ViewReviewsButton } from "@/components/swipe/view-reviews-button";
 import { ButtonSize } from "@/constants/buttons";
 import {
   getCountdown,
@@ -10,9 +13,6 @@ import { cleanAddress } from "@/utils/address";
 import { getShadow } from "@/utils/shadows";
 import { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
-import { GetDirectionsButton } from "./get-directions-button";
-import { GoogleMapsButton } from "./google-maps-button";
-import { ViewReviewsButton } from "./view-reviews-button";
 
 const copy = {
   kmAway: "km away",

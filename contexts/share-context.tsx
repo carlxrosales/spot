@@ -1,4 +1,5 @@
 import { ShareModal, ShareModalRef } from "@/components/swipe/share-modal";
+import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
 import * as MediaLibrary from "expo-media-library";
 import {
@@ -12,7 +13,6 @@ import {
   useState,
 } from "react";
 import { Platform, Share } from "react-native";
-import { useToast } from "./toast-context";
 
 interface ShareContextType {
   shareSuggestion: (suggestion: Suggestion, currentPhotoIndex: number) => void;

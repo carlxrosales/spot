@@ -1,8 +1,13 @@
 import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { Colors } from "@/constants/theme";
+import { Timeouts } from "@/constants/timeouts";
 import { useSuggestions } from "@/contexts/suggestions-context";
-import { DISTANCE_OPTIONS } from "@/data/suggestions";
+import {
+  DEFAULT_MIN_DISTANCE_IN_KM,
+  DISTANCE_OPTIONS,
+} from "@/data/suggestions";
+import { ensureMinimumDelay } from "@/utils/delay";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -25,27 +30,24 @@ export function DistanceFilterModal({
   visible,
   onClose,
 }: DistanceFilterModalProps) {
-  const { maxDistanceInKm, minDistanceInKm, handleFilterByDistance } =
-    useSuggestions();
+  const { initialMaxDistance, filterSuggestions } = useSuggestions();
 
   const [activeTab, setActiveTab] = useState<TabType>("max");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedMinDistance, setSelectedMinDistance] =
-    useState<number>(minDistanceInKm);
+  const [selectedMinDistance, setSelectedMinDistance] = useState<number>(
+    DEFAULT_MIN_DISTANCE_IN_KM
+  );
   const [selectedMaxDistance, setSelectedMaxDistance] =
-    useState<number>(maxDistanceInKm);
+    useState<number>(initialMaxDistance);
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
-    await handleFilterByDistance(selectedMinDistance, selectedMaxDistance);
+    await ensureMinimumDelay(Timeouts.distanceFilter)(() =>
+      filterSuggestions(selectedMinDistance, selectedMaxDistance)
+    );
     setIsLoading(false);
     onClose();
-  }, [
-    selectedMinDistance,
-    selectedMaxDistance,
-    handleFilterByDistance,
-    onClose,
-  ]);
+  }, [selectedMinDistance, selectedMaxDistance, filterSuggestions, onClose]);
 
   const formatDistanceLabel = (distance: number) => {
     if (distance === 0) {

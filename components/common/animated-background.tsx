@@ -1,7 +1,7 @@
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/dimensions";
+import { AbsoluteView } from "@/components/common/absolute-view";
+import { Sparkle, SparkleProps } from "@/components/common/sparkle";
+import { Dimensions } from "@/constants/dimensions";
 import { Animation } from "@/constants/theme";
-import { AbsoluteView } from "./absolute-view";
-import { Sparkle, SparkleProps } from "./sparkle";
 
 /**
  * Animated background component with multiple sparkle effects.
@@ -12,8 +12,8 @@ export function AnimatedBackground() {
 
   for (let i = 0; i < Animation.sparkle.count; i++) {
     sparkles.push({
-      startX: Math.random() * SCREEN_WIDTH,
-      startY: Math.random() * SCREEN_HEIGHT,
+      startX: Math.random() * Dimensions.width,
+      startY: Math.random() * Dimensions.height,
       duration:
         Animation.sparkle.durationBase +
         Math.random() * Animation.sparkle.durationRange,

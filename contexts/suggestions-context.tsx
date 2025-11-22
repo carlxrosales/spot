@@ -1,3 +1,4 @@
+import { useSurvey } from "@/contexts/survey-context";
 import {
   DEFAULT_MAX_DISTANCE_IN_KM,
   DEFAULT_MIN_DISTANCE_IN_KM,
@@ -18,24 +19,22 @@ import {
   useState,
 } from "react";
 import { Image } from "react-native";
-import { useSurvey } from "./survey-context";
 
 interface SuggestionsContextType {
   isLoading: boolean;
   suggestions: Suggestion[];
   selectedSuggestionIds: string[];
+  initialMaxDistance: number;
   currentIndex: number;
-  maxDistanceInKm: number;
-  minDistanceInKm: number;
   hasFetched: boolean;
   setHasFetched: (hasFetched: boolean) => void;
   fetchSuggestions: (location: LocationCoordinates) => void;
   error: string | null;
   handleSkip: () => void;
   handleSelect: (suggestionId: string) => void;
-  handleFilterByDistance: (
-    minDistanceInKm: number,
-    maxDistanceInKm: number
+  filterSuggestions: (
+    minDistance: number,
+    maxDistance: number
   ) => Promise<void>;
   loadPhotoByName: (suggestionId: string, photoName: string) => Promise<void>;
   getPhotoUris: (suggestionId: string) => string[] | undefined;
@@ -60,16 +59,13 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
     []
   );
+  const [initialMaxDistance, setInitialMaxDistance] = useState<number>(
+    DEFAULT_MAX_DISTANCE_IN_KM
+  );
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [maxDistanceInKm, setMaxDistanceInKm] = useState<number>(
-    DEFAULT_MAX_DISTANCE_IN_KM
-  );
-  const [minDistanceInKm, setMinDistanceInKm] = useState<number>(
-    DEFAULT_MIN_DISTANCE_IN_KM
-  );
 
   const fetchSuggestions = useCallback(
     async (location: LocationCoordinates) => {
@@ -115,7 +111,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
               filteredSuggestions = filterByDistance(finalMaxDistance);
             }
 
-            setMaxDistanceInKm(finalMaxDistance);
+            setInitialMaxDistance(finalMaxDistance);
           }
 
           if (filteredSuggestions.length > 0) {
@@ -223,15 +219,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     );
   }, []);
 
-  const handleFilterByDistance = useCallback(
-    async (minDistance: number, maxDistance: number) => {
-      setMinDistanceInKm(minDistance);
-      setMaxDistanceInKm(maxDistance);
-      await filterSuggestions(minDistance, maxDistance);
-    },
-    [filterSuggestions]
-  );
-
   const getPhotoUris = useCallback(
     (suggestionId: string) => {
       const photoMap = photoUrisMap.get(suggestionId);
@@ -284,8 +271,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
   useEffect(() => {
     if (answers.length === 0) {
-      setMinDistanceInKm(DEFAULT_MIN_DISTANCE_IN_KM);
-      setMaxDistanceInKm(DEFAULT_MAX_DISTANCE_IN_KM);
+      setInitialMaxDistance(DEFAULT_MAX_DISTANCE_IN_KM);
       setAllSuggestions([]);
       setSuggestions([]);
       setPhotoUrisMap(new Map<string, Map<string, string>>());
@@ -303,16 +289,15 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         isLoading,
         suggestions,
         selectedSuggestionIds,
+        initialMaxDistance,
         currentIndex,
-        maxDistanceInKm,
-        minDistanceInKm,
         hasFetched,
         setHasFetched,
         fetchSuggestions,
         error,
         handleSkip,
         handleSelect,
-        handleFilterByDistance,
+        filterSuggestions,
         loadPhotoByName,
         getPhotoUris,
         getPhotoUri,

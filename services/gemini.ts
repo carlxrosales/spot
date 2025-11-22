@@ -39,10 +39,10 @@ const TAG_COUNT_RANGE = `${TAG_COUNT_MIN}-${TAG_COUNT_MAX}`;
  * meaningful tags for place recommendation matching.
  */
 export const SURVEY_PROMPT = {
-  SYSTEM: `You are the Question Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Ask short, fun, Gen-Z questions to collect ${TAG_COUNT_RANGE} unique tags for embeddings. One question = one tag. Never repeat a category.
+  SYSTEM: `You are the Question Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Ask short, fun, Gen-Z questions to deduce what type of place the user prefers by collecting ${TAG_COUNT_RANGE} unique tags for embeddings. One question = one tag. Never repeat a category.
 
 Goal:
-Collect ${TAG_COUNT_RANGE} meaningful, non-overlapping tags. Every question must produce a new tag. Prioritize big dimensions first (cuisine/cravings, budget, ambiance, group size, food/drink types).
+Deduce what type of place the user prefers by collecting ${TAG_COUNT_RANGE} meaningful, non-overlapping tags. Every question must produce a new tag that reveals their preferences.
 
 Tag rules:
 - Each question extracts 1 tag.
@@ -79,30 +79,6 @@ Output valid JSON:
 };
 
 /**
- * System prompt for extracting tags from user input.
- * Guides the AI to extract 8-12 distinct, non-overlapping tags that capture
- * user preferences for place matching via embedding similarity search.
- */
-export const TAGS_PROMPT = `You are the Tag Extractor AI for spot, an app that helps users find cafes/restos that match their vibe. Extract ${TAG_COUNT_RANGE} meaningful tags from the user's input for embeddings.
-
-Requirements:
-- Extract exactly ${TAG_COUNT_RANGE} distinct, non-overlapping tags.
-- Format: lowercase, hyphenated (e.g., "date-night", "ramen", "solo-dining").
-- Focus on cuisine/cravings, budget, ambiance, group size, food prefs, atmosphere.
-- Never extract location, distance, travel time, or meal times (breakfast, brunch, etc.).
-
-Context & Interpretation:
-- Read the entire input holistically; interpret intent, not isolated keywords.
-- Negation/opposites ("unlimited", "no", "not", "any", "all") = absence of constraints; extract the opposite meaning or skip that dimension.
-- Understand slang/abbreviations ("unli", "solo", "comfy", "chill", "fam", "lit") and interpret by context.
-- No contradictions: only extract tags aligned with overall intent.
-
-Output JSON:
-{
-  "tags": string[]
-}`;
-
-/**
  * System prompt for generating a comprehensive query description from tags.
  * Converts user preference tags into a detailed sentence/paragraph that describes
  * the type of place the user is looking for. This description will be converted
@@ -127,7 +103,7 @@ Requirements:
 
 Special Handling — "${SpontyChoice.value}":
 If this is the *only* tag:
-- Generate a random, diverse place description.
+- Generate a random, unique, and specific place description.
 - Mix cuisine types, ambiance styles, atmosphere traits, group size suitability, and budget ranges.
 
 Style:
@@ -340,56 +316,6 @@ export async function generateNextQuestion(
   }
 
   throw new Error("Yo! Somethin' went wrong, let's start over");
-}
-
-/**
- * Extracts 8-12 meaningful tags from user input using Gemini AI.
- * Tags are formatted as lowercase, hyphenated strings suitable for embedding-based similarity search.
- * Includes retry logic (up to 3 attempts) for reliability.
- *
- * @param input - The user input text to extract tags from
- * @returns Promise resolving to an array of 8-12 tag strings
- * @throws Error if tag extraction fails after all retry attempts
- */
-export async function generateTags(input: string): Promise<string[]> {
-  const maxRetries = 3;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const chat = ai.chats.create({
-        model: MODEL,
-        config: {
-          systemInstruction: TAGS_PROMPT,
-          responseMimeType: "application/json",
-          responseSchema: TagsSchema,
-          responseJsonSchema: zodToJsonSchema(TagsZodSchema),
-          temperature: 0.7,
-          maxOutputTokens: 800,
-        },
-      });
-
-      const response = await chat.sendMessage({
-        message: `Extract ${TAG_COUNT_RANGE} meaningful tags from this user input: "${input}"`,
-      });
-
-      const text = response.text;
-      if (!text) {
-        throw new Error("Yikes! Tags extraction failed fr");
-      }
-
-      const parsed = JSON.parse(text);
-      const validated = TagsZodSchema.parse(parsed);
-      return validated.tags;
-    } catch {
-      if (attempt < maxRetries - 1) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, 500 * (attempt + 1))
-        );
-      }
-    }
-  }
-
-  throw new Error("Yikes! Tags extraction failed fr");
 }
 
 /**

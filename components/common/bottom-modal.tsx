@@ -1,6 +1,6 @@
+import { SafeView } from "@/components/common/safe-view";
 import { ReactNode } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
-import { SafeView } from "./safe-view";
 
 interface BottomModalProps {
   visible: boolean;

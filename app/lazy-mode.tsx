@@ -5,8 +5,6 @@ import { Inputs } from "@/constants/inputs";
 import { Timeouts } from "@/constants/timeouts";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
-import { LazyChoice } from "@/data/survey";
-import { generateTags } from "@/services/gemini";
 import { getShadow } from "@/utils/shadows";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -60,8 +58,7 @@ export default function LazyModeScreen() {
 
     setIsLoading(true);
     try {
-      const tags = await generateTags(value.trim());
-      setAnswers([...tags, LazyChoice.value]);
+      setAnswers([value.trim()]);
       setIsComplete(true);
       router.back();
     } catch {

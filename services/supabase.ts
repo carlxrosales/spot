@@ -29,11 +29,6 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  */
 export const DEFAULT_LIMIT_COUNT = 80;
 
-/**
- * Default maximum number of photos to return from similarity search.
- */
-export const DEFAULT_PHOTO_LIMIT_COUNT = 4;
-
 // ============================================================================
 // FUNCTIONS
 // ============================================================================
@@ -94,9 +89,7 @@ export async function suggestPlaces(
     address: result.address,
     rating: Number(result.rating),
     priceLevel: result.price_level ?? undefined,
-    photos: Array.isArray(result.photos)
-      ? result.photos.slice(0, DEFAULT_PHOTO_LIMIT_COUNT)
-      : [],
+    photos: result.photos,
     tags: result.tags,
     lat: Number(result.lat),
     lng: Number(result.lng),

@@ -40,7 +40,8 @@ export function GetDirectionsModal({
     if (!suggestion || isLoading) return;
     setIsLoading(true);
     onClose();
-    const url = `https://www.google.com/maps/dir/?api=1&destination=place_id:${suggestion.id}`;
+    const { lat, lng } = suggestion;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     Linking.openURL(url)
       .catch(() =>
         displayToast({ message: "Yikes! We failed to open Google Maps." })

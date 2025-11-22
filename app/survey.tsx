@@ -8,6 +8,7 @@ import { ChoiceFeedback } from "@/components/survey/choice-feedback";
 import { Question } from "@/components/survey/question";
 import { ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
+import { Survey as SurveyConstants } from "@/constants/survey";
 import { useSurvey } from "@/contexts/survey-context";
 import { useToast } from "@/contexts/toast-context";
 import { SpontyChoice } from "@/data/survey";
@@ -145,13 +146,15 @@ export default function Survey() {
           <AbsoluteView bottom={32} left={32} right={32} withSafeAreaInsets>
             {answers.length > 0 ? (
               <View className='w-full flex-1 flex-row items-center justify-end gap-4'>
-                <AnimatedButton
-                  label={copy.showSpots}
-                  variant={ButtonVariant.black}
-                  onPress={handleShowSpots}
-                  index={0}
-                  isAnimatingOut={isLoading}
-                />
+                {answers.length >= SurveyConstants.minimumAnswers && (
+                  <AnimatedButton
+                    label={copy.showSpots}
+                    variant={ButtonVariant.black}
+                    onPress={handleShowSpots}
+                    index={0}
+                    isAnimatingOut={isLoading}
+                  />
+                )}
                 <AnimatedButton
                   icon='reload'
                   variant={ButtonVariant.white}

@@ -1,3 +1,4 @@
+import { IndicatorBar } from "@/components/common/indicator-bar";
 import { Animation, Colors } from "@/constants/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
@@ -9,7 +10,6 @@ import {
   Pressable,
   View,
 } from "react-native";
-import { IndicatorBar } from "./indicator-bar";
 
 interface ImageItem {
   name: string;

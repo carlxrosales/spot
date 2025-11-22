@@ -2,13 +2,13 @@ import { CancelButton } from "@/components/common/cancel-button";
 import { Logo } from "@/components/common/logo";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
+import { ShareCard } from "@/components/swipe/share-card";
 import { ButtonVariant } from "@/constants/buttons";
 import { Colors } from "@/constants/theme";
 import { Suggestion } from "@/data/suggestions";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { Modal, Platform, View } from "react-native";
 import ViewShot from "react-native-view-shot";
-import { ShareCard } from "./share-card";
 
 const copy = {
   shareImage: "Share Image",

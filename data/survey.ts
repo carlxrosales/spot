@@ -58,15 +58,6 @@ export const SpontyChoice: Choice = {
 };
 
 /**
- * Predefined "lazy" choice option for survey questions.
- */
-export const LazyChoice: Choice = {
-  label: "lazy",
-  emoji: "🤔",
-  value: "lazy",
-};
-
-/**
  * Array of initial question prompts for the survey.
  * Randomly selected when generating the first survey question.
  */

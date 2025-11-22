@@ -66,7 +66,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         );
 
         if (!nextQuestion) {
-          setError("Yo! Somethin' went wrong");
+          setError("yo! somethin' went wrong");
           setIsLoading(false);
           return;
         }
@@ -74,7 +74,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         setQuestions((prev) => [...prev, nextQuestion]);
         setIsLoading(false);
       } catch {
-        setError("Yo! Somethin' went wrong, let's start over");
+        setError("yo! somethin' went wrong, let's start over");
       }
     },
     [answers, currentQuestion, questions]

@@ -31,7 +31,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 
 const copy = {
   findingSpots: "Finding yo' spots...",
-  noSuggestions: "Oof! No spots found",
+  noSuggestions: "oof! no spots found",
 };
 
 /**

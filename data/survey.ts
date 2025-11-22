@@ -99,7 +99,7 @@ export const generateInitialQuestion = (): Question => {
       initialQuestions[Math.floor(Math.random() * initialQuestions.length)],
     choices: [
       { label: "Eat", emoji: "🍔", value: "eat" },
-      { label: "Drink", emoji: "🥂", value: "drink" },
+      { label: "Drink", emoji: "☕️", value: "drink" },
       { label: "Work", emoji: "🧑‍💻", value: "work" },
       { label: "Hangout", emoji: "🎲", value: "hangout" },
     ],

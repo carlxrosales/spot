@@ -46,7 +46,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
           setLocation(null);
           setHasPermission(false);
           setIsLoading(false);
-          setError("Oof! You denied us access to your location");
+          setError("oof! u denied us access to your location");
           return null;
         }
 
@@ -64,7 +64,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
         setLocation(null);
         setHasPermission(false);
         setIsLoading(false);
-        setError("Oof! Can't find your location");
+        setError("oof! can't find your location");
         router.navigate(Routes.survey);
         return null;
       }
@@ -93,7 +93,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
         setLocation(null);
         setHasPermission(false);
         setIsLoading(false);
-        setError("Oof! Can't find your location");
+        setError("oof! can't find your location");
         router.navigate(Routes.survey);
       }
     };

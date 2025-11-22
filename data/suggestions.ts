@@ -204,12 +204,22 @@ export const suggestionSelectFeedbacks: SuggestionFeedback[] = [
   { text: "count me in", emoji: "✌️" },
 ];
 
+export const savedForLaterFeedbacks: SuggestionFeedback[] = [
+  { text: "saved", emoji: "🔖" },
+  { text: "bookmarked", emoji: "📌" },
+  { text: "for later", emoji: "⏰" },
+  { text: "on deck", emoji: "🃏" },
+  { text: "locked in", emoji: "🔒" },
+  { text: "noted", emoji: "📝" },
+];
+
 // ============================================================================
 // UTILITIES
 // ============================================================================
 
 const usedSkipFeedbackIndices = new Set<number>();
 const usedSelectFeedbackIndices = new Set<number>();
+const usedSavedForLaterFeedbackIndices = new Set<number>();
 
 /**
  * Gets a random skip feedback message that hasn't been used recently.
@@ -255,6 +265,29 @@ export const getRandomUnusedSelectFeedback = (): SuggestionFeedback => {
   usedSelectFeedbackIndices.add(randomIndex);
 
   return suggestionSelectFeedbacks[randomIndex];
+};
+
+/**
+ * Gets a random saved for later feedback message that hasn't been used recently.
+ * Tracks used indices and resets when all feedbacks have been used.
+ *
+ * @returns A random SuggestionFeedback object for saved for later actions
+ */
+export const getRandomSavedForLaterFeedback = (): SuggestionFeedback => {
+  if (usedSavedForLaterFeedbackIndices.size >= savedForLaterFeedbacks.length) {
+    usedSavedForLaterFeedbackIndices.clear();
+  }
+
+  const availableIndices = savedForLaterFeedbacks
+    .map((_, index) => index)
+    .filter((index) => !usedSavedForLaterFeedbackIndices.has(index));
+
+  const randomIndex =
+    availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+  usedSavedForLaterFeedbackIndices.add(randomIndex);
+
+  return savedForLaterFeedbacks[randomIndex];
 };
 
 /**
@@ -502,61 +535,76 @@ export const getDistanceInKm = (
  * @param answers - Array of user answers from the survey
  * @param userLocation - User's current location coordinates
  * @returns Promise resolving to an array of Suggestion objects with computed fields
+ * @throws Error if suggestion generation fails after all retry attempts
  */
 export const generateSuggestions = async (
   questions: Question[],
   answers: string[],
   userLocation: LocationCoordinates
 ): Promise<Suggestion[]> => {
-  const query = // No need to generate query for lazy mode
-    answers.length === 1 && answers[0] !== SpontyChoice.value
-      ? answers[0]
-      : await generateQuery(questions, answers);
-  const embeddings = await generateEmbedding(query);
+  const maxRetries = 3;
 
-  const suggestions: Suggestion[] = await suggestPlaces({
-    queryEmbedding: embeddings,
-  });
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const query = // No need to generate query for lazy mode
+        answers.length === 1 && answers[0] !== SpontyChoice.value
+          ? answers[0]
+          : await generateQuery(questions, answers);
+      const embeddings = await generateEmbedding(query);
 
-  const suggestionsWithComputedFields = suggestions.map(
-    (suggestion: Suggestion) => {
-      const distanceInKm = getDistanceInKm(
-        userLocation.lat,
-        userLocation.lng,
-        suggestion.lat,
-        suggestion.lng
+      const suggestions: Suggestion[] = await suggestPlaces({
+        queryEmbedding: embeddings,
+      });
+
+      const suggestionsWithComputedFields = suggestions.map(
+        (suggestion: Suggestion) => {
+          const distanceInKm = getDistanceInKm(
+            userLocation.lat,
+            userLocation.lng,
+            suggestion.lat,
+            suggestion.lng
+          );
+
+          if (suggestion.openingHours) {
+            const opensAt = getOpeningTimeForToday(suggestion.openingHours);
+            const closesAt = getClosingTimeForToday(suggestion.openingHours);
+            return {
+              ...suggestion,
+              distanceInKm,
+              opensAt,
+              closesAt,
+            };
+          }
+
+          return {
+            ...suggestion,
+            distanceInKm,
+          };
+        }
       );
 
-      if (suggestion.openingHours) {
-        const opensAt = getOpeningTimeForToday(suggestion.openingHours);
-        const closesAt = getClosingTimeForToday(suggestion.openingHours);
-        return {
-          ...suggestion,
-          distanceInKm,
-          opensAt,
-          closesAt,
-        };
+      const filteredSuggestions = suggestionsWithComputedFields.filter(
+        (suggestion) => suggestion.distanceInKm !== undefined
+      );
+
+      return filteredSuggestions;
+    } catch {
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500 * (attempt + 1))
+        );
       }
-
-      return {
-        ...suggestion,
-        distanceInKm,
-      };
     }
-  );
+  }
 
-  const filteredSuggestions = suggestionsWithComputedFields.filter(
-    (suggestion) => suggestion.distanceInKm !== undefined
-  );
-
-  return filteredSuggestions;
+  throw new Error("Yikes! Suggestion generation failed fr");
 };
 
 /**
  * Loads the first photo URI for a suggestion.
  *
  * @param suggestion - The suggestion to load the first photo for
- * @returns Promise resolving to the first photo URI, or undefined if no photos
+ * @returns Promise resolving to the first photo URI, or undefined if no photos or loading fails
  */
 export const loadFirstPhotoForSuggestion = async (
   suggestion: Suggestion
@@ -565,13 +613,27 @@ export const loadFirstPhotoForSuggestion = async (
     return undefined;
   }
 
-  const firstPhotoUri = await places.getPhotoUri({
-    photoName: suggestion.photos[0],
-    maxWidthPx: PHOTO_MAX_WIDTH_PX,
-    maxHeightPx: PHOTO_MAX_HEIGHT_PX,
-  });
+  const maxRetries = 3;
 
-  return firstPhotoUri;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const firstPhotoUri = await places.getPhotoUri({
+        photoName: suggestion.photos[0],
+        maxWidthPx: PHOTO_MAX_WIDTH_PX,
+        maxHeightPx: PHOTO_MAX_HEIGHT_PX,
+      });
+
+      return firstPhotoUri;
+    } catch {
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500 * (attempt + 1))
+        );
+      }
+    }
+  }
+
+  return undefined;
 };
 
 /**
@@ -584,21 +646,32 @@ export const loadFirstPhotoForSuggestion = async (
 export const loadPhotoByName = async (
   photoName: string
 ): Promise<string | undefined> => {
-  try {
-    const photoUri = await places.getPhotoUri({
-      photoName,
-      maxWidthPx: PHOTO_MAX_WIDTH_PX,
-      maxHeightPx: PHOTO_MAX_HEIGHT_PX,
-    });
-    return photoUri;
-  } catch {
-    return undefined;
+  const maxRetries = 3;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const photoUri = await places.getPhotoUri({
+        photoName,
+        maxWidthPx: PHOTO_MAX_WIDTH_PX,
+        maxHeightPx: PHOTO_MAX_HEIGHT_PX,
+      });
+      return photoUri;
+    } catch {
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500 * (attempt + 1))
+        );
+      }
+    }
   }
+
+  return undefined;
 };
 
 /**
  * Loads the first photo URI for the current suggestion and preloads the first photo for the next one.
  * This is used for lazy loading photos as the user navigates through suggestions.
+ * Includes retry logic (up to 3 attempts) for reliability.
  *
  * @param suggestions - Array of suggestions
  * @param currentIndex - Index of the current suggestion
@@ -610,44 +683,58 @@ export const loadFirstPhotoForCurrentAndNextSuggestions = async (
   currentIndex: number,
   photoUrisMap: Map<string, Map<string, string>>
 ): Promise<Map<string, Map<string, string>>> => {
-  const updatedMap = new Map(photoUrisMap);
-  const currentSuggestion = suggestions[currentIndex];
-  const nextSuggestion = suggestions[currentIndex + 1];
+  const maxRetries = 3;
 
-  const loadPromises: Promise<void>[] = [];
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const updatedMap = new Map(photoUrisMap);
+      const currentSuggestion = suggestions[currentIndex];
+      const nextSuggestion = suggestions[currentIndex + 1];
 
-  if (currentSuggestion && currentSuggestion.photos.length > 0) {
-    const currentPhotoMap = updatedMap.get(currentSuggestion.id);
-    const firstPhotoName = currentSuggestion.photos[0];
-    if (!currentPhotoMap || !currentPhotoMap.has(firstPhotoName)) {
-      loadPromises.push(
-        loadFirstPhotoForSuggestion(currentSuggestion).then((photoUri) => {
-          if (photoUri) {
-            const photoMap = new Map<string, string>();
-            photoMap.set(firstPhotoName, photoUri);
-            updatedMap.set(currentSuggestion.id, photoMap);
-          }
-        })
-      );
+      const loadPromises: Promise<void>[] = [];
+
+      if (currentSuggestion && currentSuggestion.photos.length > 0) {
+        const currentPhotoMap = updatedMap.get(currentSuggestion.id);
+        const firstPhotoName = currentSuggestion.photos[0];
+        if (!currentPhotoMap || !currentPhotoMap.has(firstPhotoName)) {
+          loadPromises.push(
+            loadFirstPhotoForSuggestion(currentSuggestion).then((photoUri) => {
+              if (photoUri) {
+                const photoMap = new Map<string, string>();
+                photoMap.set(firstPhotoName, photoUri);
+                updatedMap.set(currentSuggestion.id, photoMap);
+              }
+            })
+          );
+        }
+      }
+
+      if (nextSuggestion && nextSuggestion.photos.length > 0) {
+        const nextPhotoMap = updatedMap.get(nextSuggestion.id);
+        const firstPhotoName = nextSuggestion.photos[0];
+        if (!nextPhotoMap || !nextPhotoMap.has(firstPhotoName)) {
+          loadPromises.push(
+            loadFirstPhotoForSuggestion(nextSuggestion).then((photoUri) => {
+              if (photoUri) {
+                const photoMap = new Map<string, string>();
+                photoMap.set(firstPhotoName, photoUri);
+                updatedMap.set(nextSuggestion.id, photoMap);
+              }
+            })
+          );
+        }
+      }
+
+      await Promise.all(loadPromises);
+      return updatedMap;
+    } catch {
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500 * (attempt + 1))
+        );
+      }
     }
   }
 
-  if (nextSuggestion && nextSuggestion.photos.length > 0) {
-    const nextPhotoMap = updatedMap.get(nextSuggestion.id);
-    const firstPhotoName = nextSuggestion.photos[0];
-    if (!nextPhotoMap || !nextPhotoMap.has(firstPhotoName)) {
-      loadPromises.push(
-        loadFirstPhotoForSuggestion(nextSuggestion).then((photoUri) => {
-          if (photoUri) {
-            const photoMap = new Map<string, string>();
-            photoMap.set(firstPhotoName, photoUri);
-            updatedMap.set(nextSuggestion.id, photoMap);
-          }
-        })
-      );
-    }
-  }
-
-  await Promise.all(loadPromises);
-  return updatedMap;
+  return photoUrisMap;
 };

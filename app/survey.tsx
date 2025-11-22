@@ -92,7 +92,14 @@ export default function Survey() {
 
   return (
     <>
-      <FixedView className='bg-neonGreen h-screen w-screen' withSafeAreaInsets>
+      <FixedView
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        className='w-full h-full bg-neonGreen'
+        withSafeAreaInsets
+      >
         <AnimatedBackground />
         <AbsoluteView
           top={32}

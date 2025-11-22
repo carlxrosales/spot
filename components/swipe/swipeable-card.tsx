@@ -8,6 +8,7 @@ import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
+  getRandomSavedForLaterFeedback,
   getRandomUnusedSelectFeedback,
   getRandomUnusedSkipFeedback,
   isCurrentlyOpen,
@@ -153,7 +154,11 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(
 
     const performSwipeLeft = () => {
       scheduleOnRN(onSwipeSkip);
-      setSelectedFeedback(skipFeedback);
+      setSelectedFeedback(
+        selectedSuggestionIds.includes(suggestion.id)
+          ? getRandomSavedForLaterFeedback()
+          : skipFeedback
+      );
       swipeProgress.value = Animation.opacity.visible;
       translateX.value = withTiming(
         -Dimensions.width * Animation.swipe.distanceMultiplier,

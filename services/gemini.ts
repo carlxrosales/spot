@@ -357,8 +357,6 @@ export async function generateQuery(
         throw new Error("Yikes! Query generation failed fr");
       }
 
-      console.log(text);
-
       return text.trim();
     } catch {
       if (attempt < maxRetries - 1) {

@@ -125,7 +125,13 @@ function Swipe() {
   }, [handleStartOver, router]);
 
   return (
-    <FixedView className='h-screen w-screen bg-neonGreen' withSafeAreaInsets>
+    <FixedView
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      className='w-full h-full bg-neonGreen'
+    >
       <AnimatedBackground />
       <SafeView className='h-full w-full justify-center items-center'>
         {isLoading || !hasFetched ? (

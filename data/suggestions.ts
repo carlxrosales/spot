@@ -583,11 +583,7 @@ export const generateSuggestions = async (
         }
       );
 
-      const filteredSuggestions = suggestionsWithComputedFields.filter(
-        (suggestion) => suggestion.distanceInKm !== undefined
-      );
-
-      return filteredSuggestions;
+      return suggestionsWithComputedFields;
     } catch {
       if (attempt < maxRetries - 1) {
         await new Promise((resolve) =>

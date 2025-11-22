@@ -25,9 +25,9 @@ export const ai = new GoogleGenAI({
 
 const MODEL = "gemini-2.5-flash-lite";
 
-const TAG_COUNT_MIN = 6;
-const TAG_COUNT_MAX = 12;
-const TAG_COUNT_RANGE = `${TAG_COUNT_MIN}-${TAG_COUNT_MAX}`;
+const MINIMUM_QUESTIONS_COUNT = 6;
+const MAXIMUM_QUESTIONS_COUNT = 12;
+const QUESTIONS_COUNT_RANGE = `${MINIMUM_QUESTIONS_COUNT}-${MAXIMUM_QUESTIONS_COUNT}`;
 
 // ============================================================================
 // PROMPTS
@@ -35,87 +35,80 @@ const TAG_COUNT_RANGE = `${TAG_COUNT_MIN}-${TAG_COUNT_MAX}`;
 
 /**
  * System and user prompts for generating survey questions.
- * These prompts guide the AI to create context-aware questions that extract
- * meaningful tags for place recommendation matching.
+ * These prompts guide the AI to create context-aware questions that gather
+ * meaningful information about user preferences for place recommendation matching.
  */
 export const SURVEY_PROMPT = {
-  SYSTEM: `You are the Question Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Ask short, fun, Gen-Z questions to deduce what type of place the user prefers by collecting ${TAG_COUNT_RANGE} unique tags for embeddings. One question = one tag. Never repeat a category.
+  SYSTEM: `
+You are the Question Generator AI for spot — an app that helps users find cafes/restos matching their preferences. Ask short, fun, Gen-Z questions to learn what kind of place the user wants. Collect ${QUESTIONS_COUNT_RANGE} pieces of information through Q&A.
+
+Base all follow-up questions on the user's first answer:
+- If "eat": focus on cuisine, cravings, food type (dessert/snack/meal)
+- If "drink": focus on drink type (coffee/cocktails), cafe feel, complementary food (pastries/desserts/light meals)
+- If "work" or "hangout": focus on ambiance, group size, and optional food/drinks
 
 Goal:
-Deduce what type of place the user prefers by collecting ${TAG_COUNT_RANGE} meaningful, non-overlapping tags. Every question must produce a new tag that reveals their preferences.
+Ask ${QUESTIONS_COUNT_RANGE} meaningful, non-overlapping questions that progressively reveal preferences. Each question must extract one new, specific detail that influences the experience.
 
-Tag rules:
-- Each question extracts 1 tag.
-- No repeats.
-- Tags must affect the dining experience.
-- Never ask about location, distance, travel time, or time-based meals.
-
-Context:
-- "eat" → only food (no drinks/diets).
-- "drink" → only drinks + cafe ambiance (no food).
-- "work"/"hangout" → ambiance + group size.
+Important Rules:
+- Each question gathers exactly one new piece of info
+- No repeats; never ask about the same aspect twice
+- Never contradict previous answers
+- Skip irrelevant branches (e.g., if user says "sweets", don't ask about cuisine)
+- Never ask about: location, distance, travel time, music, service style, dietary needs, seats, decor, spice level, or time-based meals
+- Never ask vague questions (e.g., "Anything else?")
+- Choices must not appear in the question text
 
 Question rules:
-- Keep questions 3-7 words, no filler.
-- Gen-Z tone, slang and abbreviations.
-- Don't overuse the word "vibe".
-- Choices (2-4):
-  • label: relevant + concise
+- 3-7 words
+- Gen-Z tone, slang, playful
+- Don't overuse "vibe"
+- Choices (3-4 but can be 2 if necessary):
+  • label: concise + relevant
   • emoji: unique + meaningful
   • value: lowercase, hyphenated
-- Feedback:
-  • one varied emoji
-  • label: short Gen-Z slang and experessions only, lowercase, no repeats, no "choice", must not bias towards any of the choices, must not mention anything from the question
-- Set isLast: true once enough tags or max questions.
 
-Output valid JSON:
-{
-  "question": string,
-  "choices": [{ "label": string, "emoji": string, "value": string }],
-  "feedback": { "emoji": string, "label": string },
-  "isLast": boolean
-};`,
+Feedback rules:
+- One emoji
+- Label: short Gen-Z slang only
+- No repeats, no bias, and no references to the question or choices
+
+Set isLast: true once enough info is collected or max questions reached.
+
+Answers will be converted into a query and encoded into embeddings for similarity search against place descriptions/documents in the database.
+`,
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,
 };
 
 /**
- * System prompt for generating a comprehensive query description from tags.
- * Converts user preference tags into a detailed sentence/paragraph that describes
+ * System prompt for generating a comprehensive query description from questions and answers.
+ * Converts user survey questions and answers into a detailed sentence/paragraph that describes
  * the type of place the user is looking for. This description will be converted
  * to embeddings for similarity search against place descriptions in the database.
  */
 export const QUERY_PROMPT = `
-You are the Query Generator AI for spot, an app that helps users find cafes/restos that match their vibe. Convert user preference tags into a natural place description (2-4 sentences) as if describing a real cafe/restaurant, not listing wishes.
+You are spot's Query Generator AI. Convert the user's survey questions + answers into a natural 2-4 sentence place description, written as if describing a real cafe/restaurant.
 
 Goal:
-Transform the tags into a flowing description that will be embedded for similarity search. Write in present tense, describing what the place *is* and *offers*.
+Create a flowing, present-tense description that represents what the place *is* and *offers*, suitable for embedding-based similarity search.
 
-Place Description Rules:
-- Describe it like an actual spot (review/database style).
-- Use phrases like "features", "offers", "has", "serves", "provides".
-- Avoid wishlist phrases ("should have", "perfect for", "looking for").
+Rules:
+- Write in third person, present tense.
+- 2-4 cohesive sentences.
+- Describe an actual spot (review/database tone), not a wishlist.
+- Use verbs like “features”, “offers”, “has”, “serves”, “provides”.
+- Never use wishlist language (“should have”, “perfect for”, “looking for”).
+- Include all meaningful information implied by the questions and answers: cuisine, ambiance, atmosphere, group size suitability, budget, food/drink preferences, etc.
+- Combine all inputs into one coherent description, not a list.
 
-Requirements:
-- 2-4 natural sentences, not a tag list.
-- Include all relevant aspects: cuisine, ambiance, atmosphere, group size, budget, food prefs.
-- Detailed enough for accurate matching.
-- Expand tags rather than repeating them literally.
+Special Case — "${SpontyChoice.value}":
+If the user gave only one answer and it is "${SpontyChoice.value}":
+- Generate a unique, randomized spot description.
+- Mix cafes/restos (specific) elements naturally, not including name.
 
-Special Handling — "${SpontyChoice.value}":
-If this is the *only* tag:
-- Generate a random, unique, and specific place description.
-- Mix cuisine types, ambiance styles, atmosphere traits, group size suitability, and budget ranges.
+Output:
+Respond with **only** the final description text—no JSON, no labels, no formatting.
 
-Style:
-- Third person, present tense.
-- Specific, descriptive, cohesive.
-- Write as if documenting a real place.
-
-Example:
-Tags: ["ramen", "date-night", "cozy", "mid-range"]
-Output: "A cozy, intimate ramen restaurant with a warm and romantic atmosphere. The restaurant features mid-range pricing and serves quality ramen in a comfortable setting that encourages conversation and connection."
-
-Respond with ONLY the description text — no JSON or formatting.
 `;
 
 // ============================================================================
@@ -147,20 +140,6 @@ export const QuestionZodSchema = z.object({
     label: z.string().describe("The label of the feedback"),
   }),
   isLast: z.boolean().describe("Whether the question is the last one"),
-});
-
-/**
- * Zod schema for tag extraction response.
- * Validates that exactly 8-12 tags are extracted from user input.
- */
-export const TagsZodSchema = z.object({
-  tags: z
-    .array(z.string())
-    .min(TAG_COUNT_MIN)
-    .max(TAG_COUNT_MAX)
-    .describe(
-      `Array of ${TAG_COUNT_RANGE} lowercase, hyphenated tag values extracted from the user's input`
-    ),
 });
 
 /**
@@ -208,8 +187,8 @@ export const TagsSchema = {
     tags: {
       type: "array",
       items: { type: "string" },
-      minItems: TAG_COUNT_MIN,
-      maxItems: TAG_COUNT_MAX,
+      minItems: MINIMUM_QUESTIONS_COUNT,
+      maxItems: MAXIMUM_QUESTIONS_COUNT,
     },
   },
   required: ["tags"],
@@ -319,18 +298,25 @@ export async function generateNextQuestion(
 }
 
 /**
- * Generates a comprehensive query description from user preference tags.
- * Converts tags into a detailed sentence/paragraph that describes the type of
+ * Generates a comprehensive query description from user survey questions and answers.
+ * Converts questions and answers into a detailed sentence/paragraph that describes the type of
  * place the user is looking for. This description can then be converted to
  * embeddings for similarity search against place descriptions in the database.
  * Includes retry logic (up to 3 attempts) for reliability.
  *
- * @param tags - Array of preference tags extracted from survey answers
+ * @param questions - Array of survey questions that were asked
+ * @param answers - Array of user answers corresponding to the questions
  * @returns Promise resolving to a string description of the desired place
  * @throws Error if query generation fails after all retry attempts
  */
-export async function generateQuery(tags: string[]): Promise<string> {
+export async function generateQuery(
+  questions: Question[],
+  answers: string[]
+): Promise<string> {
   const maxRetries = 3;
+
+  // Special case: Sponty - identified when answers has only 1 item
+  const isSponty = answers.length === 1 && answers[0] === SpontyChoice.value;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -343,16 +329,35 @@ export async function generateQuery(tags: string[]): Promise<string> {
         },
       });
 
+      let message: string;
+      if (isSponty) {
+        message = `Generate a random, unique place description for "${SpontyChoice.value}".`;
+      } else {
+        // Format questions and answers together
+        const qaPairs = questions
+          .map((q, index) => {
+            if (answers[index]) {
+              return `Question: "${q.question}"\nAnswer: "${answers[index]}"`;
+            }
+            return null;
+          })
+          .filter((pair): pair is string => pair !== null);
+
+        message = `Convert these questions and answers into a comprehensive description:\n\n${qaPairs.join(
+          "\n\n"
+        )}`;
+      }
+
       const response = await chat.sendMessage({
-        message: `Convert these tags into a comprehensive description: ${
-          tags.length > 0 ? tags.join(", ") : SpontyChoice.value
-        }`,
+        message,
       });
 
       const text = response.text;
       if (!text) {
         throw new Error("Yikes! Query generation failed fr");
       }
+
+      console.log(text);
 
       return text.trim();
     } catch {

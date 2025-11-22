@@ -50,7 +50,7 @@ interface SuggestionsProviderProps {
 }
 
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
-  const { answers } = useSurvey();
+  const { questions, answers } = useSurvey();
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
@@ -80,7 +80,11 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
 
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         try {
-          const newSuggestions = await generateSuggestions(answers, location);
+          const newSuggestions = await generateSuggestions(
+            questions,
+            answers,
+            location
+          );
           setAllSuggestions(newSuggestions);
 
           const filterByDistance = (maxDistance: number) =>
@@ -150,7 +154,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(false);
       setHasFetched(true);
     },
-    [answers, isLoading, hasFetched]
+    [questions, answers, isLoading, hasFetched]
   );
 
   const filterSuggestions = useCallback(

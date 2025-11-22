@@ -1,4 +1,4 @@
-import { SpontyChoice } from "@/data/survey";
+import { Question, SpontyChoice } from "@/data/survey";
 import { LocationCoordinates } from "@/data/types";
 import { generateEmbedding, generateQuery } from "@/services/gemini";
 import {
@@ -494,22 +494,24 @@ export const getDistanceInKm = (
 // ============================================================================
 
 /**
- * Generates place suggestions based on user survey answers and location.
+ * Generates place suggestions based on user survey questions, answers and location.
  * Computes additional fields like distance and opening/closing times.
  * Photo URIs are loaded separately in the context.
  *
+ * @param questions - Array of survey questions that were asked
  * @param answers - Array of user answers from the survey
  * @param userLocation - User's current location coordinates
  * @returns Promise resolving to an array of Suggestion objects with computed fields
  */
 export const generateSuggestions = async (
+  questions: Question[],
   answers: string[],
   userLocation: LocationCoordinates
 ): Promise<Suggestion[]> => {
   const query = // No need to generate query for lazy mode
     answers.length === 1 && answers[0] !== SpontyChoice.value
       ? answers[0]
-      : await generateQuery(answers);
+      : await generateQuery(questions, answers);
   const embeddings = await generateEmbedding(query);
 
   const suggestions: Suggestion[] = await suggestPlaces({

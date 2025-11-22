@@ -1,6 +1,6 @@
 import { Animation } from "@/constants/theme";
 import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -55,16 +55,19 @@ export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
   return (
     <View className='items-center justify-center h-screen w-screen overflow-visible'>
       <Animated.View style={feedbackAnimatedStyle}>
-        <View className='items-center justify-center flex-row gap-3'>
-          <Text
-            className='text-5xl'
-            style={{ lineHeight: 60, includeFontPadding: false }}
-          >
-            {feedback.emoji}
-          </Text>
-          <Text className='font-groen text-5xl text-black text-center lowercase'>
-            {feedback.label}
-          </Text>
+        <View className='items-center gap-6'>
+          <ActivityIndicator size='large' />
+          <View className='items-center justify-center flex-row gap-3'>
+            <Text
+              className='text-5xl'
+              style={{ lineHeight: 60, includeFontPadding: false }}
+            >
+              {feedback.emoji}
+            </Text>
+            <Text className='font-groen text-5xl text-black text-center lowercase'>
+              {feedback.label}
+            </Text>
+          </View>
         </View>
       </Animated.View>
     </View>

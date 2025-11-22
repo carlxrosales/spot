@@ -75,7 +75,7 @@ export async function suggestPlaces(
   });
 
   if (error) {
-    throw new Error(`Oof! Somethin' went wrong`);
+    throw new Error(`oof! somethin' went wrong`);
   }
 
   if (!data) {

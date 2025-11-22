@@ -30,7 +30,7 @@ export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
     const url = suggestion.shareLink;
     Linking.openURL(url)
       .catch(() =>
-        displayToast({ message: "Yikes! We failed to open Google Maps." })
+        displayToast({ message: "yikes! we failed to open Google Maps" })
       )
       .finally(() => setIsLoading(false));
   };

@@ -232,7 +232,7 @@ async function generateQuestion(
 
   const text = response.text;
   if (!text) {
-    throw new Error("Yo! Somethin' went wrong, let's start over");
+    throw new Error("yo! somethin' went wrong, let's start over");
   }
 
   const parsed = JSON.parse(text);
@@ -294,7 +294,7 @@ export async function generateNextQuestion(
     }
   }
 
-  throw new Error("Yo! Somethin' went wrong, let's start over");
+  throw new Error("yo! somethin' went wrong, let's start over");
 }
 
 /**
@@ -354,7 +354,7 @@ export async function generateQuery(
 
       const text = response.text;
       if (!text) {
-        throw new Error("Yikes! Query generation failed fr");
+        throw new Error("yikes! query generation failed fr");
       }
 
       return text.trim();
@@ -367,7 +367,7 @@ export async function generateQuery(
     }
   }
 
-  throw new Error("Yikes! Query generation failed fr");
+  throw new Error("yikes! query generation failed fr");
 }
 
 /**
@@ -391,7 +391,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
       const embedding = response.embeddings?.[0]?.values;
       if (!embedding) {
-        throw new Error("Yikes! Embedding generation failed fr");
+        throw new Error("yikes! embedding generation failed fr");
       }
 
       return embedding;
@@ -404,5 +404,5 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     }
   }
 
-  throw new Error("Yikes! Embedding generation failed fr");
+  throw new Error("yikes! embedding generation failed fr");
 }

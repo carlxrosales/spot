@@ -597,7 +597,7 @@ export const generateSuggestions = async (
     }
   }
 
-  throw new Error("Yikes! Suggestion generation failed fr");
+  throw new Error("yikes! suggestion generation failed fr");
 };
 
 /**

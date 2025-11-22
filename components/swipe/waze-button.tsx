@@ -33,7 +33,7 @@ export function WazeButton({ suggestion }: WazeButtonProps) {
       .catch(() => {
         const fallbackUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
         Linking.openURL(fallbackUrl).catch(() =>
-          displayToast({ message: "Yikes! We failed to open Waze" })
+          displayToast({ message: "yikes! we failed to open Waze" })
         );
       })
       .finally(() => setIsLoading(false));

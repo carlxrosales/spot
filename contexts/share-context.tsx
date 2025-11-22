@@ -50,7 +50,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
       if (!currentSuggestion || !shareModalRef.current) {
         setIsModalVisible(false);
         setIsSharing(false);
-        displayToast({ message: "Yikes! Capture failed" });
+        displayToast({ message: "yikes! capture failed" });
         return;
       }
 
@@ -61,7 +61,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
       if (!uri) {
         setIsModalVisible(false);
         setIsSharing(false);
-        displayToast({ message: "Yikes! Capture failed" });
+        displayToast({ message: "yikes! capture failed" });
         return;
       }
 
@@ -70,7 +70,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
         if (status !== "granted") {
           setIsModalVisible(false);
           setCurrentSuggestion(null);
-          displayToast({ message: "Oof! Permission denied" });
+          displayToast({ message: "oof! permission denied" });
           return;
         }
 
@@ -87,7 +87,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
         if (result.action === Share.sharedAction) {
           displayToast({ message: "Shared" });
         } else {
-          displayToast({ message: "Cancelled" });
+          displayToast({ message: "u cancelled" });
         }
       }
     } catch {
@@ -95,7 +95,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
       setCurrentSuggestion(null);
       displayToast({
         message:
-          Platform.OS === "android" ? "Oof! Save failed" : "Oof! Share failed",
+          Platform.OS === "android" ? "oof! save failed" : "oof! share failed",
       });
     } finally {
       setIsSharing(false);
@@ -131,12 +131,12 @@ export function ShareProvider({ children }: ShareProviderProps) {
       if (result.action === Share.sharedAction) {
         displayToast({ message: "Shared" });
       } else {
-        displayToast({ message: "Cancelled" });
+        displayToast({ message: "u cancelled" });
       }
     } catch {
       setIsModalVisible(false);
       setCurrentSuggestion(null);
-      displayToast({ message: "Oof! Share failed" });
+      displayToast({ message: "oof! share failed" });
     } finally {
       setIsSharing(false);
     }

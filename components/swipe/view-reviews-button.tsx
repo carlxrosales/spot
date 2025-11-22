@@ -29,7 +29,7 @@ export function ViewReviewsButton({ suggestion }: ViewReviewsButtonProps) {
     setIsLoading(true);
     Linking.openURL(suggestion.reviewsLink)
       .catch(() =>
-        displayToast({ message: "Yikes! We failed to open reviews." })
+        displayToast({ message: "yikes! we failed to open reviews" })
       )
       .finally(() => setIsLoading(false));
   };

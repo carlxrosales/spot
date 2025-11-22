@@ -63,7 +63,7 @@ export default function LazyModeScreen() {
       router.back();
     } catch {
       displayToast({
-        message: "Oof! Somethin' went wrong, let's start over",
+        message: "oof! somethin' went wrong, let's start over",
       });
     } finally {
       setValue("");

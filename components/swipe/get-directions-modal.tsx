@@ -44,7 +44,7 @@ export function GetDirectionsModal({
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     Linking.openURL(url)
       .catch(() =>
-        displayToast({ message: "Yikes! We failed to open Google Maps." })
+        displayToast({ message: "yikes! we failed to open Google Maps" })
       )
       .finally(() => setIsLoading(false));
   };
@@ -59,7 +59,7 @@ export function GetDirectionsModal({
       .catch(() => {
         const fallbackUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
         Linking.openURL(fallbackUrl).catch(() =>
-          displayToast({ message: "Yikes! We failed to open Waze." })
+          displayToast({ message: "yikes! we failed to open Waze" })
         );
       })
       .finally(() => setIsLoading(false));

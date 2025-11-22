@@ -1,7 +1,9 @@
+import { NetworkOverlay } from "@/components/common/network-overlay";
 import { FontsProvider } from "@/contexts/fonts-context";
 import { LocationProvider } from "@/contexts/location-context";
 import { SurveyProvider } from "@/contexts/survey-context";
 import { ToastProvider } from "@/contexts/toast-context";
+import { useNetworkConnectivity } from "@/hooks/use-network-connectivity";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
@@ -15,6 +17,8 @@ export default function RootLayout() {
   const commonScreenOptions = {
     headerShown: false,
   };
+
+  const isConnected = useNetworkConnectivity();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -42,6 +46,7 @@ export default function RootLayout() {
                 />
                 <Stack.Screen name='swipe' options={commonScreenOptions} />
               </Stack>
+              <NetworkOverlay visible={!isConnected} />
             </SurveyProvider>
           </ToastProvider>
         </LocationProvider>

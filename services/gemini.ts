@@ -56,7 +56,6 @@ IMPORTANT RULES:
 - Skip irrelevant branches (e.g., if user says "sweets", don't ask about cuisine)
 - Never ask about: location, distance, travel time, music, service style, dietary needs, seats, decor, spice level, or time-based meals
 - Never ask vague questions (e.g., "Anything else?")
-- Must at least gather the specific main thing they want to eat or drink
 - Must ask group size and ambiance
 
 Question rules:
@@ -72,7 +71,7 @@ Feedback rules:
 - Label: short Gen-Z slang only
 - No repeats, no bias, and no references to the question or choices
 
-Set isLast: true once enough meaningful info is collected or max questions reached.
+Set isLast: true once enough meaningful info is collected (and you've gathered the specific main thing the user wants to eat or drink) or max questions reached.
 `,
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,
 };

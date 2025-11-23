@@ -26,7 +26,7 @@ export function AnimatedBackground() {
       left={0}
       right={0}
       bottom={0}
-      className='h-screen w-screen bg-neonGreen overflow-hidden'
+      className='h-full w-full bg-neonGreen overflow-hidden'
     >
       {sparkles.map((sparkle, index) => (
         <Sparkle key={index} {...sparkle} />

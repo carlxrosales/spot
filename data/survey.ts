@@ -100,8 +100,8 @@ export const generateInitialQuestion = (): Question => {
     choices: [
       { label: "Eat", emoji: "🍔", value: "eat" },
       { label: "Drink", emoji: "☕️", value: "drink" },
-      { label: "Work", emoji: "🧑‍💻", value: "work" },
-      { label: "Hangout", emoji: "🎲", value: "hangout" },
+      { label: "Work", emoji: "🧑‍💻", value: "work-dine-in" },
+      { label: "Hangout", emoji: "🎲", value: "hangout-dine-in" },
     ],
     feedback:
       initialFeedbacks[Math.floor(Math.random() * initialFeedbacks.length)],

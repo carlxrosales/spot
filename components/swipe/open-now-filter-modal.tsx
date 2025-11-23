@@ -35,7 +35,6 @@ export function OpenNowFilterModal({
     useSuggestions();
   const { location } = useLocation();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedFilter, setSelectedFilter] = useState<boolean>(filterOpenNow);
 
   useEffect(() => {
@@ -45,14 +44,10 @@ export function OpenNowFilterModal({
   }, [visible, filterOpenNow]);
 
   const handleSave = useCallback(async () => {
-    setIsLoading(true);
     setFilterOpenNow(selectedFilter);
-
     if (location) {
-      await fetchSuggestions(location, true, selectedFilter);
+      fetchSuggestions(location, true, selectedFilter);
     }
-
-    setIsLoading(false);
     onClose();
   }, [selectedFilter, setFilterOpenNow, location, fetchSuggestions, onClose]);
 
@@ -108,7 +103,6 @@ export function OpenNowFilterModal({
           onPress={handleSave}
           label={copy.save}
           variant='black'
-          loading={isLoading}
           fullWidth
         />
       </View>

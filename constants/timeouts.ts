@@ -4,5 +4,5 @@
 export const Timeouts = {
   inputFocus: 100,
   swipeAction: 600,
-  distanceFilter: 300,
+  distanceFilter: 800,
 };

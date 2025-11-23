@@ -1,13 +1,11 @@
 import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { Colors } from "@/constants/theme";
-import { Timeouts } from "@/constants/timeouts";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   DEFAULT_MIN_DISTANCE_IN_KM,
   DISTANCE_OPTIONS,
 } from "@/data/suggestions";
-import { ensureMinimumDelay } from "@/utils/delay";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -44,7 +42,6 @@ export function DistanceFilterModal({
   const { initialMaxDistance, filterSuggestions } = useSuggestions();
 
   const [activeTab, setActiveTab] = useState<TabType>("max");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedMinDistance, setSelectedMinDistance] = useState<number>(
     DEFAULT_MIN_DISTANCE_IN_KM
   );
@@ -52,11 +49,7 @@ export function DistanceFilterModal({
     useState<number>(initialMaxDistance);
 
   const handleSave = useCallback(async () => {
-    setIsLoading(true);
-    await ensureMinimumDelay(Timeouts.distanceFilter)(() =>
-      filterSuggestions(selectedMinDistance, selectedMaxDistance)
-    );
-    setIsLoading(false);
+    filterSuggestions(selectedMinDistance, selectedMaxDistance);
     onClose();
   }, [selectedMinDistance, selectedMaxDistance, filterSuggestions, onClose]);
 
@@ -198,7 +191,6 @@ export function DistanceFilterModal({
           onPress={handleSave}
           label={copy.save}
           variant='black'
-          loading={isLoading}
           fullWidth
         />
       </View>

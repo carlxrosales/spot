@@ -87,7 +87,6 @@ function Swipe() {
   useEffect(() => {
     if (error) {
       displayToast({ message: error });
-      router.navigate(Routes.survey);
     }
   }, [error]);
 

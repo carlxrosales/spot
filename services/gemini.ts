@@ -297,106 +297,76 @@ export async function generateNextQuestion(
  * Converts questions and answers into a detailed sentence/paragraph that describes the type of
  * place the user is looking for. This description can then be converted to
  * embeddings for similarity search against place descriptions in the database.
- * Includes retry logic (up to 3 attempts) for reliability.
  *
  * @param questions - Array of survey questions that were asked
  * @param answers - Array of user answers corresponding to the questions
  * @returns Promise resolving to a string description of the desired place
- * @throws Error if query generation fails after all retry attempts
+ * @throws Error if query generation fails
  */
 export async function generateQuery(
   questions: Question[],
   answers: string[]
 ): Promise<string> {
-  const maxRetries = 3;
-
   // Special case: Sponty - identified when answers has only 1 item
   const isSponty = answers.length === 1 && answers[0] === SpontyChoice.value;
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const chat = ai.chats.create({
-        model: MODEL,
-        config: {
-          systemInstruction: QUERY_PROMPT,
-          temperature: 0.7,
-        },
-      });
+  const chat = ai.chats.create({
+    model: MODEL,
+    config: {
+      systemInstruction: QUERY_PROMPT,
+      temperature: 0.7,
+    },
+  });
 
-      let message: string;
-      if (isSponty) {
-        message = `Generate a random, unique place description for "${SpontyChoice.value}".`;
-      } else {
-        // Format questions and answers together
-        const qaPairs = questions
-          .map((q, index) => {
-            if (answers[index]) {
-              return `Question: "${q.question}"\nAnswer: "${answers[index]}"`;
-            }
-            return null;
-          })
-          .filter((pair): pair is string => pair !== null);
+  let message: string;
+  if (isSponty) {
+    message = `Generate a random, unique place description for "${SpontyChoice.value}".`;
+  } else {
+    // Format questions and answers together
+    const qaPairs = questions
+      .map((q, index) => {
+        if (answers[index]) {
+          return `Question: "${q.question}"\nAnswer: "${answers[index]}"`;
+        }
+        return null;
+      })
+      .filter((pair): pair is string => pair !== null);
 
-        message = `Convert these questions and answers into a comprehensive description:\n\n${qaPairs.join(
-          "\n\n"
-        )}`;
-      }
-
-      const response = await chat.sendMessage({
-        message,
-      });
-
-      const text = response.text;
-      if (!text) {
-        throw new Error("yikes! query generation failed fr");
-      }
-
-      return text.trim();
-    } catch {
-      if (attempt < maxRetries - 1) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, 500 * (attempt + 1))
-        );
-      }
-    }
+    message = `Convert these questions and answers into a comprehensive description:\n\n${qaPairs.join(
+      "\n\n"
+    )}`;
   }
 
-  throw new Error("yikes! query generation failed fr");
+  const response = await chat.sendMessage({
+    message,
+  });
+
+  const text = response.text;
+  if (!text) {
+    throw new Error("yikes! query generation failed fr");
+  }
+
+  return text.trim();
 }
 
 /**
  * Generates embeddings for the given text using Gemini's embedding model.
  * Returns a vector representation of the text suitable for similarity search.
- * Includes retry logic (up to 3 attempts) for reliability.
  *
  * @param text - The text to generate embeddings for
  * @returns Promise resolving to an array of numbers representing the embedding vector
- * @throws Error if embedding generation fails after all retry attempts
+ * @throws Error if embedding generation fails
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const maxRetries = 3;
+  const response = await ai.models.embedContent({
+    model: "text-embedding-004",
+    contents: text,
+  });
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await ai.models.embedContent({
-        model: "text-embedding-004",
-        contents: text,
-      });
-
-      const embedding = response.embeddings?.[0]?.values;
-      if (!embedding) {
-        throw new Error("yikes! embedding generation failed fr");
-      }
-
-      return embedding;
-    } catch {
-      if (attempt < maxRetries - 1) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, 500 * (attempt + 1))
-        );
-      }
-    }
+  const embedding = response.embeddings?.[0]?.values;
+  if (!embedding) {
+    throw new Error("yikes! embedding generation failed fr");
   }
 
-  throw new Error("yikes! embedding generation failed fr");
+  return embedding;
 }

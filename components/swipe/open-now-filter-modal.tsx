@@ -7,11 +7,11 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 const copy = {
   title: "Who's up now",
-  description: "Choose if you want to see all places or just those open atm",
-  allPlaces: "All places",
+  description: "Choose if you want to see all spots or just those open atm",
+  allPlaces: "All spots",
   openNow: "Open now",
-  infoOpenNow: "Only showing places that are currently open",
-  infoAllPlaces: "Showing all places regardless of opening hours",
+  infoOpenNow: "Only showing spots that are currently open",
+  infoAllPlaces: "Showing all spots regardless of opening hours",
   save: "Save",
 };
 

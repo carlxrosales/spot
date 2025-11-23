@@ -541,7 +541,7 @@ export const generateSuggestions = async (
   questions: Question[],
   answers: string[],
   userLocation: LocationCoordinates,
-  filterOpenNow: boolean = true,
+  filterOpenNow: boolean = false,
   filterCity?: string | null
 ): Promise<Suggestion[]> => {
   const maxRetries = 3;

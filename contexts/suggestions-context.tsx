@@ -73,7 +73,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(true);
+  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
   const [filterCity, setFilterCity] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(
@@ -302,7 +302,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(false);
       setHasFetched(false);
       setError(null);
-      setFilterOpenNow(true);
+      setFilterOpenNow(false);
       setFilterCity(null);
     }
   }, [answers.length]);

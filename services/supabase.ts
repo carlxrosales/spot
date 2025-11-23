@@ -36,6 +36,7 @@ export const DEFAULT_LIMIT_COUNT = 80;
 export interface SuggestPlacesOptions {
   queryEmbedding: number[];
   limitCount?: number;
+  filterOpenNow?: boolean;
 }
 
 export interface SuggestPlacesResult {
@@ -67,11 +68,16 @@ export interface SuggestPlacesResult {
 export async function suggestPlaces(
   options: SuggestPlacesOptions
 ): Promise<Suggestion[]> {
-  const { queryEmbedding, limitCount = DEFAULT_LIMIT_COUNT } = options;
+  const {
+    queryEmbedding,
+    limitCount = DEFAULT_LIMIT_COUNT,
+    filterOpenNow = false,
+  } = options;
 
   const { data, error } = await supabase.rpc("suggest_places", {
     query_embedding: queryEmbedding,
     limit_count: limitCount,
+    filter_open_now: filterOpenNow,
   });
 
   if (error) {

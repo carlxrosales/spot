@@ -6,6 +6,7 @@ import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
 import { DistanceFilterModal } from "@/components/swipe/distance-filter-modal";
 import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
+import { OpenNowFilterModal } from "@/components/swipe/open-now-filter-modal";
 import { SwipeModal } from "@/components/swipe/swipe-modal";
 import {
   SwipeableCard,
@@ -54,11 +55,13 @@ function Swipe() {
     fetchSuggestions,
     currentIndex,
     error,
+    filterOpenNow,
   } = useSuggestions();
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const { displayToast } = useToast();
   const swipeModal = useModal();
   const distanceModal = useModal();
+  const openNowModal = useModal();
 
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
   const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
@@ -160,12 +163,20 @@ function Swipe() {
                     />
                   </View>
                 </AbsoluteView>
-                <IconButton
-                  size={ButtonSize.sm}
-                  onPress={distanceModal.handleOpen}
-                  icon='location-outline'
-                  variant={ButtonVariant.white}
-                />
+                <View className='flex-row gap-2'>
+                  <IconButton
+                    size={ButtonSize.sm}
+                    onPress={openNowModal.handleOpen}
+                    icon={"time-outline"}
+                    variant={ButtonVariant.white}
+                  />
+                  <IconButton
+                    size={ButtonSize.sm}
+                    onPress={distanceModal.handleOpen}
+                    icon='location-outline'
+                    variant={ButtonVariant.white}
+                  />
+                </View>
               </View>
               {currentSuggestion ? (
                 <View className='flex-1'>
@@ -225,6 +236,10 @@ function Swipe() {
       <DistanceFilterModal
         visible={distanceModal.isVisible}
         onClose={distanceModal.handleClose}
+      />
+      <OpenNowFilterModal
+        visible={openNowModal.isVisible}
+        onClose={openNowModal.handleClose}
       />
       {(!hasPermission || !location) && <LocationPermissionModal />}
     </FixedView>

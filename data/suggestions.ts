@@ -540,7 +540,8 @@ export const getDistanceInKm = (
 export const generateSuggestions = async (
   questions: Question[],
   answers: string[],
-  userLocation: LocationCoordinates
+  userLocation: LocationCoordinates,
+  filterOpenNow: boolean = true
 ): Promise<Suggestion[]> => {
   const maxRetries = 3;
 
@@ -554,6 +555,7 @@ export const generateSuggestions = async (
 
       const suggestions: Suggestion[] = await suggestPlaces({
         queryEmbedding: embeddings,
+        filterOpenNow,
       });
 
       const suggestionsWithComputedFields = suggestions.map(

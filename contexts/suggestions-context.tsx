@@ -27,8 +27,14 @@ interface SuggestionsContextType {
   initialMaxDistance: number;
   currentIndex: number;
   hasFetched: boolean;
+  filterOpenNow: boolean;
   setHasFetched: (hasFetched: boolean) => void;
-  fetchSuggestions: (location: LocationCoordinates) => void;
+  fetchSuggestions: (
+    location: LocationCoordinates,
+    forceRefetch?: boolean,
+    openNowFilter?: boolean
+  ) => Promise<void>;
+  setFilterOpenNow: (filterOpenNow: boolean) => void;
   error: string | null;
   handleSkip: () => void;
   handleSelect: (suggestionId: string) => void;
@@ -66,14 +72,19 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(true);
 
   const fetchSuggestions = useCallback(
-    async (location: LocationCoordinates) => {
+    async (
+      location: LocationCoordinates,
+      forceRefetch: boolean = false,
+      openNowFilter?: boolean
+    ) => {
       if (
         !location?.lat ||
         !location?.lng ||
         isLoading ||
-        hasFetched ||
+        (hasFetched && !forceRefetch) ||
         answers.length === 0
       ) {
         return;
@@ -82,11 +93,15 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(true);
       setError(null);
 
+      const filterValue =
+        openNowFilter !== undefined ? openNowFilter : filterOpenNow;
+
       try {
         const newSuggestions = await generateSuggestions(
           questions,
           answers,
-          location
+          location,
+          filterValue
         );
         setAllSuggestions(newSuggestions);
 
@@ -147,7 +162,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         setHasFetched(true);
       }
     },
-    [questions, answers, isLoading, hasFetched]
+    [questions, answers, isLoading, hasFetched, filterOpenNow]
   );
 
   const filterSuggestions = useCallback(
@@ -277,6 +292,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(false);
       setHasFetched(false);
       setError(null);
+      setFilterOpenNow(true);
     }
   }, [answers.length]);
 
@@ -289,8 +305,10 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         initialMaxDistance,
         currentIndex,
         hasFetched,
+        filterOpenNow,
         setHasFetched,
         fetchSuggestions,
+        setFilterOpenNow,
         error,
         handleSkip,
         handleSelect,

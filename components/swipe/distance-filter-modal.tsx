@@ -12,6 +12,17 @@ import { Picker } from "@react-native-picker/picker";
 import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
+const copy = {
+  title: "How far I'll go",
+  description: "Set minimum and maximum distance",
+  minDistance: "Min Distance",
+  maxDistance: "Max Distance",
+  anyDistance: "Any distance",
+  minLabel: "Min:",
+  maxLabel: "Max:",
+  save: "Save",
+};
+
 interface DistanceFilterModalProps {
   visible: boolean;
   onClose: () => void;
@@ -51,7 +62,7 @@ export function DistanceFilterModal({
 
   const formatDistanceLabel = (distance: number) => {
     if (distance === 0) {
-      return "Any distance";
+      return copy.anyDistance;
     }
 
     const lastDistanceOption = DISTANCE_OPTIONS[DISTANCE_OPTIONS.length - 1];
@@ -107,8 +118,8 @@ export function DistanceFilterModal({
     <BottomModal
       visible={visible}
       onClose={onClose}
-      title="How far I'll go"
-      description='Set minimum and maximum distance'
+      title={copy.title}
+      description={copy.description}
       showCancelButton
     >
       <View className='gap-3'>
@@ -125,7 +136,7 @@ export function DistanceFilterModal({
                 activeTab === "min" ? "text-white" : "text-black"
               }`}
             >
-              Min Distance
+              {copy.minDistance}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -139,7 +150,7 @@ export function DistanceFilterModal({
                 activeTab === "max" ? "text-white" : "text-black"
               }`}
             >
-              Max Distance
+              {copy.maxDistance}
             </Text>
           </TouchableOpacity>
         </View>
@@ -175,17 +186,17 @@ export function DistanceFilterModal({
 
         {/* Current Selection Display */}
         <View className='flex-row justify-between items-center px-2'>
-          <Text className='text-gray-600 text-sm'>
-            Min: {formatDistanceLabel(selectedMinDistance)}
+          <Text className='text-black opacity-80 text-sm'>
+            {copy.minLabel} {formatDistanceLabel(selectedMinDistance)}
           </Text>
-          <Text className='text-gray-600 text-sm'>
-            Max: {formatDistanceLabel(selectedMaxDistance)}
+          <Text className='text-black opacity-80 text-sm'>
+            {copy.maxLabel} {formatDistanceLabel(selectedMaxDistance)}
           </Text>
         </View>
 
         <TextButton
           onPress={handleSave}
-          label='Save'
+          label={copy.save}
           variant='black'
           loading={isLoading}
           fullWidth

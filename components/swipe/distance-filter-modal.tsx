@@ -1,22 +1,22 @@
 import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { Colors } from "@/constants/theme";
+import { useLocation } from "@/contexts/location-context";
 import { useSuggestions } from "@/contexts/suggestions-context";
-import {
-  DEFAULT_MIN_DISTANCE_IN_KM,
-  DISTANCE_OPTIONS,
-} from "@/data/suggestions";
+import { getCities } from "@/data/cities";
+import { DISTANCE_OPTIONS } from "@/data/suggestions";
 import { Picker } from "@react-native-picker/picker";
-import { useCallback, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 const copy = {
   title: "How far I'll go",
-  description: "Set minimum and maximum distance",
-  minDistance: "Min Distance",
+  description: "Set city or maximum distance",
+  city: "City",
   maxDistance: "Max Distance",
+  anyCity: "Any city",
   anyDistance: "Any distance",
-  minLabel: "Min:",
+  cityLabel: "City:",
   maxLabel: "Max:",
   save: "Save",
 };
@@ -26,11 +26,11 @@ interface DistanceFilterModalProps {
   onClose: () => void;
 }
 
-type TabType = "min" | "max";
+type TabType = "city" | "max";
 
 /**
- * Modal component for filtering suggestions by minimum and maximum distance.
- * Allows users to select both minimum and maximum distance in kilometers for filtering place suggestions.
+ * Modal component for filtering suggestions by city and maximum distance.
+ * Allows users to select a city (which triggers a refetch) and maximum distance in kilometers for filtering place suggestions.
  *
  * @param visible - Whether the modal is visible
  * @param onClose - Callback function called when modal is closed
@@ -39,19 +39,60 @@ export function DistanceFilterModal({
   visible,
   onClose,
 }: DistanceFilterModalProps) {
-  const { initialMaxDistance, filterSuggestions } = useSuggestions();
+  const {
+    initialMaxDistance,
+    filterSuggestions,
+    filterCity,
+    setFilterCity,
+    fetchSuggestions,
+  } = useSuggestions();
+  const { location } = useLocation();
 
   const [activeTab, setActiveTab] = useState<TabType>("max");
-  const [selectedMinDistance, setSelectedMinDistance] = useState<number>(
-    DEFAULT_MIN_DISTANCE_IN_KM
-  );
+  const [selectedCity, setSelectedCity] = useState<string | null>(filterCity);
   const [selectedMaxDistance, setSelectedMaxDistance] =
     useState<number>(initialMaxDistance);
+  const [cities, setCities] = useState<string[]>([]);
+  const [isLoadingCities, setIsLoadingCities] = useState<boolean>(false);
+
+  useEffect(() => {
+    setSelectedCity(filterCity);
+    loadCities();
+  }, []);
+
+  const loadCities = useCallback(async () => {
+    setIsLoadingCities(true);
+    try {
+      const citiesList = await getCities();
+      setCities(citiesList);
+    } catch {
+      // Handle error silently
+    } finally {
+      setIsLoadingCities(false);
+    }
+  }, []);
 
   const handleSave = useCallback(async () => {
-    filterSuggestions(selectedMinDistance, selectedMaxDistance);
+    const cityChanged = selectedCity !== filterCity;
+
+    if (cityChanged && location) {
+      setFilterCity(selectedCity);
+      fetchSuggestions(location, true, undefined, selectedCity);
+    }
+
+    filterSuggestions(selectedMaxDistance);
     onClose();
-  }, [selectedMinDistance, selectedMaxDistance, filterSuggestions, onClose]);
+  }, [
+    selectedCity,
+    selectedMaxDistance,
+    filterCity,
+    initialMaxDistance,
+    setFilterCity,
+    fetchSuggestions,
+    filterSuggestions,
+    location,
+    onClose,
+  ]);
 
   const formatDistanceLabel = (distance: number) => {
     if (distance === 0) {
@@ -66,45 +107,18 @@ export function DistanceFilterModal({
     return `${distance} km`;
   };
 
-  const getAvailableMaxDistances = () => {
-    return DISTANCE_OPTIONS.filter(
-      (distance) => distance > selectedMinDistance
-    );
-  };
-
-  const getAvailableMinDistances = () => {
-    return DISTANCE_OPTIONS.filter(
-      (distance) => distance < selectedMaxDistance
-    );
-  };
-
-  const handleDistanceChange = useCallback(
-    (itemValue: number) => {
-      if (activeTab === "min") {
-        setSelectedMinDistance(itemValue);
-        // Ensure max is always greater than min
-        if (itemValue >= selectedMaxDistance) {
-          // Find the next available max distance
-          const nextMax = DISTANCE_OPTIONS.find((d) => d > itemValue);
-          if (nextMax !== undefined) {
-            setSelectedMaxDistance(nextMax);
-          }
-        }
+  const handleValueChange = useCallback(
+    (itemValue: string | number) => {
+      if (activeTab === "city") {
+        setSelectedCity(
+          itemValue === copy.anyCity ? null : (itemValue as string)
+        );
+        setSelectedMaxDistance(DISTANCE_OPTIONS[0]);
       } else {
-        setSelectedMaxDistance(itemValue);
-        // Ensure min is always less than max
-        if (itemValue <= selectedMinDistance) {
-          // Find the previous available min distance
-          const prevMin = [...DISTANCE_OPTIONS]
-            .reverse()
-            .find((d) => d < itemValue);
-          if (prevMin !== undefined) {
-            setSelectedMinDistance(prevMin);
-          }
-        }
+        setSelectedMaxDistance(itemValue as number);
       }
     },
-    [activeTab, selectedMaxDistance, selectedMinDistance]
+    [activeTab]
   );
 
   return (
@@ -119,17 +133,17 @@ export function DistanceFilterModal({
         {/* Tab Buttons */}
         <View className='flex-row gap-2'>
           <TouchableOpacity
-            onPress={() => setActiveTab("min")}
+            onPress={() => setActiveTab("city")}
             className={`flex-1 py-3 rounded-[16px] ${
-              activeTab === "min" ? "bg-black" : "bg-gray-200"
+              activeTab === "city" ? "bg-black" : "bg-gray-200"
             }`}
           >
             <Text
               className={`text-center font-semibold text-base ${
-                activeTab === "min" ? "text-white" : "text-black"
+                activeTab === "city" ? "text-white" : "text-black"
               }`}
             >
-              {copy.minDistance}
+              {copy.city}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -150,37 +164,60 @@ export function DistanceFilterModal({
 
         {/* Picker */}
         <View className='bg-gray-200 rounded-[24px] overflow-hidden'>
-          <Picker
-            selectedValue={
-              activeTab === "min" ? selectedMinDistance : selectedMaxDistance
-            }
-            onValueChange={handleDistanceChange}
-            style={{
-              backgroundColor: "transparent",
-            }}
-            itemStyle={{
-              fontSize: 18,
-              fontWeight: "600",
-            }}
-          >
-            {(activeTab === "min"
-              ? getAvailableMinDistances()
-              : getAvailableMaxDistances()
-            ).map((distance) => (
-              <Picker.Item
-                key={distance}
-                label={formatDistanceLabel(distance)}
-                value={distance}
-                color={Colors.black}
-              />
-            ))}
-          </Picker>
+          {isLoadingCities && activeTab === "city" ? (
+            <View className='py-8 items-center justify-center'>
+              <ActivityIndicator size='large' color={Colors.black} />
+            </View>
+          ) : (
+            <Picker
+              selectedValue={
+                activeTab === "city"
+                  ? selectedCity || copy.anyCity
+                  : selectedMaxDistance
+              }
+              onValueChange={handleValueChange}
+              style={{
+                backgroundColor: "transparent",
+              }}
+              itemStyle={{
+                fontSize: 18,
+                fontWeight: "600",
+              }}
+            >
+              {activeTab === "city" ? (
+                <>
+                  <Picker.Item
+                    label={copy.anyCity}
+                    value={copy.anyCity}
+                    color={Colors.black}
+                  />
+                  {cities.map((city) => (
+                    <Picker.Item
+                      key={city}
+                      label={city}
+                      value={city}
+                      color={Colors.black}
+                    />
+                  ))}
+                </>
+              ) : (
+                DISTANCE_OPTIONS.map((distance) => (
+                  <Picker.Item
+                    key={distance}
+                    label={formatDistanceLabel(distance)}
+                    value={distance}
+                    color={Colors.black}
+                  />
+                ))
+              )}
+            </Picker>
+          )}
         </View>
 
         {/* Current Selection Display */}
         <View className='flex-row justify-between items-center px-2'>
           <Text className='text-black opacity-80 text-sm'>
-            {copy.minLabel} {formatDistanceLabel(selectedMinDistance)}
+            {copy.cityLabel} {selectedCity || copy.anyCity}
           </Text>
           <Text className='text-black opacity-80 text-sm'>
             {copy.maxLabel} {formatDistanceLabel(selectedMaxDistance)}

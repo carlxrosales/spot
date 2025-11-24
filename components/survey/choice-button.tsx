@@ -105,8 +105,13 @@ export function ChoiceButton({
     <Animated.View style={animatedStyle}>
       <NeonButton onPress={handlePress}>
         <View className='flex-row items-center gap-3'>
-          <Text className='text-3xl'>{displayEmoji}</Text>
-          <Text className='text-xl text-left font-semibold text-black'>
+          <Text className='text-3xl' numberOfLines={1}>
+            {displayEmoji}
+          </Text>
+          <Text
+            className='text-xl text-left font-semibold text-black'
+            numberOfLines={1}
+          >
             {choice.label}
           </Text>
         </View>

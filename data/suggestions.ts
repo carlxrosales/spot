@@ -112,11 +112,473 @@ export const DEFAULT_MAX_DISTANCE_IN_KM: number = 25;
 /**
  * Available distance filter options in kilometers.
  * Used for distance-based filtering of place suggestions.
- * Includes 0 for minimum distance filtering.
  */
 export const DISTANCE_OPTIONS = [
-  0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 500, 1000,
+  5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250,
 ] as const;
+export const LAST_DISTANCE_OPTION =
+  DISTANCE_OPTIONS[DISTANCE_OPTIONS.length - 1];
+
+/**
+ * Collection of complete question-answer flows for random selection when Sponty is the only answer.
+ * Each entry contains 6-7 question-answer pairs that form a natural flow.
+ */
+export const SPONTY_QA_FLOWS: Array<
+  Array<{ question: string; answer: string }>
+> = [
+  // Flow 1: Casual Asian lunch
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "asian" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "What's the vibe?", answer: "casual" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 2: Cozy coffee shop for work
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What drink?", answer: "coffee" },
+    { question: "What's the vibe?", answer: "cozy" },
+    { question: "What's the setting?", answer: "quiet" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 3: Date night Italian dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "italian" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the occasion?", answer: "date-night" },
+    { question: "What's the vibe?", answer: "romantic" },
+    { question: "What's the price range?", answer: "upscale" },
+    { question: "What's the setting?", answer: "intimate" },
+  ],
+  // Flow 4: Group hangout at bar
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What drink?", answer: "cocktails" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the vibe?", answer: "loud" },
+    { question: "What's the setting?", answer: "spacious" },
+  ],
+  // Flow 5: Brunch spot
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What meal?", answer: "brunch" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What's the vibe?", answer: "trendy" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 6: Solo sushi dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "japanese" },
+    { question: "What you want?", answer: "sushi" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the price range?", answer: "upscale" },
+  ],
+  // Flow 7: Study session at cafe
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What's the occasion?", answer: "study" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What drink?", answer: "coffee" },
+    { question: "What's the vibe?", answer: "quiet" },
+    { question: "What's the setting?", answer: "indoor" },
+  ],
+  // Flow 8: Family-friendly Mexican
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "mexican" },
+    { question: "What you want?", answer: "tacos" },
+    { question: "What's the occasion?", answer: "family-friendly" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 9: Business lunch
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What's the occasion?", answer: "business" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What's the vibe?", answer: "quiet" },
+    { question: "What's the price range?", answer: "upscale" },
+  ],
+  // Flow 10: Ramen craving
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "japanese" },
+    { question: "What you want?", answer: "ramen" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the vibe?", answer: "cozy" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 11: Wine bar hangout
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What drink?", answer: "wine" },
+    { question: "What's the vibe?", answer: "chill" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the setting?", answer: "intimate" },
+  ],
+  // Flow 12: Korean BBQ group
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "korean" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the vibe?", answer: "loud" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 13: Morning coffee run
+  [
+    { question: "What's your vibe rn?", answer: "drink" },
+    { question: "What drink?", answer: "coffee" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What meal?", answer: "breakfast" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the vibe?", answer: "quick" },
+  ],
+  // Flow 14: Thai dinner date
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "thai" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the occasion?", answer: "date-night" },
+    { question: "What's the vibe?", answer: "romantic" },
+    { question: "What's the price range?", answer: "upscale" },
+  ],
+  // Flow 15: Pizza night
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What you want?", answer: "pizza" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What cuisine you craving?", answer: "italian" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 16: Tea time study
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What's the occasion?", answer: "study" },
+    { question: "What drink?", answer: "tea" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What's the vibe?", answer: "quiet" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 17: Seafood dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What you want?", answer: "seafood" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What cuisine you craving?", answer: "mediterranean" },
+    { question: "What's the vibe?", answer: "upscale" },
+    { question: "What's the price range?", answer: "fine-dining" },
+  ],
+  // Flow 18: Burger joint
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What you want?", answer: "burger" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What's the price range?", answer: "fast-casual" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 19: Vietnamese noodles
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "vietnamese" },
+    { question: "What you want?", answer: "noodles" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "What's the vibe?", answer: "casual" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 20: Beer garden
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What drink?", answer: "beer" },
+    { question: "What's the setting?", answer: "outdoor" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the vibe?", answer: "chill" },
+  ],
+  // Flow 21: Indian dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "indian" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the vibe?", answer: "spicy" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 22: French bistro
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What cuisine you craving?", answer: "french" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the vibe?", answer: "romantic" },
+    { question: "What's the price range?", answer: "upscale" },
+    { question: "What's the setting?", answer: "intimate" },
+  ],
+  // Flow 23: Bakery breakfast
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What type of place?", answer: "bakery" },
+    { question: "What meal?", answer: "breakfast" },
+    { question: "What drink?", answer: "coffee" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the vibe?", answer: "cozy" },
+  ],
+  // Flow 24: Meeting spot
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What's the occasion?", answer: "meeting" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What's the vibe?", answer: "quiet" },
+    { question: "What's the setting?", answer: "spacious" },
+    { question: "How many people?", answer: "group" },
+  ],
+  // Flow 25: Dessert spot
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What meal?", answer: "dessert" },
+    { question: "What type of place?", answer: "bakery" },
+    { question: "What's the vibe?", answer: "sweet" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 26: Hipster cafe
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What's the vibe?", answer: "hipster" },
+    { question: "What drink?", answer: "coffee" },
+    { question: "What's the setting?", answer: "trendy" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 27: Social gathering
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What's the occasion?", answer: "social" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What drink?", answer: "cocktails" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the vibe?", answer: "loud" },
+  ],
+  // Flow 28: Modern restaurant
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What type of place?", answer: "restaurant" },
+    { question: "What's the vibe?", answer: "modern" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the price range?", answer: "upscale" },
+    { question: "What's the setting?", answer: "trendy" },
+  ],
+  // Flow 29: Traditional spot
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What type of place?", answer: "restaurant" },
+    { question: "What's the vibe?", answer: "traditional" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 30: Vintage bar
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What's the vibe?", answer: "vintage" },
+    { question: "What drink?", answer: "cocktails" },
+    { question: "What's the setting?", answer: "intimate" },
+    { question: "How many people?", answer: "group" },
+  ],
+  // Flow 31: Budget-friendly meal
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the price range?", answer: "budget-friendly" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "What cuisine you craving?", answer: "asian" },
+    { question: "What's the vibe?", answer: "casual" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 32: Fine dining experience
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the price range?", answer: "fine-dining" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the occasion?", answer: "date-night" },
+    { question: "What's the vibe?", answer: "romantic" },
+    { question: "What's the setting?", answer: "intimate" },
+  ],
+  // Flow 33: Fast casual lunch
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the price range?", answer: "fast-casual" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the vibe?", answer: "quick" },
+  ],
+  // Flow 34: Outdoor dining
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the setting?", answer: "outdoor" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What cuisine you craving?", answer: "mediterranean" },
+    { question: "What's the vibe?", answer: "chill" },
+    { question: "How many people?", answer: "group" },
+  ],
+  // Flow 35: Indoor cozy spot
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the setting?", answer: "indoor" },
+    { question: "What's the vibe?", answer: "cozy" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What meal?", answer: "breakfast" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 36: Spacious group dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the setting?", answer: "spacious" },
+    { question: "How many people?", answer: "group" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 37: Vegetarian options
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "Dietary preferences?", answer: "vegetarian" },
+    { question: "What cuisine you craving?", answer: "indian" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What's the vibe?", answer: "healthy" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 38: Vegan cafe
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "Dietary preferences?", answer: "vegan" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What meal?", answer: "brunch" },
+    { question: "What's the vibe?", answer: "healthy" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 39: Late night drinks
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What drink?", answer: "cocktails" },
+    { question: "What's the vibe?", answer: "loud" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the setting?", answer: "indoor" },
+  ],
+  // Flow 40: Morning meeting
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What's the occasion?", answer: "meeting" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What meal?", answer: "breakfast" },
+    { question: "What's the vibe?", answer: "quiet" },
+    { question: "How many people?", answer: "group" },
+  ],
+  // Flow 41: Weekend brunch group
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What meal?", answer: "brunch" },
+    { question: "How many people?", answer: "group" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What's the vibe?", answer: "trendy" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 42: Solo dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What cuisine you craving?", answer: "japanese" },
+    { question: "What's the vibe?", answer: "cozy" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 43: Afternoon tea
+  [
+    { question: "What's your vibe rn?", answer: "drink" },
+    { question: "What drink?", answer: "tea" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What's the vibe?", answer: "chill" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the setting?", answer: "indoor" },
+  ],
+  // Flow 44: Group celebration
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What's the occasion?", answer: "social" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the vibe?", answer: "loud" },
+    { question: "What's the setting?", answer: "spacious" },
+  ],
+  // Flow 45: Quiet work session
+  [
+    { question: "What's your vibe rn?", answer: "work" },
+    { question: "What's the occasion?", answer: "study" },
+    { question: "What type of place?", answer: "cafe" },
+    { question: "What's the vibe?", answer: "quiet" },
+    { question: "What's the setting?", answer: "indoor" },
+    { question: "How many people?", answer: "solo" },
+  ],
+  // Flow 46: Casual group lunch
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "How many people?", answer: "group" },
+    { question: "What cuisine you craving?", answer: "mexican" },
+    { question: "What's the vibe?", answer: "casual" },
+    { question: "What's the price range?", answer: "affordable" },
+  ],
+  // Flow 47: Upscale date
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the occasion?", answer: "date-night" },
+    { question: "What's the price range?", answer: "upscale" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What cuisine you craving?", answer: "french" },
+    { question: "What's the vibe?", answer: "romantic" },
+    { question: "What's the setting?", answer: "intimate" },
+  ],
+  // Flow 48: Quick solo lunch
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What meal?", answer: "lunch" },
+    { question: "How many people?", answer: "solo" },
+    { question: "What's the price range?", answer: "fast-casual" },
+    { question: "What cuisine you craving?", answer: "asian" },
+    { question: "What's the vibe?", answer: "quick" },
+  ],
+  // Flow 49: Family dinner
+  [
+    { question: "What's your vibe rn?", answer: "eat" },
+    { question: "What's the occasion?", answer: "family-friendly" },
+    { question: "How many people?", answer: "group" },
+    { question: "What meal?", answer: "dinner" },
+    { question: "What cuisine you craving?", answer: "american" },
+    { question: "What's the price range?", answer: "casual" },
+  ],
+  // Flow 50: Trendy spot
+  [
+    { question: "What's your vibe rn?", answer: "hangout" },
+    { question: "What's the vibe?", answer: "trendy" },
+    { question: "What type of place?", answer: "bar" },
+    { question: "What drink?", answer: "cocktails" },
+    { question: "How many people?", answer: "group" },
+    { question: "What's the setting?", answer: "indoor" },
+  ],
+];
 
 /**
  * Minimum number of suggestions to display.
@@ -220,6 +682,7 @@ export const savedForLaterFeedbacks: SuggestionFeedback[] = [
 const usedSkipFeedbackIndices = new Set<number>();
 const usedSelectFeedbackIndices = new Set<number>();
 const usedSavedForLaterFeedbackIndices = new Set<number>();
+const usedSpontyFlowIndices = new Set<number>();
 
 /**
  * Gets a random skip feedback message that hasn't been used recently.
@@ -288,6 +751,44 @@ export const getRandomSavedForLaterFeedback = (): SuggestionFeedback => {
   usedSavedForLaterFeedbackIndices.add(randomIndex);
 
   return savedForLaterFeedbacks[randomIndex];
+};
+
+/**
+ * Gets a random complete question-answer flow from the SPONTY_QA_FLOWS pool.
+ * Tracks used indices and prioritizes unused flows before reusing.
+ * Each flow contains 6-7 question-answer pairs that form a natural conversation.
+ *
+ * @returns An object containing arrays of questions and answers from the selected flow
+ */
+const getRandomSpontyQAFlow = (): {
+  questions: Question[];
+  answers: string[];
+} => {
+  if (usedSpontyFlowIndices.size >= SPONTY_QA_FLOWS.length) {
+    usedSpontyFlowIndices.clear();
+  }
+
+  const availableIndices = SPONTY_QA_FLOWS.map((_, index) => index).filter(
+    (index) => !usedSpontyFlowIndices.has(index)
+  );
+
+  const randomIndex =
+    availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+  usedSpontyFlowIndices.add(randomIndex);
+
+  const selectedFlow = SPONTY_QA_FLOWS[randomIndex];
+
+  const questions: Question[] = selectedFlow.map((pair) => ({
+    question: pair.question,
+    choices: [],
+    feedback: { emoji: "", label: "" },
+    isLast: false,
+  }));
+
+  const answers = selectedFlow.map((pair) => pair.answer);
+
+  return { questions, answers };
 };
 
 /**
@@ -548,10 +1049,16 @@ export const generateSuggestions = async (
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const query = // No need to generate query for lazy mode
-        answers.length === 1 && answers[0] !== SpontyChoice.value
-          ? answers[0]
-          : await generateQuery(questions, answers);
+      let query: string;
+      if (answers.length === 1 && answers[0] === SpontyChoice.value) {
+        const { questions: spontyQuestions, answers: spontyAnswers } =
+          getRandomSpontyQAFlow();
+        query = await generateQuery(spontyQuestions, spontyAnswers);
+      } else if (answers.length === 1 && answers[0] !== SpontyChoice.value) {
+        query = answers[0];
+      } else {
+        query = await generateQuery(questions, answers);
+      }
       const embeddings = await generateEmbedding(query);
 
       const suggestions: Suggestion[] = await suggestPlaces({

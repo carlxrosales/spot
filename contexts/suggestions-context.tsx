@@ -4,6 +4,7 @@ import {
   DEFAULT_MAX_DISTANCE_IN_KM,
   DISTANCE_OPTIONS,
   generateSuggestions,
+  LAST_DISTANCE_OPTION,
   loadFirstPhotoForSuggestion,
   loadPhotoByName as loadPhotoByNameUtil,
   MINIMUM_SUGGESTIONS_COUNT,
@@ -179,7 +180,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(true);
       await ensureMinimumDelay(Timeouts.distanceFilter)(async () => {
         const filteredSuggestions =
-          maxDistance === DISTANCE_OPTIONS[0]
+          maxDistance === LAST_DISTANCE_OPTION
             ? allSuggestions
             : allSuggestions.filter(
                 (suggestion) =>

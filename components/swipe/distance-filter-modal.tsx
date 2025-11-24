@@ -4,10 +4,17 @@ import { Colors } from "@/constants/theme";
 import { useLocation } from "@/contexts/location-context";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { getCities } from "@/data/cities";
-import { DISTANCE_OPTIONS } from "@/data/suggestions";
+import { DISTANCE_OPTIONS, LAST_DISTANCE_OPTION } from "@/data/suggestions";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 
 const copy = {
   title: "How far I'll go",
@@ -47,6 +54,7 @@ export function DistanceFilterModal({
     fetchSuggestions,
   } = useSuggestions();
   const { location } = useLocation();
+  const colorScheme = useColorScheme();
 
   const [activeTab, setActiveTab] = useState<TabType>("max");
   const [selectedCity, setSelectedCity] = useState<string | null>(filterCity);
@@ -56,25 +64,24 @@ export function DistanceFilterModal({
   const [isLoadingCities, setIsLoadingCities] = useState<boolean>(false);
 
   useEffect(() => {
-    setSelectedCity(filterCity);
+    const loadCities = async () => {
+      setIsLoadingCities(true);
+      try {
+        const citiesList = await getCities();
+        setCities(citiesList);
+      } catch {
+        // Handle error silently
+      } finally {
+        setIsLoadingCities(false);
+      }
+    };
     loadCities();
+    setSelectedCity(filterCity);
   }, []);
 
   useEffect(() => {
     setSelectedMaxDistance(initialMaxDistance);
   }, [initialMaxDistance]);
-
-  const loadCities = useCallback(async () => {
-    setIsLoadingCities(true);
-    try {
-      const citiesList = await getCities();
-      setCities(citiesList);
-    } catch {
-      // Handle error silently
-    } finally {
-      setIsLoadingCities(false);
-    }
-  }, []);
 
   const handleSave = useCallback(async () => {
     const cityChanged = selectedCity !== filterCity;
@@ -103,27 +110,96 @@ export function DistanceFilterModal({
       return copy.anyDistance;
     }
 
-    const lastDistanceOption = DISTANCE_OPTIONS[DISTANCE_OPTIONS.length - 1];
-    if (distance === lastDistanceOption) {
-      return `${lastDistanceOption}+ km`;
+    if (distance === LAST_DISTANCE_OPTION) {
+      return `${distance}+ km`;
     }
 
     return `${distance} km`;
   };
 
-  const handleValueChange = useCallback(
-    (itemValue: string | number) => {
-      if (activeTab === "city") {
-        setSelectedCity(
-          itemValue === copy.anyCity ? null : (itemValue as string)
-        );
-        setSelectedMaxDistance(DISTANCE_OPTIONS[0]);
-      } else {
-        setSelectedMaxDistance(itemValue as number);
-      }
-    },
-    [activeTab]
-  );
+  const handleCityChange = useCallback((itemValue: string) => {
+    setSelectedCity(itemValue === copy.anyCity ? null : itemValue);
+    setSelectedMaxDistance(DISTANCE_OPTIONS[0]);
+  }, []);
+
+  const handleDistanceChange = useCallback((itemValue: number) => {
+    setSelectedMaxDistance(itemValue);
+  }, []);
+
+  const renderCityPicker = () => {
+    if (isLoadingCities) {
+      return (
+        <View className='py-8 items-center justify-center'>
+          <ActivityIndicator size='large' color={Colors.black} />
+        </View>
+      );
+    }
+
+    const pickerColor =
+      Platform.OS === "android" && colorScheme === "dark"
+        ? Colors.white
+        : Colors.black;
+
+    return (
+      <Picker
+        selectedValue={selectedCity || copy.anyCity}
+        onValueChange={handleCityChange}
+        style={{
+          backgroundColor: "transparent",
+        }}
+        itemStyle={{
+          fontSize: 18,
+          fontWeight: "600",
+        }}
+        mode={Platform.OS === "android" ? "dropdown" : undefined}
+      >
+        <Picker.Item
+          label={copy.anyCity}
+          value={copy.anyCity}
+          color={pickerColor}
+        />
+        {cities.map((city) => (
+          <Picker.Item
+            key={city}
+            label={city}
+            value={city}
+            color={pickerColor}
+          />
+        ))}
+      </Picker>
+    );
+  };
+
+  const renderDistancePicker = () => {
+    const pickerColor =
+      Platform.OS === "android" && colorScheme === "dark"
+        ? Colors.white
+        : Colors.black;
+
+    return (
+      <Picker
+        selectedValue={selectedMaxDistance}
+        onValueChange={handleDistanceChange}
+        style={{
+          backgroundColor: "transparent",
+        }}
+        itemStyle={{
+          fontSize: 18,
+          fontWeight: "600",
+        }}
+        mode={Platform.OS === "android" ? "dropdown" : undefined}
+      >
+        {DISTANCE_OPTIONS.map((distance) => (
+          <Picker.Item
+            key={distance}
+            label={formatDistanceLabel(distance)}
+            value={distance}
+            color={pickerColor}
+          />
+        ))}
+      </Picker>
+    );
+  };
 
   return (
     <BottomModal
@@ -168,54 +244,7 @@ export function DistanceFilterModal({
 
         {/* Picker */}
         <View className='bg-gray-200 rounded-[24px] overflow-hidden'>
-          {isLoadingCities && activeTab === "city" ? (
-            <View className='py-8 items-center justify-center'>
-              <ActivityIndicator size='large' color={Colors.black} />
-            </View>
-          ) : (
-            <Picker
-              selectedValue={
-                activeTab === "city"
-                  ? selectedCity || copy.anyCity
-                  : selectedMaxDistance
-              }
-              onValueChange={handleValueChange}
-              style={{
-                backgroundColor: "transparent",
-              }}
-              itemStyle={{
-                fontSize: 18,
-                fontWeight: "600",
-              }}
-            >
-              {activeTab === "city" ? (
-                <>
-                  <Picker.Item
-                    label={copy.anyCity}
-                    value={copy.anyCity}
-                    color={Colors.black}
-                  />
-                  {cities.map((city) => (
-                    <Picker.Item
-                      key={city}
-                      label={city}
-                      value={city}
-                      color={Colors.black}
-                    />
-                  ))}
-                </>
-              ) : (
-                DISTANCE_OPTIONS.map((distance) => (
-                  <Picker.Item
-                    key={distance}
-                    label={formatDistanceLabel(distance)}
-                    value={distance}
-                    color={Colors.black}
-                  />
-                ))
-              )}
-            </Picker>
-          )}
+          {activeTab === "city" ? renderCityPicker() : renderDistancePicker()}
         </View>
 
         {/* Current Selection Display */}

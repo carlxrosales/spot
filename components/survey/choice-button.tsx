@@ -1,6 +1,7 @@
 import { NeonButton } from "@/components/common/neon-button";
 import { Animation } from "@/constants/theme";
 import { useChoiceFeedback } from "@/hooks/use-choice-feedback";
+import { isValidEmoji } from "@/utils/emoji";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import Animated, {
@@ -98,11 +99,13 @@ export function ChoiceButton({
     onPress();
   };
 
+  const displayEmoji = isValidEmoji(choice.emoji) ? choice.emoji : "⭐";
+
   return (
     <Animated.View style={animatedStyle}>
       <NeonButton onPress={handlePress}>
         <View className='flex-row items-center gap-3'>
-          <Text className='text-3xl'>{choice.emoji}</Text>
+          <Text className='text-3xl'>{displayEmoji}</Text>
           <Text className='text-xl text-left font-semibold text-black'>
             {choice.label}
           </Text>

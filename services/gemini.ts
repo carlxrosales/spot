@@ -65,7 +65,7 @@ Question rules:
 - Gen-Z tone, slang, abbreviations, playful
 - Choices (Must be between 3-4 options):
   • label: concise + relevant
-  • emoji: unique + meaningful + valid emojis only
+  • emoji: unique + meaningful + valid/official emojis only
   • value: lowercase, hyphenated
 
 Feedback rules:

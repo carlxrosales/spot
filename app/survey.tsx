@@ -1,7 +1,6 @@
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { AnimatedButton } from "@/components/common/animated-button";
-import { FixedView } from "@/components/common/fixed-view";
 import { Logo } from "@/components/common/logo";
 import { ChoiceButton } from "@/components/survey/choice-button";
 import { ChoiceFeedback } from "@/components/survey/choice-feedback";
@@ -92,7 +91,7 @@ export default function Survey() {
 
   return (
     <>
-      <FixedView
+      <AbsoluteView
         top={0}
         left={0}
         right={0}
@@ -190,7 +189,7 @@ export default function Survey() {
             )}
           </AbsoluteView>
         )}
-      </FixedView>
+      </AbsoluteView>
     </>
   );
 }

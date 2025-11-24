@@ -1,6 +1,5 @@
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
-import { FixedView } from "@/components/common/fixed-view";
 import { IconButton } from "@/components/common/icon-button";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
@@ -127,7 +126,7 @@ function Swipe() {
   }, [handleStartOver, router]);
 
   return (
-    <FixedView
+    <AbsoluteView
       top={0}
       left={0}
       right={0}
@@ -242,7 +241,7 @@ function Swipe() {
         onClose={openNowModal.handleClose}
       />
       {(!hasPermission || !location) && <LocationPermissionModal />}
-    </FixedView>
+    </AbsoluteView>
   );
 }
 

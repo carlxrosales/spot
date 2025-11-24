@@ -5,7 +5,6 @@ import { SurveyProvider } from "@/contexts/survey-context";
 import { ToastProvider } from "@/contexts/toast-context";
 import { useNetworkConnectivity } from "@/hooks/use-network-connectivity";
 import { Stack } from "expo-router";
-import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
@@ -45,13 +44,7 @@ export default function RootLayout() {
                     animation: "slide_from_bottom",
                   }}
                 />
-                <Stack.Screen
-                  name='swipe'
-                  options={{
-                    ...commonScreenOptions,
-                    animation: Platform.OS === "ios" ? "default" : "none",
-                  }}
-                />
+                <Stack.Screen name='swipe' options={commonScreenOptions} />
               </Stack>
               <NetworkOverlay visible={!isConnected} />
             </SurveyProvider>

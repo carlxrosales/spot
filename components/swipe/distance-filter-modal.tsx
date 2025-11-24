@@ -60,6 +60,10 @@ export function DistanceFilterModal({
     loadCities();
   }, []);
 
+  useEffect(() => {
+    setSelectedMaxDistance(initialMaxDistance);
+  }, [initialMaxDistance]);
+
   const loadCities = useCallback(async () => {
     setIsLoadingCities(true);
     try {

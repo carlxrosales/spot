@@ -50,6 +50,7 @@ export const Animation = {
     normal: 300,
     medium: 400,
     slow: 600,
+    verySlow: 1200,
     toast: 5000,
   },
   scale: {

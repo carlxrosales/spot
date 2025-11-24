@@ -56,7 +56,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         if (currentQuestion?.isLast) {
           setQuestions((prev) => [...prev, prev[prev.length - 1]]);
           await new Promise((resolve) =>
-            setTimeout(resolve, Animation.duration.slow)
+            setTimeout(resolve, Animation.duration.verySlow)
           );
           setIsComplete(true);
           return;

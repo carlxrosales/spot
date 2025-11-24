@@ -94,7 +94,12 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       }
 
       setIsLoading(true);
+      setHasFetched(false);
       setError(null);
+      setAllSuggestions([]);
+      setSuggestions([]);
+      setCurrentIndex(0);
+      setSelectedSuggestionIds([]);
 
       const openNowFilterValue =
         openNowFilter !== undefined ? openNowFilter : filterOpenNow;
@@ -160,7 +165,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         setSuggestions(filteredSuggestions);
         setCurrentIndex(0);
       } catch {
-        setError("Yikes! Somethin' went wrong");
+        setError("yikes! somethin' went wrong");
       } finally {
         setIsLoading(false);
         setHasFetched(true);

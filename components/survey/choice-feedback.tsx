@@ -1,4 +1,4 @@
-import { Animation } from "@/constants/theme";
+import { Animation, Colors } from "@/constants/theme";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import Animated, {
@@ -56,7 +56,7 @@ export function ChoiceFeedback({ visible, feedback }: ChoiceFeedbackProps) {
     <View className='items-center justify-center h-screen w-screen overflow-visible'>
       <Animated.View style={feedbackAnimatedStyle}>
         <View className='items-center gap-6'>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size='large' color={Colors.black} />
           <View className='items-center justify-center flex-row gap-3'>
             <Text
               className='text-5xl'

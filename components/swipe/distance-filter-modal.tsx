@@ -157,6 +157,7 @@ export function DistanceFilterModal({
         selectedValue={selectedCity || copy.anyCity}
         onValueChange={handleCityChange}
         style={{
+          color: Colors.black,
           backgroundColor: "transparent",
         }}
         itemStyle={{
@@ -193,6 +194,7 @@ export function DistanceFilterModal({
         selectedValue={selectedMaxDistance}
         onValueChange={handleDistanceChange}
         style={{
+          color: Colors.black,
           backgroundColor: "transparent",
         }}
         itemStyle={{

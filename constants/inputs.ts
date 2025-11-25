@@ -17,7 +17,7 @@ export const Inputs = {
   },
   lazyMode: {
     style: {
-      maxWidth: 360,
+      maxWidth: 600,
       minHeight: 160,
     },
   },

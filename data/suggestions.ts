@@ -154,16 +154,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the price range?", answer: "upscale" },
     { question: "What's the setting?", answer: "intimate" },
   ],
-  // Flow 4: Group hangout at bar
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What drink?", answer: "cocktails" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the vibe?", answer: "loud" },
-    { question: "What's the setting?", answer: "spacious" },
-  ],
-  // Flow 5: Brunch spot
+  // Flow 4: Brunch spot
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What meal?", answer: "brunch" },
@@ -172,7 +163,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "group" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 6: Solo sushi dinner
+  // Flow 5: Solo sushi dinner
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "japanese" },
@@ -181,7 +172,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "solo" },
     { question: "What's the price range?", answer: "upscale" },
   ],
-  // Flow 7: Study session at cafe
+  // Flow 6: Study session at cafe
   [
     { question: "What's your vibe rn?", answer: "work" },
     { question: "What's the occasion?", answer: "study" },
@@ -190,7 +181,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "quiet" },
     { question: "What's the setting?", answer: "indoor" },
   ],
-  // Flow 8: Family-friendly Mexican
+  // Flow 7: Family-friendly Mexican
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "mexican" },
@@ -199,7 +190,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "group" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 9: Business lunch
+  // Flow 8: Business lunch
   [
     { question: "What's your vibe rn?", answer: "work" },
     { question: "What's the occasion?", answer: "business" },
@@ -208,7 +199,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "quiet" },
     { question: "What's the price range?", answer: "upscale" },
   ],
-  // Flow 10: Ramen craving
+  // Flow 9: Ramen craving
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "japanese" },
@@ -217,16 +208,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "cozy" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 11: Wine bar hangout
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What drink?", answer: "wine" },
-    { question: "What's the vibe?", answer: "chill" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the setting?", answer: "intimate" },
-  ],
-  // Flow 12: Korean BBQ group
+  // Flow 10: Korean BBQ group
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "korean" },
@@ -235,7 +217,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "loud" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 13: Morning coffee run
+  // Flow 11: Morning coffee run
   [
     { question: "What's your vibe rn?", answer: "drink" },
     { question: "What drink?", answer: "coffee" },
@@ -244,7 +226,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "solo" },
     { question: "What's the vibe?", answer: "quick" },
   ],
-  // Flow 14: Thai dinner date
+  // Flow 12: Thai dinner date
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "thai" },
@@ -253,7 +235,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "romantic" },
     { question: "What's the price range?", answer: "upscale" },
   ],
-  // Flow 15: Pizza night
+  // Flow 13: Pizza night
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What you want?", answer: "pizza" },
@@ -262,7 +244,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "group" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 16: Tea time study
+  // Flow 14: Tea time study
   [
     { question: "What's your vibe rn?", answer: "work" },
     { question: "What's the occasion?", answer: "study" },
@@ -271,7 +253,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "quiet" },
     { question: "How many people?", answer: "solo" },
   ],
-  // Flow 17: Seafood dinner
+  // Flow 15: Seafood dinner
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What you want?", answer: "seafood" },
@@ -280,7 +262,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "upscale" },
     { question: "What's the price range?", answer: "fine-dining" },
   ],
-  // Flow 18: Burger joint
+  // Flow 16: Burger joint
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What you want?", answer: "burger" },
@@ -289,7 +271,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the price range?", answer: "fast-casual" },
     { question: "How many people?", answer: "solo" },
   ],
-  // Flow 19: Vietnamese noodles
+  // Flow 17: Vietnamese noodles
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "vietnamese" },
@@ -298,16 +280,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "casual" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 20: Beer garden
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What drink?", answer: "beer" },
-    { question: "What's the setting?", answer: "outdoor" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the vibe?", answer: "chill" },
-  ],
-  // Flow 21: Indian dinner
+  // Flow 18: Indian dinner
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "indian" },
@@ -316,7 +289,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "spicy" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 22: French bistro
+  // Flow 19: French bistro
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What cuisine you craving?", answer: "french" },
@@ -325,7 +298,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the price range?", answer: "upscale" },
     { question: "What's the setting?", answer: "intimate" },
   ],
-  // Flow 23: Bakery breakfast
+  // Flow 20: Bakery breakfast
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What type of place?", answer: "bakery" },
@@ -334,7 +307,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "solo" },
     { question: "What's the vibe?", answer: "cozy" },
   ],
-  // Flow 24: Meeting spot
+  // Flow 21: Meeting spot
   [
     { question: "What's your vibe rn?", answer: "work" },
     { question: "What's the occasion?", answer: "meeting" },
@@ -343,7 +316,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the setting?", answer: "spacious" },
     { question: "How many people?", answer: "group" },
   ],
-  // Flow 25: Dessert spot
+  // Flow 22: Dessert spot
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What meal?", answer: "dessert" },
@@ -352,7 +325,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "group" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 26: Hipster cafe
+  // Flow 23: Hipster cafe
   [
     { question: "What's your vibe rn?", answer: "hangout" },
     { question: "What type of place?", answer: "cafe" },
@@ -361,16 +334,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the setting?", answer: "trendy" },
     { question: "How many people?", answer: "solo" },
   ],
-  // Flow 27: Social gathering
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What's the occasion?", answer: "social" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What drink?", answer: "cocktails" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the vibe?", answer: "loud" },
-  ],
-  // Flow 28: Modern restaurant
+  // Flow 24: Modern restaurant
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What type of place?", answer: "restaurant" },
@@ -379,7 +343,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the price range?", answer: "upscale" },
     { question: "What's the setting?", answer: "trendy" },
   ],
-  // Flow 29: Traditional spot
+  // Flow 25: Traditional spot
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What type of place?", answer: "restaurant" },
@@ -388,16 +352,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What meal?", answer: "dinner" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 30: Vintage bar
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What's the vibe?", answer: "vintage" },
-    { question: "What drink?", answer: "cocktails" },
-    { question: "What's the setting?", answer: "intimate" },
-    { question: "How many people?", answer: "group" },
-  ],
-  // Flow 31: Budget-friendly meal
+  // Flow 26: Budget-friendly meal
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the price range?", answer: "budget-friendly" },
@@ -406,7 +361,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "casual" },
     { question: "How many people?", answer: "solo" },
   ],
-  // Flow 32: Fine dining experience
+  // Flow 27: Fine dining experience
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the price range?", answer: "fine-dining" },
@@ -415,7 +370,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "romantic" },
     { question: "What's the setting?", answer: "intimate" },
   ],
-  // Flow 33: Fast casual lunch
+  // Flow 28: Fast casual lunch
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the price range?", answer: "fast-casual" },
@@ -424,7 +379,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "solo" },
     { question: "What's the vibe?", answer: "quick" },
   ],
-  // Flow 34: Outdoor dining
+  // Flow 29: Outdoor dining
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the setting?", answer: "outdoor" },
@@ -433,7 +388,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "chill" },
     { question: "How many people?", answer: "group" },
   ],
-  // Flow 35: Indoor cozy spot
+  // Flow 30: Indoor cozy spot
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the setting?", answer: "indoor" },
@@ -442,7 +397,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What meal?", answer: "breakfast" },
     { question: "How many people?", answer: "solo" },
   ],
-  // Flow 36: Spacious group dinner
+  // Flow 31: Spacious group dinner
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the setting?", answer: "spacious" },
@@ -451,7 +406,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What cuisine you craving?", answer: "american" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 37: Vegetarian options
+  // Flow 32: Vegetarian options
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "Dietary preferences?", answer: "vegetarian" },
@@ -460,7 +415,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "healthy" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 38: Vegan cafe
+  // Flow 33: Vegan cafe
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "Dietary preferences?", answer: "vegan" },
@@ -469,16 +424,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "healthy" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 39: Late night drinks
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What drink?", answer: "cocktails" },
-    { question: "What's the vibe?", answer: "loud" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the setting?", answer: "indoor" },
-  ],
-  // Flow 40: Morning meeting
+  // Flow 34: Morning meeting
   [
     { question: "What's your vibe rn?", answer: "work" },
     { question: "What's the occasion?", answer: "meeting" },
@@ -487,7 +433,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "quiet" },
     { question: "How many people?", answer: "group" },
   ],
-  // Flow 41: Weekend brunch group
+  // Flow 35: Weekend brunch group
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What meal?", answer: "brunch" },
@@ -496,7 +442,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "trendy" },
     { question: "What's the price range?", answer: "casual" },
   ],
-  // Flow 42: Solo dinner
+  // Flow 36: Solo dinner
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What meal?", answer: "dinner" },
@@ -505,7 +451,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "cozy" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 43: Afternoon tea
+  // Flow 37: Afternoon tea
   [
     { question: "What's your vibe rn?", answer: "drink" },
     { question: "What drink?", answer: "tea" },
@@ -514,16 +460,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "How many people?", answer: "solo" },
     { question: "What's the setting?", answer: "indoor" },
   ],
-  // Flow 44: Group celebration
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What's the occasion?", answer: "social" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the vibe?", answer: "loud" },
-    { question: "What's the setting?", answer: "spacious" },
-  ],
-  // Flow 45: Quiet work session
+  // Flow 38: Quiet work session
   [
     { question: "What's your vibe rn?", answer: "work" },
     { question: "What's the occasion?", answer: "study" },
@@ -532,7 +469,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the setting?", answer: "indoor" },
     { question: "How many people?", answer: "solo" },
   ],
-  // Flow 46: Casual group lunch
+  // Flow 39: Casual group lunch
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What meal?", answer: "lunch" },
@@ -541,7 +478,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "casual" },
     { question: "What's the price range?", answer: "affordable" },
   ],
-  // Flow 47: Upscale date
+  // Flow 40: Upscale date
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What's the occasion?", answer: "date-night" },
@@ -551,7 +488,7 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What's the vibe?", answer: "romantic" },
     { question: "What's the setting?", answer: "intimate" },
   ],
-  // Flow 48: Quick solo lunch
+  // Flow 41: Quick solo lunch
   [
     { question: "What's your vibe rn?", answer: "eat" },
     { question: "What meal?", answer: "lunch" },
@@ -568,15 +505,6 @@ export const SPONTY_QA_FLOWS: Array<
     { question: "What meal?", answer: "dinner" },
     { question: "What cuisine you craving?", answer: "american" },
     { question: "What's the price range?", answer: "casual" },
-  ],
-  // Flow 50: Trendy spot
-  [
-    { question: "What's your vibe rn?", answer: "hangout" },
-    { question: "What's the vibe?", answer: "trendy" },
-    { question: "What type of place?", answer: "bar" },
-    { question: "What drink?", answer: "cocktails" },
-    { question: "How many people?", answer: "group" },
-    { question: "What's the setting?", answer: "indoor" },
   ],
 ];
 

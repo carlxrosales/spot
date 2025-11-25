@@ -957,12 +957,15 @@ export const getDistanceInKm = (
 
 /**
  * Generates place suggestions based on user survey questions, answers and location.
- * Computes additional fields like distance and opening/closing times.
+ * Computes additional fields like opening/closing times.
  * Photo URIs are loaded separately in the context.
  *
  * @param questions - Array of survey questions that were asked
  * @param answers - Array of user answers from the survey
  * @param userLocation - User's current location coordinates
+ * @param filterOpenNow - Whether to filter for places open now
+ * @param filterCity - City name to filter by (optional)
+ * @param maxDistanceKm - Maximum distance in kilometers to filter by (optional)
  * @returns Promise resolving to an array of Suggestion objects with computed fields
  * @throws Error if suggestion generation fails after all retry attempts
  */
@@ -971,7 +974,8 @@ export const generateSuggestions = async (
   answers: string[],
   userLocation: LocationCoordinates,
   filterOpenNow: boolean = false,
-  filterCity?: string | null
+  filterCity?: string | null,
+  maxDistanceKm?: number | null
 ): Promise<Suggestion[]> => {
   const maxRetries = 3;
 
@@ -993,32 +997,23 @@ export const generateSuggestions = async (
         queryEmbedding: embeddings,
         filterOpenNow,
         filterCity,
+        userLocation,
+        maxDistanceKm,
       });
 
       const suggestionsWithComputedFields = suggestions.map(
         (suggestion: Suggestion) => {
-          const distanceInKm = getDistanceInKm(
-            userLocation.lat,
-            userLocation.lng,
-            suggestion.lat,
-            suggestion.lng
-          );
-
           if (suggestion.openingHours) {
             const opensAt = getOpeningTimeForToday(suggestion.openingHours);
             const closesAt = getClosingTimeForToday(suggestion.openingHours);
             return {
               ...suggestion,
-              distanceInKm,
               opensAt,
               closesAt,
             };
           }
 
-          return {
-            ...suggestion,
-            distanceInKm,
-          };
+          return suggestion;
         }
       );
 

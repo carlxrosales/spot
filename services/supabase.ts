@@ -1,4 +1,5 @@
 import { Suggestion } from "@/data/suggestions";
+import { LocationCoordinates } from "@/data/types";
 import { createClient } from "@supabase/supabase-js";
 
 // ============================================================================
@@ -38,6 +39,8 @@ export interface SuggestPlacesOptions {
   limitCount?: number;
   filterOpenNow?: boolean;
   filterCity?: string | null;
+  userLocation?: LocationCoordinates;
+  maxDistanceKm?: number | null;
 }
 
 export interface SuggestPlacesResult {
@@ -56,6 +59,7 @@ export interface SuggestPlacesResult {
   reviews_link: string | null;
   document: string | null;
   similarity: number;
+  distance_in_km: number | null;
 }
 
 /**
@@ -74,6 +78,8 @@ export async function suggestPlaces(
     limitCount = DEFAULT_LIMIT_COUNT,
     filterOpenNow = false,
     filterCity = null,
+    userLocation,
+    maxDistanceKm,
   } = options;
 
   const { data, error } = await supabase.rpc("suggest_places", {
@@ -81,6 +87,9 @@ export async function suggestPlaces(
     limit_count: limitCount,
     filter_open_now: filterOpenNow,
     filter_city: filterCity,
+    user_lat: userLocation?.lat ?? null,
+    user_lng: userLocation?.lng ?? null,
+    max_distance_km: maxDistanceKm ?? null,
   });
 
   if (error) {
@@ -106,5 +115,8 @@ export async function suggestPlaces(
     description: result.description ?? undefined,
     shareLink: result.share_link ?? undefined,
     reviewsLink: result.reviews_link ?? undefined,
+    distanceInKm: result.distance_in_km
+      ? Number(result.distance_in_km)
+      : undefined,
   }));
 }

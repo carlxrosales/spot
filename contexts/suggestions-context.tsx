@@ -1,17 +1,13 @@
-import { Timeouts } from "@/constants/timeouts";
 import { useSurvey } from "@/contexts/survey-context";
 import {
   DEFAULT_MAX_DISTANCE_IN_KM,
-  DISTANCE_OPTIONS,
   generateSuggestions,
   LAST_DISTANCE_OPTION,
   loadFirstPhotoForSuggestion,
   loadPhotoByName as loadPhotoByNameUtil,
-  MINIMUM_SUGGESTIONS_COUNT,
   Suggestion,
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
-import { ensureMinimumDelay } from "@/utils/delay";
 import {
   createContext,
   ReactNode,
@@ -31,19 +27,21 @@ interface SuggestionsContextType {
   hasFetched: boolean;
   filterOpenNow: boolean;
   filterCity: string | null;
+  filterMaxDistance: number | null;
   setHasFetched: (hasFetched: boolean) => void;
   fetchSuggestions: (
     location: LocationCoordinates,
     forceRefetch?: boolean,
     openNowFilter?: boolean,
-    cityFilter?: string | null
+    cityFilter?: string | null,
+    maxDistanceFilter?: number | null
   ) => Promise<void>;
   setFilterOpenNow: (filterOpenNow: boolean) => void;
   setFilterCity: (filterCity: string | null) => void;
+  setFilterMaxDistance: (maxDistance: number | null) => void;
   error: string | null;
   handleSkip: () => void;
   handleSelect: (suggestionId: string) => void;
-  filterSuggestions: (maxDistance: number) => Promise<void>;
   loadPhotoByName: (suggestionId: string, photoName: string) => Promise<void>;
   getPhotoUris: (suggestionId: string) => string[] | undefined;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
@@ -59,7 +57,6 @@ interface SuggestionsProviderProps {
 
 export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const { questions, answers } = useSurvey();
-  const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
     Map<string, Map<string, string>>
@@ -76,13 +73,17 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [error, setError] = useState<string | null>(null);
   const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
   const [filterCity, setFilterCity] = useState<string | null>(null);
+  const [filterMaxDistance, setFilterMaxDistance] = useState<number | null>(
+    null
+  );
 
   const fetchSuggestions = useCallback(
     async (
       location: LocationCoordinates,
       forceRefetch: boolean = false,
       openNowFilter?: boolean,
-      cityFilter?: string | null
+      cityFilter?: string | null,
+      maxDistanceFilter?: number | null
     ) => {
       if (
         !location?.lat ||
@@ -97,7 +98,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setIsLoading(true);
       setHasFetched(false);
       setError(null);
-      setAllSuggestions([]);
       setSuggestions([]);
       setCurrentIndex(0);
       setSelectedSuggestionIds([]);
@@ -106,46 +106,37 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         openNowFilter !== undefined ? openNowFilter : filterOpenNow;
       const cityFilterValue =
         cityFilter !== undefined ? cityFilter : filterCity;
+      const maxDistanceFilterValue =
+        maxDistanceFilter !== undefined ? maxDistanceFilter : filterMaxDistance;
 
       try {
-        const newSuggestions = await generateSuggestions(
-          questions,
-          answers,
-          location,
-          openNowFilterValue,
-          cityFilterValue
-        );
-        setAllSuggestions(newSuggestions);
+        let newSuggestions: Suggestion[] = [];
 
-        const filterByDistance = (maxDistance: number) =>
-          newSuggestions.filter(
-            (suggestion) =>
-              !suggestion.distanceInKm || suggestion.distanceInKm <= maxDistance
+        if (maxDistanceFilterValue === null) {
+          newSuggestions = await generateSuggestions(
+            questions,
+            answers,
+            location,
+            openNowFilterValue,
+            cityFilterValue,
+            DEFAULT_MAX_DISTANCE_IN_KM
           );
-
-        let filteredSuggestions = filterByDistance(DEFAULT_MAX_DISTANCE_IN_KM);
-        let finalMaxDistance = DEFAULT_MAX_DISTANCE_IN_KM;
-
-        if (filteredSuggestions.length < MINIMUM_SUGGESTIONS_COUNT) {
-          const defaultMaxIndex = DISTANCE_OPTIONS.findIndex(
-            (option) => option >= DEFAULT_MAX_DISTANCE_IN_KM
+          setInitialMaxDistance(DEFAULT_MAX_DISTANCE_IN_KM);
+        } else {
+          newSuggestions = await generateSuggestions(
+            questions,
+            answers,
+            location,
+            openNowFilterValue,
+            cityFilterValue,
+            maxDistanceFilterValue === LAST_DISTANCE_OPTION
+              ? null
+              : maxDistanceFilterValue
           );
-          const startIndex = defaultMaxIndex >= 0 ? defaultMaxIndex + 1 : 0;
-
-          for (
-            let i = startIndex;
-            i < DISTANCE_OPTIONS.length && filteredSuggestions.length < 8;
-            i++
-          ) {
-            finalMaxDistance = DISTANCE_OPTIONS[i];
-            filteredSuggestions = filterByDistance(finalMaxDistance);
-          }
-
-          setInitialMaxDistance(finalMaxDistance);
         }
 
-        if (filteredSuggestions.length > 0) {
-          const firstSuggestion = filteredSuggestions[0];
+        if (newSuggestions.length > 0) {
+          const firstSuggestion = newSuggestions[0];
           if (firstSuggestion.photos.length > 0) {
             const firstPhotoUri = await loadFirstPhotoForSuggestion(
               firstSuggestion
@@ -163,7 +154,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
           }
         }
 
-        setSuggestions(filteredSuggestions);
+        setSuggestions(newSuggestions);
         setCurrentIndex(0);
       } catch {
         setError("yikes! somethin' went wrong");
@@ -172,47 +163,15 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         setHasFetched(true);
       }
     },
-    [questions, answers, isLoading, hasFetched, filterOpenNow, filterCity]
-  );
-
-  const filterSuggestions = useCallback(
-    async (maxDistance: number) => {
-      setIsLoading(true);
-      await ensureMinimumDelay(Timeouts.distanceFilter)(async () => {
-        const filteredSuggestions =
-          maxDistance === LAST_DISTANCE_OPTION
-            ? allSuggestions
-            : allSuggestions.filter(
-                (suggestion) =>
-                  suggestion.distanceInKm !== undefined &&
-                  suggestion.distanceInKm <= maxDistance
-              );
-
-        if (filteredSuggestions.length > 0) {
-          const firstSuggestion = filteredSuggestions[0];
-          if (firstSuggestion.photos.length > 0) {
-            const firstPhotoUri = await loadFirstPhotoForSuggestion(
-              firstSuggestion
-            );
-            if (firstPhotoUri) {
-              setPhotoUrisMap((prev) => {
-                const updated = new Map(prev);
-                const photoMap = new Map<string, string>();
-                photoMap.set(firstSuggestion.photos[0], firstPhotoUri);
-                updated.set(firstSuggestion.id, photoMap);
-                return updated;
-              });
-              await Image.prefetch(firstPhotoUri).catch(() => {});
-            }
-          }
-        }
-
-        setSuggestions(filteredSuggestions);
-        setCurrentIndex(0);
-      });
-      setIsLoading(false);
-    },
-    [allSuggestions]
+    [
+      questions,
+      answers,
+      isLoading,
+      hasFetched,
+      filterOpenNow,
+      filterCity,
+      filterMaxDistance,
+    ]
   );
 
   const handleSkip = useCallback(async () => {
@@ -300,7 +259,6 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   useEffect(() => {
     if (answers.length === 0) {
       setInitialMaxDistance(DEFAULT_MAX_DISTANCE_IN_KM);
-      setAllSuggestions([]);
       setSuggestions([]);
       setPhotoUrisMap(new Map<string, Map<string, string>>());
       setCurrentIndex(0);
@@ -310,6 +268,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       setError(null);
       setFilterOpenNow(false);
       setFilterCity(null);
+      setFilterMaxDistance(null);
     }
   }, [answers.length]);
 
@@ -324,14 +283,15 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         hasFetched,
         filterOpenNow,
         filterCity,
+        filterMaxDistance,
         setHasFetched,
         fetchSuggestions,
         setFilterOpenNow,
         setFilterCity,
+        setFilterMaxDistance,
         error,
         handleSkip,
         handleSelect,
-        filterSuggestions,
         loadPhotoByName,
         getPhotoUris,
         getPhotoUri,

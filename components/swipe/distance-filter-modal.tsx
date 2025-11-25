@@ -48,9 +48,11 @@ export function DistanceFilterModal({
 }: DistanceFilterModalProps) {
   const {
     initialMaxDistance,
-    filterSuggestions,
+    filterOpenNow,
     filterCity,
     setFilterCity,
+    filterMaxDistance,
+    setFilterMaxDistance,
     fetchSuggestions,
   } = useSuggestions();
   const { location } = useLocation();
@@ -80,38 +82,48 @@ export function DistanceFilterModal({
   }, []);
 
   useEffect(() => {
-    setSelectedMaxDistance(initialMaxDistance);
-  }, [initialMaxDistance]);
+    setSelectedMaxDistance(filterMaxDistance ?? initialMaxDistance);
+  }, [filterMaxDistance, initialMaxDistance]);
 
   const handleSave = useCallback(async () => {
     const cityChanged = selectedCity !== filterCity;
+    const distanceChanged =
+      selectedMaxDistance !== (filterMaxDistance ?? initialMaxDistance);
 
-    if (cityChanged && location) {
-      setFilterCity(selectedCity);
-      fetchSuggestions(location, true, undefined, selectedCity);
+    if ((cityChanged || distanceChanged) && location) {
+      if (cityChanged) {
+        setFilterCity(selectedCity);
+      }
+      if (distanceChanged) {
+        setFilterMaxDistance(selectedMaxDistance);
+      }
+      fetchSuggestions(
+        location,
+        true,
+        filterOpenNow,
+        selectedCity,
+        selectedMaxDistance
+      );
     }
 
-    filterSuggestions(selectedMaxDistance);
     onClose();
   }, [
     selectedCity,
     selectedMaxDistance,
+    filterOpenNow,
     filterCity,
+    filterMaxDistance,
     initialMaxDistance,
     setFilterCity,
+    setFilterMaxDistance,
     fetchSuggestions,
-    filterSuggestions,
     location,
     onClose,
   ]);
 
   const formatDistanceLabel = (distance: number) => {
-    if (distance === 0) {
-      return copy.anyDistance;
-    }
-
     if (distance === LAST_DISTANCE_OPTION) {
-      return `${distance}+ km`;
+      return copy.anyDistance;
     }
 
     return `${distance} km`;
@@ -119,7 +131,7 @@ export function DistanceFilterModal({
 
   const handleCityChange = useCallback((itemValue: string) => {
     setSelectedCity(itemValue === copy.anyCity ? null : itemValue);
-    setSelectedMaxDistance(DISTANCE_OPTIONS[0]);
+    setSelectedMaxDistance(LAST_DISTANCE_OPTION);
   }, []);
 
   const handleDistanceChange = useCallback((itemValue: number) => {

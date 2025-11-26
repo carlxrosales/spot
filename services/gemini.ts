@@ -76,6 +76,8 @@ Feedback rules:
 Final question flow:
 - Once enough meaningful info is collected AND you've gathered the specific main thing the user wants to eat or drink, ask ONE final question asking for any special requests/info the user wants to add
 - Set isLast: true ONLY when asking this final special requests question
+- The final question MUST always include these choices: pet-friendly, wifi, outlets, and a "none" option
+- The "none" choice should be included as one of the 3-4 choices for the final question
 `,
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,
 };

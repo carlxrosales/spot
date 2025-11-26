@@ -73,7 +73,9 @@ Feedback rules:
 - Label: short Gen-Z slang only
 - No repeats, no bias, and no references to the question or choices
 
-Set isLast: true once enough meaningful info is collected (and you've gathered the specific main thing the user wants to eat or drink) or max questions reached.
+Final question flow:
+- Once enough meaningful info is collected AND you've gathered the specific main thing the user wants to eat or drink, ask ONE final question asking for any special requests/info the user wants to add
+- Set isLast: true ONLY when asking this final special requests question
 `,
   USER: `Please help me find the best cafes and restaurants that fit my vibes.`,
 };

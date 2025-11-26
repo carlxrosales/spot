@@ -4,12 +4,16 @@ import { ButtonVariant } from "@/constants/buttons";
 import { useLocation } from "@/contexts/location-context";
 import { useSuggestions } from "@/contexts/suggestions-context";
 import { useCallback } from "react";
+import { Platform } from "react-native";
 
 const copy = {
   title: "FBI wants to know your location",
   description:
     "Just kidding! We need your location to find the best spots near you.",
-  enableLocation: "Enable Location",
+  enableLocation: {
+    default: "Enable Location",
+    ios: "Continue",
+  },
 };
 
 /**
@@ -37,7 +41,11 @@ export function LocationPermissionModal() {
       dismissible={false}
     >
       <TextButton
-        label={copy.enableLocation}
+        label={
+          Platform.OS === "ios"
+            ? copy.enableLocation.ios
+            : copy.enableLocation.default
+        }
         onPress={handleRequestPermission}
         variant={ButtonVariant.black}
         fullWidth

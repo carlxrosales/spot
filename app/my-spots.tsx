@@ -143,7 +143,7 @@ function MySpots() {
   );
 
   const handleBack = useCallback(() => {
-    router.back();
+    router.navigate(Routes.survey);
   }, [router]);
 
   const handleShare = useCallback(async () => {
@@ -203,7 +203,7 @@ function MySpots() {
     >
       <AnimatedBackground />
       <SafeView className='h-full w-full'>
-        <View className='flex-row justify-between items-center gap-6 px-4 pt-4'>
+        <View className='flex-row justify-between items-center gap-6 px-4 py-4'>
           <IconButton
             onPress={handleBack}
             size={ButtonSize.sm}

@@ -7,11 +7,13 @@ import {
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
 import { getPlacesByIds } from "@/services/supabase";
+import { useLocalSearchParams } from "expo-router";
 import {
   createContext,
   ReactNode,
   useCallback,
   useContext,
+  useMemo,
   useState,
 } from "react";
 import { Image } from "react-native";
@@ -24,7 +26,6 @@ interface RecommendationsContextType {
   hasFetched: boolean;
   error: string | null;
   fetchRecommendations: (
-    placeIds: string[],
     userLocation?: LocationCoordinates,
     forceRefetch?: boolean
   ) => Promise<void>;
@@ -46,6 +47,18 @@ interface RecommendationsProviderProps {
 export function RecommendationsProvider({
   children,
 }: RecommendationsProviderProps) {
+  const { placeIds: placeIdsParam } = useLocalSearchParams<{
+    placeIds: string | string[];
+  }>();
+
+  const placeIds = useMemo(() => {
+    return Array.isArray(placeIdsParam)
+      ? placeIdsParam
+      : placeIdsParam
+      ? placeIdsParam.split(",").map((id) => id.trim())
+      : [];
+  }, [placeIdsParam]);
+
   const [recommendations, setRecommendations] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
     Map<string, Map<string, string>>
@@ -60,7 +73,6 @@ export function RecommendationsProvider({
 
   const fetchRecommendations = useCallback(
     async (
-      placeIds: string[],
       userLocation?: LocationCoordinates,
       forceRefetch?: boolean
     ): Promise<void> => {
@@ -132,7 +144,7 @@ export function RecommendationsProvider({
         setHasFetched(true);
       }
     },
-    [isLoading, hasFetched]
+    [isLoading, hasFetched, placeIds]
   );
 
   const handleSkip = useCallback(async () => {

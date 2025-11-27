@@ -3,12 +3,14 @@ import { AnimatedBackground } from "@/components/common/animated-background";
 import { IconButton } from "@/components/common/icon-button";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
+import { LocationPermissionModal } from "@/components/recommendation/location-permission-modal";
 import {
   RecommendationCard,
   RecommendationCardRef,
 } from "@/components/recommendation/recommendation-card";
 import { SwipeModal } from "@/components/swipe/swipe-modal";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
+import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
 import { useLocation } from "@/contexts/location-context";
 import {
@@ -19,10 +21,9 @@ import { ShareProvider } from "@/contexts/share-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-
 const copy = {
   findingSpots: "Finding yo' spots...",
   noSuggestions: "oof! no spots found",
@@ -35,10 +36,7 @@ const copy = {
  */
 function Recommendation() {
   const router = useRouter();
-  const { placeIds: placeIdsParam } = useLocalSearchParams<{
-    placeIds: string | string[];
-  }>();
-  const { location } = useLocation();
+  const { location, hasPermission } = useLocation();
   const {
     isLoading,
     hasFetched,
@@ -58,22 +56,11 @@ function Recommendation() {
 
   const cardRef = useRef<RecommendationCardRef>(null);
 
-  // Parse place IDs from URL params
-  const placeIds = Array.isArray(placeIdsParam)
-    ? placeIdsParam
-    : placeIdsParam
-    ? placeIdsParam.split(",").map((id) => id.trim())
-    : [];
-
   useEffect(() => {
-    if (placeIds.length === 0) {
-      return;
-    }
-
     if (location) {
-      fetchRecommendations(placeIds, location);
+      fetchRecommendations(location);
     }
-  }, [placeIds, location]);
+  }, [location]);
 
   useEffect(() => {
     if (error) {
@@ -119,7 +106,7 @@ function Recommendation() {
   ]);
 
   const handleBack = useCallback(() => {
-    router.back();
+    router.navigate(Routes.survey);
   }, [router]);
 
   return (
@@ -216,6 +203,7 @@ function Recommendation() {
         onClose={swipeModal.handleClose}
         suggestion={currentSuggestion}
       />
+      {(!hasPermission || !location) && <LocationPermissionModal />}
     </AbsoluteView>
   );
 }

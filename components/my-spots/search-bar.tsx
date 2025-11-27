@@ -31,15 +31,15 @@ export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
           className='w-full rounded-[24px] bg-black flex-row justify-center items-center'
           style={getShadow("light")}
         >
-          <View className='pl-4 pr-2'>
+          <View className='pl-5 pr-3'>
             <Ionicons
-              name='search'
+              name='search-outline'
               size={20}
               color={Inputs.search.style.placeholderColor}
             />
           </View>
           <TextInput
-            className='flex-1 py-2 pr-4 text-lg text-black'
+            className='flex-1 py-3 pr-4 text-lg text-black'
             value={searchQuery}
             onChangeText={onSearchChange}
             placeholder={Inputs.search.placeholder}

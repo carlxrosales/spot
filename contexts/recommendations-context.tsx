@@ -13,6 +13,7 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -221,6 +222,12 @@ export function RecommendationsProvider({
     },
     [photoUrisMap]
   );
+
+  useEffect(() => {
+    if (!isLoading && recommendations.length === 1 && hasFetched) {
+      setRecommendations((prev) => [...prev, ...prev]);
+    }
+  }, [recommendations, isLoading, hasFetched]);
 
   return (
     <RecommendationsContext.Provider

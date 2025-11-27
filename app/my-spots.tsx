@@ -14,12 +14,14 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { loadSpots, removeSpot } from "@/services/storage";
+import { getRecommendationUrl } from "@/utils/urls";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Share, Text, View } from "react-native";
 
 const copy = {
   noSpots: "no spots here",
+  noResults: "no results found",
 };
 
 /**
@@ -141,23 +143,22 @@ export default function MySpots() {
   }, [router]);
 
   const handleShare = useCallback(async () => {
-    if (filteredSpots.length === 0) {
-      displayToast({ message: "No spots to share" });
+    if (filteredSpots.length < 2) {
+      displayToast({ message: "yikes! you need at least 2 spots to share" });
       return;
     }
 
     try {
-      const placeIds = filteredSpots.map((spot) => spot.id).join(",");
-      const recommendationUrl = `${Routes.recommendation}?placeIds=${placeIds}`;
+      const placeIds = filteredSpots.map((spot) => spot.id);
+      const recommendationUrl = getRecommendationUrl(placeIds);
 
       const result = await Share.share({
-        message: `Check out my spots! ${recommendationUrl}`,
-        title: "My spots",
+        message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
       });
 
       if (result.action === Share.sharedAction) {
         displayToast({ message: "Shared" });
-      } else if (result.action === Share.dismissedAction) {
+      } else {
         displayToast({ message: "u cancelled" });
       }
     } catch {
@@ -190,60 +191,65 @@ export default function MySpots() {
 
   return (
     <ShareProvider getPhotoUri={getPhotoUri}>
-      <AbsoluteView
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        className='w-full h-full bg-neonGreen'
-      >
-        <AnimatedBackground />
-        <SafeView className='h-full w-full'>
-          <View className='flex-row justify-between items-center gap-6 px-4 py-4'>
-            <IconButton
-              onPress={handleBack}
-              size={ButtonSize.sm}
-              icon='arrow-back'
-            />
-            <AbsoluteView top={17} left={56} right={56}>
-              <View className='items-center justify-center'>
-                <TextButton
-                  size={ButtonSize.sm}
-                  variant={ButtonVariant.black}
-                  label={`My spots: ${filteredSpots.length}`}
-                />
+      <>
+        <AbsoluteView
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          className='w-full h-full bg-neonGreen'
+        >
+          <AnimatedBackground />
+          <View className='h-full w-full'>
+            <SafeView edges={["top"]}>
+              <View></View>
+            </SafeView>
+            <View className='flex-row justify-between items-center gap-6 px-4 py-4'>
+              <IconButton
+                onPress={handleBack}
+                size={ButtonSize.sm}
+                icon='arrow-back'
+              />
+              <AbsoluteView top={17} left={56} right={56}>
+                <View className='items-center justify-center'>
+                  <TextButton
+                    size={ButtonSize.sm}
+                    variant={ButtonVariant.black}
+                    label={`My spots: ${filteredSpots.length}`}
+                  />
+                </View>
+              </AbsoluteView>
+              <IconButton
+                onPress={handleShare}
+                size={ButtonSize.sm}
+                icon='share-outline'
+                variant={ButtonVariant.white}
+                disabled={filteredSpots.length < 2}
+              />
+            </View>
+            {isLoading ? (
+              <View className='flex-1 items-center justify-center'>
+                <ActivityIndicator size='large' color='black' />
               </View>
-            </AbsoluteView>
-            <IconButton
-              onPress={handleShare}
-              size={ButtonSize.sm}
-              icon='share-outline'
-              variant={ButtonVariant.white}
-              disabled={filteredSpots.length === 0}
-            />
+            ) : filteredSpots.length === 0 ? (
+              <View className='flex-1 items-center justify-center px-8'>
+                <Text className='text-4xl font-groen text-black text-center'>
+                  {searchQuery.trim() ? copy.noResults : copy.noSpots}
+                </Text>
+              </View>
+            ) : (
+              <FlatList
+                data={filteredSpots}
+                renderItem={renderSpot}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{ paddingTop: 0, paddingBottom: 132 }}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
           </View>
-          {isLoading ? (
-            <View className='flex-1 items-center justify-center'>
-              <ActivityIndicator size='large' color='black' />
-            </View>
-          ) : filteredSpots.length === 0 ? (
-            <View className='flex-1 items-center justify-center px-8'>
-              <Text className='text-4xl font-groen text-black text-center'>
-                {searchQuery.trim() ? "No spots found" : copy.noSpots}
-              </Text>
-            </View>
-          ) : (
-            <FlatList
-              data={filteredSpots}
-              renderItem={renderSpot}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={{ paddingTop: 0, paddingBottom: 111 }}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
-        </SafeView>
+        </AbsoluteView>
         <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-      </AbsoluteView>
+      </>
     </ShareProvider>
   );
 }

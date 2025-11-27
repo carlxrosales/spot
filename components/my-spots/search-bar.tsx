@@ -1,9 +1,11 @@
-import { FixedView } from "@/components/common/fixed-view";
+import { AbsoluteView } from "@/components/common/absolute-view";
+import { SafeView } from "@/components/common/safe-view";
 import { Inputs } from "@/constants/inputs";
 import { getShadow } from "@/utils/shadows";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { TextInput, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Keyboard, Platform, TextInput, View } from "react-native";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -13,42 +15,68 @@ interface SearchBarProps {
 /**
  * Search bar component for the my-spots page.
  * Fixed at the bottom with a gradient background and search functionality.
+ * Automatically adjusts position when keyboard is open.
  *
  * @param searchQuery - Current search query value
  * @param onSearchChange - Callback function when search query changes
  */
 export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   return (
-    <FixedView bottom={0} left={0} right={0} withSafeAreaInsets>
+    <AbsoluteView bottom={keyboardHeight} left={0} right={0}>
       <LinearGradient
         colors={["rgba(0, 0, 0, 0.3)", "rgba(0, 0, 0, 0)"]}
         start={{ x: 0, y: 1 }}
         end={{ x: 0, y: 0 }}
         className='absolute inset-0'
       />
-      <View className='px-4 pb-4 relative z-10'>
-        <View
-          className='w-full rounded-[24px] bg-black flex-row justify-center items-center'
-          style={getShadow("light")}
-        >
-          <View className='pl-5 pr-3'>
+      <SafeView edges={["left", "right", "bottom"]}>
+        <View className='px-4 pb-4 relative'>
+          <View
+            className='w-full rounded-[24px] bg-black flex-row justify-start items-center px-5 gap-4'
+            style={getShadow("light")}
+          >
             <Ionicons
               name='search-outline'
               size={20}
               color={Inputs.search.style.placeholderColor}
             />
+            <TextInput
+              className='flex-1 py-3 text-xl text-white'
+              textAlign='left'
+              textAlignVertical='top'
+              value={searchQuery}
+              onChangeText={onSearchChange}
+              placeholder={Inputs.search.placeholder}
+              placeholderTextColor={Inputs.search.style.placeholderColor}
+              autoCapitalize='none'
+              autoCorrect={false}
+            />
           </View>
-          <TextInput
-            className='flex-1 py-3 pr-4 text-lg text-black'
-            value={searchQuery}
-            onChangeText={onSearchChange}
-            placeholder={Inputs.search.placeholder}
-            placeholderTextColor={Inputs.search.style.placeholderColor}
-            autoCapitalize='none'
-            autoCorrect={false}
-          />
         </View>
-      </View>
-    </FixedView>
+      </SafeView>
+    </AbsoluteView>
   );
 }

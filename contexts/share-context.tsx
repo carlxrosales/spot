@@ -1,6 +1,7 @@
 import { ShareModal, ShareModalRef } from "@/components/common/share-modal";
 import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
+import { getShareUrl } from "@/utils/urls";
 import * as MediaLibrary from "expo-media-library";
 import {
   createContext,
@@ -113,8 +114,8 @@ export function ShareProvider({ children, getPhotoUri }: ShareProviderProps) {
 
       setIsSharing(true);
 
-      const googleMapsUrl = currentSuggestion.shareLink;
-      const message = `Found our spot: ${currentSuggestion.name}\n\n👉 ${googleMapsUrl}`;
+      const shareUrl = getShareUrl(currentSuggestion.id);
+      const message = `Found our spot: ${currentSuggestion.name}\n\n👉 ${shareUrl}`;
 
       const shareOptions: {
         message: string;

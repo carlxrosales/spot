@@ -104,24 +104,26 @@ export default function Survey() {
         withSafeAreaInsets
       >
         <AnimatedBackground />
-        <AbsoluteView
-          top={32}
-          left={32}
-          right={32}
-          className='flex-row items-center justify-between px-8'
-          withSafeAreaInsets
-          style={{ zIndex: 1 }}
-        >
-          <Logo isAnimated />
-          <AnimatedButton
-            label='My spots'
-            variant={ButtonVariant.black}
-            size={ButtonSize.sm}
-            onPress={handleMySpotsPress}
-            index={0}
-            isAnimatingOut={isLoading}
-          />
-        </AbsoluteView>
+        {answers.length === 0 && (
+          <AbsoluteView
+            top={32}
+            left={32}
+            right={32}
+            className='flex-row items-center justify-between'
+            withSafeAreaInsets
+            style={{ zIndex: 1 }}
+          >
+            <Logo isAnimated />
+            <AnimatedButton
+              label='My spots'
+              variant={ButtonVariant.black}
+              size={ButtonSize.sm}
+              onPress={handleMySpotsPress}
+              index={0}
+              isAnimatingOut={isLoading}
+            />
+          </AbsoluteView>
+        )}
         <View className='flex-1 justify-center items-start gap-8'>
           <ChoiceFeedback
             visible={isLoading}
@@ -186,6 +188,7 @@ export default function Survey() {
               <View className='w-full flex-1 flex-col items-end justify-end gap-4'>
                 <AnimatedButton
                   label={copy.feelingSponty}
+                  size={ButtonSize.md}
                   variant={ButtonVariant.black}
                   onPress={handleFeelingSponty}
                   index={0}
@@ -193,6 +196,7 @@ export default function Survey() {
                 />
                 <AnimatedButton
                   label={copy.lazyMode}
+                  size={ButtonSize.md}
                   variant={ButtonVariant.white}
                   onPress={handleLazyModePress}
                   index={1}

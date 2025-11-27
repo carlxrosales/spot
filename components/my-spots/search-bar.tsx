@@ -64,7 +64,7 @@ export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
               color={Inputs.search.style.placeholderColor}
             />
             <TextInput
-              className='flex-1 py-3 text-xl text-white'
+              className={`flex-1 text-xl text-white pt-3 pb-4`}
               textAlign='left'
               textAlignVertical='top'
               value={searchQuery}
@@ -72,7 +72,10 @@ export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
               placeholder={Inputs.search.placeholder}
               placeholderTextColor={Inputs.search.style.placeholderColor}
               autoCapitalize='none'
+              numberOfLines={1}
+              multiline
               autoCorrect={false}
+              returnKeyType='done'
             />
           </View>
         </View>

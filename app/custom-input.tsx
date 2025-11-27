@@ -110,6 +110,8 @@ export default function CustomInputScreen() {
             autoFocus={true}
             autoCorrect={false}
             editable={!isLoading}
+            numberOfLines={1}
+            multiline
           />
         </View>
 

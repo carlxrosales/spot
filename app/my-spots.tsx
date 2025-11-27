@@ -145,19 +145,21 @@ export default function MySpots() {
   }, [router]);
 
   const handleShare = useCallback(async () => {
-    if (filteredSpots.length < 2) {
+    if (spots.length < 2) {
       displayToast({ message: "yikes! you need at least 2 spots to share" });
       return;
     }
 
     try {
       setIsSharing(true);
-      const placeIds = filteredSpots.map((spot) => spot.id);
+      const placeIds = spots.map((spot) => spot.id);
       const code = await createShare(placeIds);
       const recommendationUrl = getRecommendationUrl(code);
 
       const result = await Share.share({
-        message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
+        // TODO: Add back when proper deep linking is implemented
+        // message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
+        message: recommendationUrl,
       });
 
       if (result.action === Share.sharedAction) {
@@ -170,7 +172,7 @@ export default function MySpots() {
     } finally {
       setIsSharing(false);
     }
-  }, [filteredSpots, displayToast]);
+  }, [spots, displayToast]);
 
   const renderSpot = useCallback(
     ({ item: spot }: { item: Suggestion }) => {

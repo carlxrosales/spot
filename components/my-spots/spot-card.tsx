@@ -1,0 +1,194 @@
+import { IconButton } from "@/components/common/icon-button";
+import { ImageCarousel } from "@/components/common/image-carousel";
+import { GetDirectionsButton } from "@/components/swipe/get-directions-button";
+import { ShareButton } from "@/components/swipe/share-button";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
+import { Overlay } from "@/constants/theme";
+import {
+  getCountdown,
+  getOpeningHoursForToday,
+  isCurrentlyOpen,
+  Suggestion,
+} from "@/data/suggestions";
+import { getShadow } from "@/utils/shadows";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Text, View } from "react-native";
+
+const copy = {
+  kmAway: "km away",
+  closingIn: "Closing in",
+  openingIn: "Opening in",
+  spotted: "spotted",
+};
+
+interface SpotCardProps {
+  suggestion: Suggestion;
+  getPhotoUri: (spotId: string, photoName: string) => string | undefined;
+  onPhotoIndexChange: (spotId: string, index: number) => void;
+  currentPhotoIndex: number;
+  onRemove: (spotId: string) => void;
+  isRemoving: boolean;
+}
+
+/**
+ * Spot card component for displaying saved spots in the my-spots page.
+ * Matches the design of swipeable-card with selected/spotted state.
+ * Displays suggestion photos, name, rating, distance, and opening hours.
+ * Provides actions to share, get directions, and remove.
+ *
+ * @param suggestion - The suggestion to display
+ * @param getPhotoUri - Function to get photo URI for a spot
+ * @param onPhotoIndexChange - Callback when photo index changes
+ * @param currentPhotoIndex - Current photo index
+ * @param onRemove - Callback to remove the spot
+ * @param isRemoving - Whether the spot is being removed
+ */
+export function SpotCard({
+  suggestion,
+  getPhotoUri,
+  onPhotoIndexChange,
+  currentPhotoIndex,
+  onRemove,
+  isRemoving,
+}: SpotCardProps) {
+  const [countdown, setCountdown] = useState<string>("");
+
+  const imageItems = useMemo(
+    () =>
+      suggestion.photos?.map((photo) => ({
+        name: photo,
+        uri: getPhotoUri(suggestion.id, photo),
+      })) || [],
+    [suggestion.photos, suggestion.id, getPhotoUri]
+  );
+
+  const handlePhotoIndexChange = useCallback(
+    (index: number) => {
+      onPhotoIndexChange(suggestion.id, index);
+    },
+    [suggestion.id, onPhotoIndexChange]
+  );
+
+  useEffect(() => {
+    if (suggestion.opensAt || suggestion.closesAt) {
+      const updateCountdown = () => {
+        const isOpen = isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt);
+
+        if (!isOpen && suggestion.opensAt) {
+          setCountdown(getCountdown(suggestion.opensAt));
+        } else if (suggestion.closesAt) {
+          setCountdown(getCountdown(suggestion.closesAt));
+        }
+      };
+
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 60000);
+
+      return () => clearInterval(interval);
+    }
+  }, [suggestion.opensAt, suggestion.closesAt]);
+
+  return (
+    <View
+      className='bg-white rounded-3xl overflow-hidden m-4 mb-0'
+      style={[getShadow("dark"), { height: 500 }]}
+    >
+      <View
+        className='absolute top-8 right-[-55px] z-50'
+        style={{ transform: [{ rotate: "45deg" }] }}
+      >
+        <View className='bg-neonPink px-20 py-3'>
+          <Text className='text-white font-bold text-md'>{copy.spotted}</Text>
+        </View>
+      </View>
+      <View className='absolute top-4 left-4 z-50'>
+        <IconButton
+          icon='trash-outline'
+          variant={ButtonVariant.black}
+          size={ButtonSize.sm}
+          onPress={() => onRemove(suggestion.id)}
+          loading={isRemoving}
+        />
+      </View>
+      {suggestion.photos && suggestion.photos.length > 0 && (
+        <ImageCarousel
+          images={imageItems}
+          currentIndex={currentPhotoIndex}
+          onIndexChange={handlePhotoIndexChange}
+          showIndicator={false}
+        />
+      )}
+      <View
+        className='absolute bottom-0 left-0 right-0 p-6 gap-6 flex-1 w-full h-full'
+        style={{
+          backgroundColor: Overlay.backgroundColor,
+        }}
+        pointerEvents='box-none'
+      >
+        <View className='flex-1 justify-end h-full' pointerEvents='box-none'>
+          <View className='py-4 gap-4' pointerEvents='box-none'>
+            <Text
+              className='text-5xl font-groen text-white'
+              pointerEvents='none'
+            >
+              {suggestion.name}
+            </Text>
+            <View
+              className='flex-row items-center justify-between'
+              pointerEvents='box-none'
+            >
+              <Text
+                className='text-xl text-white font-semibold text-left'
+                pointerEvents='none'
+              >
+                ⭐ {suggestion.rating}
+              </Text>
+              {suggestion.distanceInKm && (
+                <Text
+                  className='text-xl text-white opacity-90 text-right'
+                  pointerEvents='none'
+                >
+                  {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                </Text>
+              )}
+            </View>
+            {(suggestion.openingHours ||
+              suggestion.closesAt ||
+              suggestion.opensAt) && (
+              <View
+                className='flex-row items-center justify-between'
+                pointerEvents='box-none'
+              >
+                {suggestion.openingHours && (
+                  <Text
+                    className='text-lg text-white opacity-90 text-left'
+                    pointerEvents='none'
+                  >
+                    {getOpeningHoursForToday(suggestion.openingHours)}
+                  </Text>
+                )}
+                {countdown && (
+                  <Text
+                    className='text-lg text-white opacity-90 text-right'
+                    pointerEvents='none'
+                  >
+                    {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
+                      ? `${copy.closingIn} ${countdown}`
+                      : `${copy.openingIn} ${countdown}`}
+                  </Text>
+                )}
+              </View>
+            )}
+            <View className='py-4 gap-3'>
+              <GetDirectionsButton suggestion={suggestion} />
+              <ShareButton
+                suggestion={suggestion}
+                currentPhotoIndex={currentPhotoIndex}
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}

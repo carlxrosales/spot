@@ -725,7 +725,7 @@ const getRandomSpontyQAFlow = (): {
  * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...] or ["Monday: Open 24 hours"] or ["Monday: Closed"]
  * @returns Opening time string in "HH:MM AM/PM" format, or empty string if not found or for special cases (24 hours, closed)
  */
-const getOpeningTimeForToday = (weekdayText: string[]): string => {
+export const getOpeningTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
   const dayMap: { [key: number]: number } = {
     0: 6,
@@ -764,7 +764,7 @@ const getOpeningTimeForToday = (weekdayText: string[]): string => {
  * @param weekdayText - Array of weekday opening hours in format ["Monday: 9:00 AM - 5:00 PM", ...] or ["Monday: 2:00 - 11:00 PM", ...] or ["Monday: Open 24 hours"] or ["Monday: Closed"]
  * @returns Closing time string in "HH:MM AM/PM" format, or empty string if not found or for special cases (24 hours, closed)
  */
-const getClosingTimeForToday = (weekdayText: string[]): string => {
+export const getClosingTimeForToday = (weekdayText: string[]): string => {
   const today = new Date().getDay();
   const dayMap: { [key: number]: number } = {
     0: 6,

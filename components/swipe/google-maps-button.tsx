@@ -1,5 +1,5 @@
 import { TextButton } from "@/components/common/text-button";
-import { ButtonVariant } from "@/constants/buttons";
+import { ButtonVariant, ButtonVariantType } from "@/constants/buttons";
 import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { Linking } from "react-native";
 
 interface GoogleMapsButtonProps {
   suggestion: Suggestion | null;
+  variant?: ButtonVariantType;
 }
 
 const copy = {
@@ -18,8 +19,12 @@ const copy = {
  * Launches Google Maps with the suggestion's place ID.
  *
  * @param suggestion - The suggestion to open in Google Maps, or null if no suggestion is available
+ * @param variant - Button variant (default: "black")
  */
-export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
+export function GoogleMapsButton({
+  suggestion,
+  variant = ButtonVariant.black,
+}: GoogleMapsButtonProps) {
   const { displayToast } = useToast();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -39,7 +44,7 @@ export function GoogleMapsButton({ suggestion }: GoogleMapsButtonProps) {
     <TextButton
       label={copy.viewOnGoogleMaps}
       onPress={openGoogleMaps}
-      variant={ButtonVariant.black}
+      variant={variant}
       fullWidth
       loading={isLoading}
     />

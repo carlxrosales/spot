@@ -5,7 +5,7 @@ import { Logo } from "@/components/common/logo";
 import { ChoiceButton } from "@/components/survey/choice-button";
 import { ChoiceFeedback } from "@/components/survey/choice-feedback";
 import { Question } from "@/components/survey/question";
-import { ButtonVariant } from "@/constants/buttons";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Survey as SurveyConstants } from "@/constants/survey";
 import { useSurvey } from "@/contexts/survey-context";
@@ -89,6 +89,10 @@ export default function Survey() {
     router.navigate(Routes.lazyMode);
   }, [router]);
 
+  const handleMySpotsPress = useCallback(() => {
+    router.navigate(Routes.mySpots);
+  }, [router]);
+
   return (
     <>
       <AbsoluteView
@@ -102,12 +106,21 @@ export default function Survey() {
         <AnimatedBackground />
         <AbsoluteView
           top={32}
-          left={0}
-          right={0}
-          className='items-center'
+          left={32}
+          right={32}
+          className='flex-row items-center justify-between px-8'
           withSafeAreaInsets
+          style={{ zIndex: 1 }}
         >
           <Logo isAnimated />
+          <AnimatedButton
+            label='My spots'
+            variant={ButtonVariant.black}
+            size={ButtonSize.sm}
+            onPress={handleMySpotsPress}
+            index={0}
+            isAnimatingOut={isLoading}
+          />
         </AbsoluteView>
         <View className='flex-1 justify-center items-start gap-8'>
           <ChoiceFeedback

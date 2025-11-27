@@ -45,6 +45,11 @@ export default function RootLayout() {
                   }}
                 />
                 <Stack.Screen name='swipe' options={commonScreenOptions} />
+                <Stack.Screen name='my-spots' options={commonScreenOptions} />
+                <Stack.Screen
+                  name='recommendation'
+                  options={commonScreenOptions}
+                />
               </Stack>
               <NetworkOverlay visible={!isConnected} />
             </SurveyProvider>

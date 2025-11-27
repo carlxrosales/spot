@@ -3,29 +3,23 @@ import { AnimatedBackground } from "@/components/common/animated-background";
 import { IconButton } from "@/components/common/icon-button";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
-import { DistanceFilterModal } from "@/components/swipe/distance-filter-modal";
-import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
-import { OpenNowFilterModal } from "@/components/swipe/open-now-filter-modal";
-import { SwipeModal } from "@/components/swipe/swipe-modal";
 import {
-  SwipeableCard,
-  SwipeableCardRef,
-} from "@/components/swipe/swipeable-card";
+  RecommendationCard,
+  RecommendationCardRef,
+} from "@/components/recommendation/recommendation-card";
+import { SwipeModal } from "@/components/swipe/swipe-modal";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
-import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
 import { useLocation } from "@/contexts/location-context";
-import { ShareProvider } from "@/contexts/share-context";
 import {
-  SuggestionsProvider,
-  useSuggestions,
-} from "@/contexts/suggestions-context";
-import { useSurvey } from "@/contexts/survey-context";
+  RecommendationsProvider,
+  useRecommendations,
+} from "@/contexts/recommendations-context";
+import { ShareProvider } from "@/contexts/share-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
-import { useNavigation } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
@@ -35,61 +29,57 @@ const copy = {
 };
 
 /**
- * Swipe screen component for browsing place suggestions.
- * Displays swipeable cards with place suggestions based on survey answers.
- * Provides actions to skip, view details, or select suggestions.
- * Includes distance filtering and location permission handling.
+ * Recommendation screen component for browsing specific places by IDs.
+ * Displays swipeable cards with places based on place IDs passed in the URL.
+ * Provides actions to skip, view details, or select places.
  */
-function Swipe() {
+function Recommendation() {
   const router = useRouter();
-  const navigation = useNavigation();
-
-  const { hasPermission, location } = useLocation();
-  const { answers, handleStartOver } = useSurvey();
+  const { placeIds: placeIdsParam } = useLocalSearchParams<{
+    placeIds: string | string[];
+  }>();
+  const { location } = useLocation();
   const {
     isLoading,
     hasFetched,
-    suggestions,
+    recommendations,
     selectedSuggestionIds,
-    fetchSuggestions,
     currentIndex,
     error,
-  } = useSuggestions();
+    fetchRecommendations,
+    handleSelect,
+  } = useRecommendations();
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const { displayToast } = useToast();
   const swipeModal = useModal();
-  const distanceModal = useModal();
-  const openNowModal = useModal();
 
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
   const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
 
-  const cardRef = useRef<SwipeableCardRef>(null);
+  const cardRef = useRef<RecommendationCardRef>(null);
+
+  // Parse place IDs from URL params
+  const placeIds = Array.isArray(placeIdsParam)
+    ? placeIdsParam
+    : placeIdsParam
+    ? placeIdsParam.split(",").map((id) => id.trim())
+    : [];
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", () => {
-      handleStartOver();
-    });
-
-    return unsubscribe;
-  }, [navigation, handleStartOver]);
-
-  useEffect(() => {
-    if (answers.length === 0) {
-      router.navigate(Routes.survey);
+    if (placeIds.length === 0) {
       return;
     }
 
     if (location) {
-      fetchSuggestions(location);
+      fetchRecommendations(placeIds, location);
     }
-  }, [location]);
+  }, [placeIds, location]);
 
   useEffect(() => {
     if (error) {
       displayToast({ message: error });
     }
-  }, [error]);
+  }, [error, displayToast]);
 
   useEffect(() => {
     setIsSkipLoading(false);
@@ -97,9 +87,9 @@ function Swipe() {
   }, [currentIndex]);
 
   const currentSuggestion =
-    suggestions.length > 0 ? suggestions[currentIndex] : null;
+    recommendations.length > 0 ? recommendations[currentIndex] : null;
 
-  const handleSkip = useCallback(() => {
+  const handleSkipPress = useCallback(() => {
     if (isSkipLoading || isProceedLoading) return;
     onSwipeSkip();
     setIsSkipLoading(true);
@@ -109,20 +99,28 @@ function Swipe() {
     }, Animation.duration.slow);
   }, [isSkipLoading, isProceedLoading, onSwipeSkip]);
 
-  const handleProceed = useCallback(() => {
+  const handleProceedPress = useCallback(() => {
     if (isSkipLoading || isProceedLoading) return;
+    if (currentSuggestion) {
+      handleSelect(currentSuggestion.id);
+    }
     onSwipeSelect();
     setIsProceedLoading(true);
     cardRef.current?.swipeRight();
     setTimeout(() => {
       setIsProceedLoading(false);
     }, Animation.duration.slow);
-  }, [isSkipLoading, isProceedLoading, onSwipeSelect]);
+  }, [
+    isSkipLoading,
+    isProceedLoading,
+    onSwipeSelect,
+    currentSuggestion,
+    handleSelect,
+  ]);
 
   const handleBack = useCallback(() => {
-    handleStartOver();
-    router.navigate(Routes.survey);
-  }, [handleStartOver, router]);
+    router.back();
+  }, [router]);
 
   return (
     <AbsoluteView
@@ -156,31 +154,18 @@ function Swipe() {
                       size={ButtonSize.sm}
                       variant={ButtonVariant.black}
                       label={`${
-                        suggestions.length > 0 ? currentIndex + 1 : 0
-                      } / ${suggestions.length}`}
+                        recommendations.length > 0 ? currentIndex + 1 : 0
+                      } / ${recommendations.length}`}
                     />
                   </View>
                 </AbsoluteView>
-                <View className='flex-row gap-2'>
-                  <IconButton
-                    size={ButtonSize.sm}
-                    onPress={openNowModal.handleOpen}
-                    icon={"time-outline"}
-                    variant={ButtonVariant.white}
-                  />
-                  <IconButton
-                    size={ButtonSize.sm}
-                    onPress={distanceModal.handleOpen}
-                    icon='location-outline'
-                    variant={ButtonVariant.white}
-                  />
-                </View>
+                <View className='w-20' />
               </View>
               {currentSuggestion ? (
                 <View className='flex-1'>
-                  <SwipeableCard
+                  <RecommendationCard
                     ref={cardRef}
-                    key={`swipeable-card-${currentIndex}`}
+                    key={`recommendation-card-${currentIndex}`}
                     suggestion={currentSuggestion}
                   />
                 </View>
@@ -193,7 +178,7 @@ function Swipe() {
               )}
               <View className='flex-row justify-center items-center gap-6 px-8 pt-4 pb-8'>
                 <IconButton
-                  onPress={handleSkip}
+                  onPress={handleSkipPress}
                   icon='close'
                   variant={ButtonVariant.black}
                   loading={isSkipLoading}
@@ -210,7 +195,7 @@ function Swipe() {
                   }
                 />
                 <IconButton
-                  onPress={handleProceed}
+                  onPress={handleProceedPress}
                   icon='checkmark-sharp'
                   variant={ButtonVariant.pink}
                   loading={isProceedLoading}
@@ -231,25 +216,16 @@ function Swipe() {
         onClose={swipeModal.handleClose}
         suggestion={currentSuggestion}
       />
-      <DistanceFilterModal
-        visible={distanceModal.isVisible}
-        onClose={distanceModal.handleClose}
-      />
-      <OpenNowFilterModal
-        visible={openNowModal.isVisible}
-        onClose={openNowModal.handleClose}
-      />
-      {(!hasPermission || !location) && <LocationPermissionModal />}
     </AbsoluteView>
   );
 }
 
-export default function SwipeWithProviders() {
+export default function RecommendationWithProviders() {
   return (
-    <SuggestionsProvider>
+    <RecommendationsProvider>
       <ShareProvider>
-        <Swipe />
+        <Recommendation />
       </ShareProvider>
-    </SuggestionsProvider>
+    </RecommendationsProvider>
   );
 }

@@ -8,6 +8,7 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
+import { saveSpot } from "@/services/storage";
 import {
   createContext,
   ReactNode,
@@ -200,11 +201,21 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     setCurrentIndex(nextIndex);
   }, [currentIndex, suggestions, photoUrisMap]);
 
-  const handleSelect = useCallback((suggestionId: string) => {
-    setSelectedSuggestionIds((prev) =>
-      prev.includes(suggestionId) ? prev : [...prev, suggestionId]
-    );
-  }, []);
+  const handleSelect = useCallback(
+    async (suggestionId: string) => {
+      setSelectedSuggestionIds((prev) =>
+        prev.includes(suggestionId) ? prev : [...prev, suggestionId]
+      );
+
+      const suggestion = suggestions.find((s) => s.id === suggestionId);
+      if (suggestion) {
+        try {
+          await saveSpot(suggestion);
+        } catch {}
+      }
+    },
+    [suggestions]
+  );
 
   const getPhotoUris = useCallback(
     (suggestionId: string) => {

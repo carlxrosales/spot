@@ -1,3 +1,5 @@
+import { Colors } from "@/constants/theme";
+
 /**
  * Input field configurations and styling constants.
  * Defines validation rules, placeholders, and style properties for different input types.
@@ -19,6 +21,14 @@ export const Inputs = {
     style: {
       maxWidth: 600,
       minHeight: 160,
+    },
+  },
+  search: {
+    placeholder: "Search",
+    style: {
+      maxWidth: 360,
+      borderRadius: 24,
+      placeholderColor: Colors.white,
     },
   },
 };

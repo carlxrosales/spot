@@ -7,4 +7,6 @@ export const Routes = {
   swipe: "/swipe",
   customInput: "/custom-input",
   lazyMode: "/lazy-mode",
+  mySpots: "/my-spots",
+  recommendation: "/recommendation",
 } as const;

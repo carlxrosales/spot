@@ -46,10 +46,9 @@ export default function RootLayout() {
                 />
                 <Stack.Screen name='suggestion' options={commonScreenOptions} />
                 <Stack.Screen name='my-spots' options={commonScreenOptions} />
-                <Stack.Screen
-                  name='recommendation'
-                  options={commonScreenOptions}
-                />
+
+                {/* recommendation (share) link */}
+                <Stack.Screen name='recos' options={commonScreenOptions} />
               </Stack>
               <NetworkOverlay visible={!isConnected} />
             </SurveyProvider>

@@ -14,6 +14,7 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { loadSpots, removeSpot } from "@/services/storage";
+import { createShare } from "@/services/supabase";
 import { getRecommendationUrl } from "@/utils/urls";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -34,6 +35,7 @@ export default function MySpots() {
   const [spots, setSpots] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [removingSpotId, setRemovingSpotId] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPhotoIndices, setCurrentPhotoIndices] = useState<
     Map<string, number>
@@ -149,8 +151,10 @@ export default function MySpots() {
     }
 
     try {
+      setIsSharing(true);
       const placeIds = filteredSpots.map((spot) => spot.id);
-      const recommendationUrl = getRecommendationUrl(placeIds);
+      const code = await createShare(placeIds);
+      const recommendationUrl = getRecommendationUrl(code);
 
       const result = await Share.share({
         message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
@@ -163,6 +167,8 @@ export default function MySpots() {
       }
     } catch {
       displayToast({ message: "oof! share failed" });
+    } finally {
+      setIsSharing(false);
     }
   }, [filteredSpots, displayToast]);
 
@@ -225,6 +231,7 @@ export default function MySpots() {
                 icon='share-outline'
                 variant={ButtonVariant.white}
                 disabled={filteredSpots.length < 2}
+                loading={isSharing}
               />
             </View>
             {isLoading ? (

@@ -8,5 +8,5 @@ export const Routes = {
   customInput: "/custom-input",
   lazyMode: "/lazy-mode",
   mySpots: "/my-spots",
-  recommendation: "/recommendation",
+  recos: "/recos",
 } as const;

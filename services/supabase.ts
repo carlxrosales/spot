@@ -247,3 +247,81 @@ export async function getPlacesByIds(
 
   return orderedSuggestions;
 }
+
+/**
+ * Generates a unique code for sharing.
+ * @returns A random alphanumeric string of 8 characters
+ */
+function generateShareCode(): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
+ * Creates a share record in the database.
+ * @param placeIds - Array of place IDs to share
+ * @returns Promise resolving to the share code
+ * @throws Error if the creation fails
+ */
+export async function createShare(placeIds: string[]): Promise<string> {
+  if (placeIds.length === 0) {
+    throw new Error("yikes! can't share with no spots");
+  }
+
+  let code = generateShareCode();
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  while (attempts < maxAttempts) {
+    const { data, error } = await supabase
+      .from("shares")
+      .insert({ code, place_ids: placeIds })
+      .select("code")
+      .single();
+
+    if (!error) {
+      return code;
+    }
+
+    if (error.code === "23505") {
+      code = generateShareCode();
+      attempts++;
+    } else {
+      throw new Error(`oof! somethin' went wrong`);
+    }
+  }
+
+  throw new Error(`oof! couldn't create share after ${maxAttempts} tries fr`);
+}
+
+/**
+ * Fetches place IDs from a share code.
+ * @param code - The share code
+ * @returns Promise resolving to an array of place IDs
+ * @throws Error if the fetch fails or code is not found
+ */
+export async function getSharePlaceIds(code: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("shares")
+    .select("place_ids")
+    .eq("code", code)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      throw new Error("yikes! share not found");
+    }
+    throw new Error(`oof! somethin' went wrong`);
+  }
+
+  if (!data || !data.place_ids) {
+    throw new Error("yikes! share not found");
+  }
+
+  return data.place_ids;
+}

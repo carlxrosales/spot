@@ -6,7 +6,7 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
-import { getPlacesByIds } from "@/services/supabase";
+import { getPlacesByIds, getSharePlaceIds } from "@/services/supabase";
 import { useLocalSearchParams } from "expo-router";
 import {
   createContext,
@@ -14,7 +14,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import { Image } from "react-native";
@@ -48,17 +47,11 @@ interface RecommendationsProviderProps {
 export function RecommendationsProvider({
   children,
 }: RecommendationsProviderProps) {
-  const { placeIds: placeIdsParam } = useLocalSearchParams<{
-    placeIds: string | string[];
+  const params = useLocalSearchParams<{
+    code?: string;
   }>();
 
-  const placeIds = useMemo(() => {
-    return Array.isArray(placeIdsParam)
-      ? placeIdsParam
-      : placeIdsParam
-      ? placeIdsParam.split(",").map((id) => id.trim())
-      : [];
-  }, [placeIdsParam]);
+  const [placeIds, setPlaceIds] = useState<string[]>([]);
 
   const [recommendations, setRecommendations] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
@@ -77,8 +70,8 @@ export function RecommendationsProvider({
       userLocation?: LocationCoordinates,
       forceRefetch?: boolean
     ): Promise<void> => {
-      if (placeIds.length === 0) {
-        setError("No place IDs provided");
+      if (!params.code) {
+        setError("yikes! no share code found");
         setIsLoading(false);
         setHasFetched(true);
         return;
@@ -97,8 +90,18 @@ export function RecommendationsProvider({
       setPhotoUrisMap(new Map());
 
       try {
+        const sharePlaceIds = await getSharePlaceIds(params.code);
+        setPlaceIds(sharePlaceIds);
+
+        if (sharePlaceIds.length === 0) {
+          setError("yikes! no spots in this share");
+          setIsLoading(false);
+          setHasFetched(true);
+          return;
+        }
+
         const fetchedPlaces = await getPlacesByIds({
-          placeIds,
+          placeIds: sharePlaceIds,
           userLocation: userLocation || undefined,
         });
 
@@ -145,7 +148,7 @@ export function RecommendationsProvider({
         setHasFetched(true);
       }
     },
-    [isLoading, hasFetched, placeIds]
+    [isLoading, hasFetched, params.code]
   );
 
   const handleSkip = useCallback(async () => {

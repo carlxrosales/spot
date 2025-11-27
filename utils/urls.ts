@@ -11,13 +11,12 @@ if (!BASE_URL) {
 }
 
 /**
- * Builds a recommendation URL with place IDs.
- * @param placeIds - Array of place IDs to include in the URL
+ * Builds a recommendation URL with a share code.
+ * @param code - Share code to include in the URL
  * @returns Full URL string for the recommendation page
  */
-export function getRecommendationUrl(placeIds: string[]): string {
-  const placeIdsParam = placeIds.join(",");
-  return `${DEEP_LINK_SCHEME}://recommendation?placeIds=${placeIdsParam}`;
+export function getRecommendationUrl(code: string): string {
+  return `${DEEP_LINK_SCHEME}://recos/${code}`;
 }
 
 /**

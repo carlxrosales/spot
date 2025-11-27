@@ -1,6 +1,5 @@
 import { ImageCarousel } from "@/components/common/image-carousel";
 import { Overlay } from "@/constants/theme";
-import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
@@ -22,6 +21,7 @@ const copy = {
 interface ShareCardProps {
   suggestion: Suggestion;
   currentPhotoIndex: number;
+  getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
 }
 
 /**
@@ -31,13 +31,13 @@ interface ShareCardProps {
  *
  * @param suggestion - The suggestion to display in the share card
  * @param currentPhotoIndex - The initial photo index to display in the carousel
+ * @param getPhotoUri - Function to get photo URI for a suggestion
  */
 export function ShareCard({
   suggestion,
   currentPhotoIndex: initialPhotoIndex,
+  getPhotoUri,
 }: ShareCardProps) {
-  const { getPhotoUri } = useSuggestions();
-
   const imageItems = useMemo(
     () =>
       suggestion.photos.map((photo) => ({

@@ -4,7 +4,7 @@
  */
 export const Routes = {
   survey: "/",
-  swipe: "/swipe",
+  suggestion: "/suggestion",
   customInput: "/custom-input",
   lazyMode: "/lazy-mode",
   mySpots: "/my-spots",

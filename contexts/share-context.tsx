@@ -1,4 +1,4 @@
-import { ShareModal, ShareModalRef } from "@/components/swipe/share-modal";
+import { ShareModal, ShareModalRef } from "@/components/common/share-modal";
 import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
 import * as MediaLibrary from "expo-media-library";
@@ -24,9 +24,10 @@ const ShareContext = createContext<ShareContextType | undefined>(undefined);
 
 interface ShareProviderProps {
   children: ReactNode;
+  getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
 }
 
-export function ShareProvider({ children }: ShareProviderProps) {
+export function ShareProvider({ children, getPhotoUri }: ShareProviderProps) {
   const { displayToast } = useToast();
   const [isSharing, setIsSharing] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -181,6 +182,7 @@ export function ShareProvider({ children }: ShareProviderProps) {
         onShareLink={shareLink}
         suggestion={currentSuggestion}
         currentPhotoIndex={currentPhotoIndex}
+        getPhotoUri={getPhotoUri}
       />
     </ShareContext.Provider>
   );

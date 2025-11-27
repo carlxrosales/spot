@@ -2,7 +2,7 @@ import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { ButtonVariant } from "@/constants/buttons";
 import { useLocation } from "@/contexts/location-context";
-import { useSuggestions } from "@/contexts/suggestions-context";
+import { LocationCoordinates } from "@/data/types";
 import { useCallback } from "react";
 import { Platform } from "react-native";
 
@@ -16,21 +16,28 @@ const copy = {
   },
 };
 
+interface LocationPermissionModalProps {
+  onPermissionGranted?: (location: LocationCoordinates) => void;
+}
+
 /**
  * Modal component for requesting location permission.
  * Displays when location permission is not granted and cannot be dismissed until permission is granted.
  * Automatically shows/hides based on permission status.
+ *
+ * @param onPermissionGranted - Optional callback called when permission is granted with the location
  */
-export function LocationPermissionModal() {
+export function LocationPermissionModal({
+  onPermissionGranted,
+}: LocationPermissionModalProps) {
   const { isLoading, requestPermission } = useLocation();
-  const { fetchSuggestions } = useSuggestions();
 
   const handleRequestPermission = useCallback(async () => {
     const location = await requestPermission();
-    if (location) {
-      fetchSuggestions(location);
+    if (location && onPermissionGranted) {
+      onPermissionGranted(location);
     }
-  }, [requestPermission, fetchSuggestions]);
+  }, [requestPermission, onPermissionGranted]);
 
   return (
     <BottomModal

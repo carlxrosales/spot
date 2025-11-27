@@ -44,7 +44,7 @@ export default function RootLayout() {
                     animation: "slide_from_bottom",
                   }}
                 />
-                <Stack.Screen name='swipe' options={commonScreenOptions} />
+                <Stack.Screen name='suggestion' options={commonScreenOptions} />
                 <Stack.Screen name='my-spots' options={commonScreenOptions} />
                 <Stack.Screen
                   name='recommendation'

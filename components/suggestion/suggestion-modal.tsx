@@ -1,7 +1,7 @@
 import { IconButton } from "@/components/common/icon-button";
-import { GetDirectionsButton } from "@/components/swipe/get-directions-button";
-import { GoogleMapsButton } from "@/components/swipe/google-maps-button";
-import { ViewReviewsButton } from "@/components/swipe/view-reviews-button";
+import { GetDirectionsButton } from "@/components/common/get-directions-button";
+import { GoogleMapsButton } from "@/components/suggestion/google-maps-button";
+import { ViewReviewsButton } from "@/components/suggestion/view-reviews-button";
 import { ButtonSize } from "@/constants/buttons";
 import {
   getCountdown,
@@ -20,7 +20,7 @@ const copy = {
   closingIn: "Closing in",
 };
 
-interface SwipeModalProps {
+interface SuggestionModalProps {
   visible: boolean;
   onClose: () => void;
   suggestion: Suggestion | null;
@@ -35,7 +35,7 @@ interface SwipeModalProps {
  * @param onClose - Callback function called when modal is closed
  * @param suggestion - The suggestion to display, or null if no suggestion is available
  */
-export function SwipeModal({ visible, onClose, suggestion }: SwipeModalProps) {
+export function SuggestionModal({ visible, onClose, suggestion }: SuggestionModalProps) {
   const [countdown, setCountdown] = useState<string>("");
 
   useEffect(() => {

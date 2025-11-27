@@ -1,8 +1,8 @@
 import { CancelButton } from "@/components/common/cancel-button";
 import { Logo } from "@/components/common/logo";
 import { SafeView } from "@/components/common/safe-view";
+import { ShareCard } from "@/components/common/share-card";
 import { TextButton } from "@/components/common/text-button";
-import { ShareCard } from "@/components/swipe/share-card";
 import { ButtonVariant } from "@/constants/buttons";
 import { Colors } from "@/constants/theme";
 import { Suggestion } from "@/data/suggestions";
@@ -23,6 +23,7 @@ interface ShareModalProps {
   onShareImage: () => void;
   onShareLink: () => void;
   currentPhotoIndex: number;
+  getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
 }
 
 export interface ShareModalRef {
@@ -40,6 +41,7 @@ export interface ShareModalRef {
  * @param onShareImage - Callback function called when share image button is pressed
  * @param onShareLink - Callback function called when share link button is pressed
  * @param currentPhotoIndex - The initial photo index to display in the share card carousel
+ * @param getPhotoUri - Function to get photo URI for a suggestion
  * @param ref - Ref object with `capture` method to capture the card as an image
  */
 export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
@@ -51,6 +53,7 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
       onShareImage,
       onShareLink,
       currentPhotoIndex,
+      getPhotoUri,
     },
     ref
   ) => {
@@ -98,6 +101,7 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
                   <ShareCard
                     suggestion={suggestion}
                     currentPhotoIndex={currentPhotoIndex}
+                    getPhotoUri={getPhotoUri}
                   />
                 </View>
               </View>

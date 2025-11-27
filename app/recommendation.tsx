@@ -1,14 +1,14 @@
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { IconButton } from "@/components/common/icon-button";
+import { LocationPermissionModal } from "@/components/common/location-permission-modal";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
-import { LocationPermissionModal } from "@/components/recommendation/location-permission-modal";
 import {
   RecommendationCard,
   RecommendationCardRef,
 } from "@/components/recommendation/recommendation-card";
-import { SwipeModal } from "@/components/swipe/swipe-modal";
+import { SuggestionModal } from "@/components/suggestion/suggestion-modal";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
@@ -198,22 +198,31 @@ function Recommendation() {
           </View>
         )}
       </SafeView>
-      <SwipeModal
+      <SuggestionModal
         visible={swipeModal.isVisible}
         onClose={swipeModal.handleClose}
         suggestion={currentSuggestion}
       />
-      {(!hasPermission || !location) && <LocationPermissionModal />}
+      {(!hasPermission || !location) && (
+        <LocationPermissionModal onPermissionGranted={fetchRecommendations} />
+      )}
     </AbsoluteView>
+  );
+}
+
+function RecommendationWithShareProvider() {
+  const { getPhotoUri } = useRecommendations();
+  return (
+    <ShareProvider getPhotoUri={getPhotoUri}>
+      <Recommendation />
+    </ShareProvider>
   );
 }
 
 export default function RecommendationWithProviders() {
   return (
     <RecommendationsProvider>
-      <ShareProvider>
-        <Recommendation />
-      </ShareProvider>
+      <RecommendationWithShareProvider />
     </RecommendationsProvider>
   );
 }

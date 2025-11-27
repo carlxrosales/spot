@@ -1,16 +1,16 @@
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { IconButton } from "@/components/common/icon-button";
+import { LocationPermissionModal } from "@/components/common/location-permission-modal";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
-import { DistanceFilterModal } from "@/components/swipe/distance-filter-modal";
-import { LocationPermissionModal } from "@/components/swipe/location-permission-modal";
-import { OpenNowFilterModal } from "@/components/swipe/open-now-filter-modal";
-import { SwipeModal } from "@/components/swipe/swipe-modal";
+import { DistanceFilterModal } from "@/components/suggestion/distance-filter-modal";
+import { OpenNowFilterModal } from "@/components/suggestion/open-now-filter-modal";
 import {
-  SwipeableCard,
-  SwipeableCardRef,
-} from "@/components/swipe/swipeable-card";
+  SuggestionCard,
+  SuggestionCardRef,
+} from "@/components/suggestion/suggestion-card";
+import { SuggestionModal } from "@/components/suggestion/suggestion-modal";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
@@ -35,12 +35,12 @@ const copy = {
 };
 
 /**
- * Swipe screen component for browsing place suggestions.
+ * Suggestion screen component for browsing place suggestions.
  * Displays swipeable cards with place suggestions based on survey answers.
  * Provides actions to skip, view details, or select suggestions.
  * Includes distance filtering and location permission handling.
  */
-function Swipe() {
+function Suggestion() {
   const router = useRouter();
   const navigation = useNavigation();
 
@@ -54,6 +54,7 @@ function Swipe() {
     fetchSuggestions,
     currentIndex,
     error,
+    getPhotoUri,
   } = useSuggestions();
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const { displayToast } = useToast();
@@ -64,7 +65,7 @@ function Swipe() {
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
   const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
 
-  const cardRef = useRef<SwipeableCardRef>(null);
+  const cardRef = useRef<SuggestionCardRef>(null);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", () => {
@@ -178,9 +179,9 @@ function Swipe() {
               </View>
               {currentSuggestion ? (
                 <View className='flex-1'>
-                  <SwipeableCard
+                  <SuggestionCard
                     ref={cardRef}
-                    key={`swipeable-card-${currentIndex}`}
+                    key={`suggestion-card-${currentIndex}`}
                     suggestion={currentSuggestion}
                   />
                 </View>
@@ -226,7 +227,7 @@ function Swipe() {
           </View>
         )}
       </SafeView>
-      <SwipeModal
+      <SuggestionModal
         visible={swipeModal.isVisible}
         onClose={swipeModal.handleClose}
         suggestion={currentSuggestion}
@@ -239,17 +240,27 @@ function Swipe() {
         visible={openNowModal.isVisible}
         onClose={openNowModal.handleClose}
       />
-      {(!hasPermission || !location) && <LocationPermissionModal />}
     </AbsoluteView>
   );
 }
 
-export default function SwipeWithProviders() {
+function SuggestionWithShareProvider() {
+  const { getPhotoUri, fetchSuggestions } = useSuggestions();
+  const { hasPermission, location } = useLocation();
+  return (
+    <ShareProvider getPhotoUri={getPhotoUri}>
+      <Suggestion />
+      {(!hasPermission || !location) && (
+        <LocationPermissionModal onPermissionGranted={fetchSuggestions} />
+      )}
+    </ShareProvider>
+  );
+}
+
+export default function SuggestionWithProviders() {
   return (
     <SuggestionsProvider>
-      <ShareProvider>
-        <Swipe />
-      </ShareProvider>
+      <SuggestionWithShareProvider />
     </SuggestionsProvider>
   );
 }

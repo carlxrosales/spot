@@ -19,14 +19,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Share, Text, View } from "react-native";
 
 const copy = {
-  noSpots: "No spots saved yet",
+  noSpots: "no spots here",
 };
 
 /**
  * My Spots screen component.
  * Displays all saved spots with options to share, open in maps, get directions, and remove.
  */
-function MySpots() {
+export default function MySpots() {
   const router = useRouter();
   const { displayToast } = useToast();
   const [spots, setSpots] = useState<Suggestion[]>([]);
@@ -69,14 +69,11 @@ function MySpots() {
               photoMap.set(firstPhotoName, photoUri);
               updatedPhotoUris.set(spot.id, photoMap);
             }
-          } catch (error) {
-            console.error("Failed to load first photo:", error);
-          }
+          } catch {}
         }
       }
       setPhotoUris(updatedPhotoUris);
-    } catch (error) {
-      console.error("Failed to load spots:", error);
+    } catch {
       displayToast({ message: "yikes! failed to load your spots" });
     } finally {
       setIsLoading(false);
@@ -90,8 +87,7 @@ function MySpots() {
         await removeSpot(spotId);
         setSpots((prev) => prev.filter((s) => s.id !== spotId));
         displayToast({ message: "Spot removed!" });
-      } catch (error) {
-        console.error("Failed to remove spot:", error);
+      } catch {
         displayToast({ message: "yikes! failed to remove spot" });
       } finally {
         setRemovingSpotId(null);
@@ -125,9 +121,7 @@ function MySpots() {
                 return updated;
               });
             }
-          } catch (error) {
-            console.error("Failed to load photo:", error);
-          }
+          } catch {}
         }
       }
     },
@@ -163,9 +157,10 @@ function MySpots() {
 
       if (result.action === Share.sharedAction) {
         displayToast({ message: "Shared" });
+      } else if (result.action === Share.dismissedAction) {
+        displayToast({ message: "u cancelled" });
       }
-    } catch (error) {
-      console.error("Failed to share:", error);
+    } catch {
       displayToast({ message: "oof! share failed" });
     }
   }, [filteredSpots, displayToast]);
@@ -194,67 +189,61 @@ function MySpots() {
   );
 
   return (
-    <AbsoluteView
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      className='w-full h-full bg-neonGreen'
-    >
-      <AnimatedBackground />
-      <SafeView className='h-full w-full'>
-        <View className='flex-row justify-between items-center gap-6 px-4 py-4'>
-          <IconButton
-            onPress={handleBack}
-            size={ButtonSize.sm}
-            icon='arrow-back'
-          />
-          <AbsoluteView top={14} left={56} right={56}>
-            <View className='items-center justify-center'>
-              <TextButton
-                size={ButtonSize.sm}
-                variant={ButtonVariant.black}
-                label={`My spots: ${filteredSpots.length}`}
-              />
+    <ShareProvider getPhotoUri={getPhotoUri}>
+      <AbsoluteView
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        className='w-full h-full bg-neonGreen'
+      >
+        <AnimatedBackground />
+        <SafeView className='h-full w-full'>
+          <View className='flex-row justify-between items-center gap-6 px-4 py-4'>
+            <IconButton
+              onPress={handleBack}
+              size={ButtonSize.sm}
+              icon='arrow-back'
+            />
+            <AbsoluteView top={17} left={56} right={56}>
+              <View className='items-center justify-center'>
+                <TextButton
+                  size={ButtonSize.sm}
+                  variant={ButtonVariant.black}
+                  label={`My spots: ${filteredSpots.length}`}
+                />
+              </View>
+            </AbsoluteView>
+            <IconButton
+              onPress={handleShare}
+              size={ButtonSize.sm}
+              icon='share-outline'
+              variant={ButtonVariant.white}
+              disabled={filteredSpots.length === 0}
+            />
+          </View>
+          {isLoading ? (
+            <View className='flex-1 items-center justify-center'>
+              <ActivityIndicator size='large' color='black' />
             </View>
-          </AbsoluteView>
-          <IconButton
-            onPress={handleShare}
-            size={ButtonSize.sm}
-            icon='share-outline'
-            variant={ButtonVariant.white}
-            disabled={filteredSpots.length === 0}
-          />
-        </View>
-        {isLoading ? (
-          <View className='flex-1 items-center justify-center'>
-            <ActivityIndicator size='large' color='black' />
-          </View>
-        ) : filteredSpots.length === 0 ? (
-          <View className='flex-1 items-center justify-center px-8'>
-            <Text className='text-4xl font-groen text-black text-center'>
-              {searchQuery.trim() ? "No spots found" : copy.noSpots}
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={filteredSpots}
-            renderItem={renderSpot}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingTop: 0, paddingBottom: 111 }}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-      </SafeView>
-      <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-    </AbsoluteView>
-  );
-}
-
-export default function MySpotsWithProviders() {
-  return (
-    <ShareProvider>
-      <MySpots />
+          ) : filteredSpots.length === 0 ? (
+            <View className='flex-1 items-center justify-center px-8'>
+              <Text className='text-4xl font-groen text-black text-center'>
+                {searchQuery.trim() ? "No spots found" : copy.noSpots}
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredSpots}
+              renderItem={renderSpot}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingTop: 0, paddingBottom: 111 }}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+        </SafeView>
+        <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      </AbsoluteView>
     </ShareProvider>
   );
 }

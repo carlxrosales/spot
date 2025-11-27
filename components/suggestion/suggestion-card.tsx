@@ -4,7 +4,7 @@ import { ShareButton } from "@/components/common/share-button";
 import { SwipeFeedback } from "@/components/common/swipe-feedback";
 import { Dimensions } from "@/constants/dimensions";
 import { Animation, Overlay } from "@/constants/theme";
-import { useRecommendations } from "@/contexts/recommendations-context";
+import { useSuggestions } from "@/contexts/suggestions-context";
 import {
   getCountdown,
   getOpeningHoursForToday,
@@ -42,27 +42,27 @@ const copy = {
 
 const SWIPE_THRESHOLD = Dimensions.width * Animation.threshold.swipeCard;
 
-interface RecommendationCardProps {
+interface SuggestionCardProps {
   suggestion: Suggestion;
 }
 
-export interface RecommendationCardRef {
+export interface SuggestionCardRef {
   swipeLeft: () => void;
   swipeRight: () => void;
 }
 
 /**
- * Swipeable card component for displaying and interacting with place recommendations.
- * Supports swipe gestures to select or skip recommendations with haptic and audio feedback.
- * Displays recommendation photos, name, rating, distance, and opening hours.
+ * Swipeable card component for displaying and interacting with place suggestions.
+ * Supports swipe gestures to select or skip suggestions with haptic and audio feedback.
+ * Displays suggestion photos, name, rating, distance, and opening hours.
  * Provides programmatic swipe methods via ref.
  *
- * @param suggestion - The recommendation to display in the card
+ * @param suggestion - The suggestion to display in the card
  * @param ref - Ref object with `swipeLeft` and `swipeRight` methods for programmatic swiping
  */
-export const RecommendationCard = forwardRef<
-  RecommendationCardRef,
-  RecommendationCardProps
+export const SuggestionCard = forwardRef<
+  SuggestionCardRef,
+  SuggestionCardProps
 >(({ suggestion }, ref) => {
   const {
     selectedSuggestionIds,
@@ -70,7 +70,7 @@ export const RecommendationCard = forwardRef<
     handleSelect,
     loadPhotoByName,
     getPhotoUri,
-  } = useRecommendations();
+  } = useSuggestions();
   const { onSwipeStart, onSwipeThreshold, onSwipeSkip, onSwipeSelect } =
     useSwipeFeedback();
 

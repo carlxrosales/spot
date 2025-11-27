@@ -1,9 +1,9 @@
+import { GetDirectionsButton } from "@/components/common/get-directions-button";
 import { IconButton } from "@/components/common/icon-button";
 import { ImageCarousel } from "@/components/common/image-carousel";
-import { GetDirectionsButton } from "@/components/swipe/get-directions-button";
-import { ShareButton } from "@/components/swipe/share-button";
+import { ShareButton } from "@/components/common/share-button";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
-import { Overlay } from "@/constants/theme";
+import { Animation, Overlay } from "@/constants/theme";
 import {
   getCountdown,
   getOpeningHoursForToday,
@@ -13,6 +13,12 @@ import {
 import { getShadow } from "@/utils/shadows";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 const copy = {
   kmAway: "km away",
@@ -53,6 +59,23 @@ export function SpotCard({
 }: SpotCardProps) {
   const [countdown, setCountdown] = useState<string>("");
 
+  const scale = useSharedValue<number>(Animation.scale.hidden);
+  const opacity = useSharedValue<number>(Animation.opacity.hidden);
+
+  useEffect(() => {
+    scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
+    opacity.value = withTiming(Animation.opacity.visible, {
+      duration: Animation.duration.normal,
+    });
+  }, []);
+
+  const cardStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+    };
+  });
+
   const imageItems = useMemo(
     () =>
       suggestion.photos?.map((photo) => ({
@@ -89,106 +112,108 @@ export function SpotCard({
   }, [suggestion.opensAt, suggestion.closesAt]);
 
   return (
-    <View
-      className='bg-white rounded-3xl overflow-hidden m-4 mb-0'
-      style={[getShadow("dark"), { height: 500 }]}
-    >
+    <Animated.View style={cardStyle}>
       <View
-        className='absolute top-8 right-[-55px] z-50'
-        style={{ transform: [{ rotate: "45deg" }] }}
+        className='bg-white rounded-3xl overflow-hidden m-4 mb-0'
+        style={[getShadow("dark"), { height: 500 }]}
       >
-        <View className='bg-neonPink px-20 py-3'>
-          <Text className='text-white font-bold text-md'>{copy.spotted}</Text>
+        <View
+          className='absolute top-8 right-[-55px] z-50'
+          style={{ transform: [{ rotate: "45deg" }] }}
+        >
+          <View className='bg-neonPink px-20 py-3'>
+            <Text className='text-white font-bold text-md'>{copy.spotted}</Text>
+          </View>
         </View>
-      </View>
-      <View className='absolute top-4 left-4 z-50'>
-        <IconButton
-          icon='trash-outline'
-          variant={ButtonVariant.black}
-          size={ButtonSize.sm}
-          onPress={() => onRemove(suggestion.id)}
-          loading={isRemoving}
-        />
-      </View>
-      {suggestion.photos && suggestion.photos.length > 0 && (
-        <ImageCarousel
-          images={imageItems}
-          currentIndex={currentPhotoIndex}
-          onIndexChange={handlePhotoIndexChange}
-          showIndicator={false}
-        />
-      )}
-      <View
-        className='absolute bottom-0 left-0 right-0 p-6 gap-6 flex-1 w-full h-full'
-        style={{
-          backgroundColor: Overlay.backgroundColor,
-        }}
-        pointerEvents='box-none'
-      >
-        <View className='flex-1 justify-end h-full' pointerEvents='box-none'>
-          <View className='py-4 gap-4' pointerEvents='box-none'>
-            <Text
-              className='text-5xl font-groen text-white'
-              pointerEvents='none'
-            >
-              {suggestion.name}
-            </Text>
-            <View
-              className='flex-row items-center justify-between'
-              pointerEvents='box-none'
-            >
+        <View className='absolute top-4 left-4 z-50'>
+          <IconButton
+            icon='trash-outline'
+            variant={ButtonVariant.black}
+            size={ButtonSize.sm}
+            onPress={() => onRemove(suggestion.id)}
+            loading={isRemoving}
+          />
+        </View>
+        {suggestion.photos && suggestion.photos.length > 0 && (
+          <ImageCarousel
+            images={imageItems}
+            currentIndex={currentPhotoIndex}
+            onIndexChange={handlePhotoIndexChange}
+            showIndicator={false}
+          />
+        )}
+        <View
+          className='absolute bottom-0 left-0 right-0 p-6 gap-6 flex-1 w-full h-full'
+          style={{
+            backgroundColor: Overlay.backgroundColor,
+          }}
+          pointerEvents='box-none'
+        >
+          <View className='flex-1 justify-end h-full' pointerEvents='box-none'>
+            <View className='py-4 gap-4' pointerEvents='box-none'>
               <Text
-                className='text-xl text-white font-semibold text-left'
+                className='text-5xl font-groen text-white'
                 pointerEvents='none'
               >
-                ⭐ {suggestion.rating}
+                {suggestion.name}
               </Text>
-              {suggestion.distanceInKm && (
-                <Text
-                  className='text-xl text-white opacity-90 text-right'
-                  pointerEvents='none'
-                >
-                  {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
-                </Text>
-              )}
-            </View>
-            {(suggestion.openingHours ||
-              suggestion.closesAt ||
-              suggestion.opensAt) && (
               <View
                 className='flex-row items-center justify-between'
                 pointerEvents='box-none'
               >
-                {suggestion.openingHours && (
+                <Text
+                  className='text-xl text-white font-semibold text-left'
+                  pointerEvents='none'
+                >
+                  ⭐ {suggestion.rating}
+                </Text>
+                {suggestion.distanceInKm && (
                   <Text
-                    className='text-lg text-white opacity-90 text-left'
+                    className='text-xl text-white opacity-90 text-right'
                     pointerEvents='none'
                   >
-                    {getOpeningHoursForToday(suggestion.openingHours)}
-                  </Text>
-                )}
-                {countdown && (
-                  <Text
-                    className='text-lg text-white opacity-90 text-right'
-                    pointerEvents='none'
-                  >
-                    {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
-                      ? `${copy.closingIn} ${countdown}`
-                      : `${copy.openingIn} ${countdown}`}
+                    {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
                   </Text>
                 )}
               </View>
-            )}
-            <View className='py-4 gap-3'>
-              <GetDirectionsButton suggestion={suggestion} />
-              <ShareButton
-                suggestion={suggestion}
-                currentPhotoIndex={currentPhotoIndex}
-              />
+              {(suggestion.openingHours ||
+                suggestion.closesAt ||
+                suggestion.opensAt) && (
+                <View
+                  className='flex-row items-center justify-between'
+                  pointerEvents='box-none'
+                >
+                  {suggestion.openingHours && (
+                    <Text
+                      className='text-lg text-white opacity-90 text-left'
+                      pointerEvents='none'
+                    >
+                      {getOpeningHoursForToday(suggestion.openingHours)}
+                    </Text>
+                  )}
+                  {countdown && (
+                    <Text
+                      className='text-lg text-white opacity-90 text-right'
+                      pointerEvents='none'
+                    >
+                      {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
+                        ? `${copy.closingIn} ${countdown}`
+                        : `${copy.openingIn} ${countdown}`}
+                    </Text>
+                  )}
+                </View>
+              )}
+              <View className='py-4 gap-3'>
+                <GetDirectionsButton suggestion={suggestion} />
+                <ShareButton
+                  suggestion={suggestion}
+                  currentPhotoIndex={currentPhotoIndex}
+                />
+              </View>
             </View>
           </View>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }

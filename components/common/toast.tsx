@@ -86,7 +86,7 @@ export function Toast({
     <Animated.View
       style={[
         {
-          position: "fixed",
+          position: "absolute",
           left: 0,
           right: 0,
           alignItems: "center",

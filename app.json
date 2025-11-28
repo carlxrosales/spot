@@ -24,12 +24,25 @@
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "linkto.share",
+              "pathPrefix": "/recos"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.carlrosales.spot",
+      "associatedDomains": ["applinks:linkto.share"],
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to find the best spots near you.",
         "ITSAppUsesNonExemptEncryption": false

@@ -157,9 +157,7 @@ export default function MySpots() {
       const recommendationUrl = getRecommendationUrl(code);
 
       const result = await Share.share({
-        // TODO: Add back when proper deep linking is implemented
-        // message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
-        message: recommendationUrl,
+        message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
       });
 
       if (result.action === Share.sharedAction) {

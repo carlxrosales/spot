@@ -16,7 +16,7 @@ if (!BASE_URL) {
  * @returns Full URL string for the recommendation page
  */
 export function getRecommendationUrl(code: string): string {
-  return `${DEEP_LINK_SCHEME}://recos/${code}`;
+  return `${BASE_URL}/recos/${code}`;
 }
 
 /**

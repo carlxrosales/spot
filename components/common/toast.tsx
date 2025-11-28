@@ -84,8 +84,17 @@ export function Toast({
 
   return (
     <Animated.View
-      className='fixed left-0 right-0 items-center z-[1000]'
-      style={[positionStyle, animatedStyle]}
+      style={[
+        {
+          position: "fixed",
+          left: 0,
+          right: 0,
+          alignItems: "center",
+          zIndex: 1000,
+        },
+        positionStyle,
+        animatedStyle,
+      ]}
     >
       <View className='bg-black px-4 py-4 rounded-2xl'>
         <Text className='text-white text-lg text-center font-semibold'>

@@ -14,7 +14,7 @@ import {
 } from "@/data/suggestions";
 import { useModal } from "@/hooks/use-modal";
 import { getShadow } from "@/utils/shadows";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -42,6 +42,7 @@ interface SpotCardProps {
   currentPhotoIndex: number;
   onRemove: (spotId: string) => Promise<void>;
   isRemoving: boolean;
+  isVisible?: boolean;
 }
 
 /**
@@ -64,19 +65,26 @@ export function SpotCard({
   currentPhotoIndex,
   onRemove,
   isRemoving,
+  isVisible = false,
 }: SpotCardProps) {
   const [countdown, setCountdown] = useState<string>("");
   const deleteModal = useModal();
 
   const scale = useSharedValue<number>(Animation.scale.hidden);
   const opacity = useSharedValue<number>(Animation.opacity.hidden);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
-    opacity.value = withTiming(Animation.opacity.visible, {
-      duration: Animation.duration.normal,
-    });
-  }, []);
+    if (isVisible) {
+      if (!hasAnimated.current) {
+        hasAnimated.current = true;
+        scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
+        opacity.value = withTiming(Animation.opacity.visible, {
+          duration: Animation.duration.normal,
+        });
+      }
+    }
+  }, [isVisible, scale, opacity]);
 
   const cardStyle = useAnimatedStyle(() => {
     return {

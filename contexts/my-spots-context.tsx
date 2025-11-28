@@ -31,6 +31,7 @@ interface MySpotsContextType {
   handleShare: () => Promise<void>;
   setSearchQuery: (query: string) => void;
   getCurrentPhotoIndex: (spotId: string) => number;
+  loadPhotosForSpot: (spotId: string) => Promise<void>;
 }
 
 const MySpotsContext = createContext<MySpotsContextType | undefined>(undefined);
@@ -67,22 +68,6 @@ export function MySpotsProvider({ children }: MySpotsProviderProps) {
       setError(null);
       const savedSpots = await loadSpots();
       setSpots(savedSpots);
-
-      const updatedPhotoUris = new Map<string, Map<string, string>>();
-      for (const spot of savedSpots) {
-        if (spot.photos && spot.photos.length > 0) {
-          const firstPhotoName = spot.photos[0];
-          try {
-            const photoUri = await loadPhotoByNameUtil(firstPhotoName);
-            if (photoUri) {
-              const photoMap = new Map<string, string>();
-              photoMap.set(firstPhotoName, photoUri);
-              updatedPhotoUris.set(spot.id, photoMap);
-            }
-          } catch {}
-        }
-      }
-      setPhotoUris(updatedPhotoUris);
     } catch {
       setError("yikes! failed to load your spots");
     } finally {
@@ -153,6 +138,35 @@ export function MySpotsProvider({ children }: MySpotsProviderProps) {
     [currentPhotoIndices]
   );
 
+  const loadPhotosForSpot = useCallback(
+    async (spotId: string) => {
+      const spot = spots.find((s) => s.id === spotId);
+      if (!spot || !spot.photos || spot.photos.length === 0) {
+        return;
+      }
+
+      const photoMap = photoUris.get(spotId);
+      if (photoMap && photoMap.size > 0) {
+        return;
+      }
+
+      const firstPhotoName = spot.photos[0];
+      try {
+        const photoUri = await loadPhotoByNameUtil(firstPhotoName);
+        if (photoUri) {
+          setPhotoUris((prev) => {
+            const updated = new Map(prev);
+            const existing = updated.get(spotId) || new Map<string, string>();
+            existing.set(firstPhotoName, photoUri);
+            updated.set(spotId, existing);
+            return updated;
+          });
+        }
+      } catch {}
+    },
+    [spots, photoUris]
+  );
+
   const handleShare = useCallback(async () => {
     if (spots.length < 2) {
       throw new Error("yikes! you need at least 2 spots to share");
@@ -195,6 +209,7 @@ export function MySpotsProvider({ children }: MySpotsProviderProps) {
         handleShare,
         setSearchQuery,
         getCurrentPhotoIndex,
+        loadPhotosForSpot,
       }}
     >
       {children}

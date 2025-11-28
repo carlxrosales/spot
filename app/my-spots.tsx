@@ -12,8 +12,14 @@ import { ShareProvider } from "@/contexts/share-context";
 import { useToast } from "@/contexts/toast-context";
 import { Suggestion } from "@/data/suggestions";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  View,
+  ViewToken,
+} from "react-native";
 
 const copy = {
   noSpots: "no spots here",
@@ -40,13 +46,39 @@ function MySpots() {
     handleShare,
     setSearchQuery,
     getCurrentPhotoIndex,
+    loadPhotosForSpot,
   } = useMySpots();
+  const [visibleSpotIds, setVisibleSpotIds] = useState<Set<string>>(new Set());
+  const viewabilityConfig = useMemo(
+    () => ({
+      itemVisiblePercentThreshold: 10,
+      minimumViewTime: 100,
+      waitForInteraction: false,
+    }),
+    []
+  );
 
   useEffect(() => {
     if (error) {
       displayToast({ message: error });
     }
   }, [error, displayToast]);
+
+  useEffect(() => {
+    if (!isLoading && filteredSpots.length > 0) {
+      const firstTwoSpots = filteredSpots.slice(0, 2);
+      firstTwoSpots.forEach((spot) => {
+        loadPhotosForSpot(spot.id);
+      });
+      setVisibleSpotIds((prev) => {
+        const newSet = new Set(prev);
+        firstTwoSpots.forEach((spot) => {
+          newSet.add(spot.id);
+        });
+        return newSet;
+      });
+    }
+  }, [filteredSpots, isLoading, loadPhotosForSpot]);
 
   const handleBack = useCallback(() => {
     router.navigate(Routes.survey);
@@ -77,9 +109,44 @@ function MySpots() {
     }
   }, [handleShare, displayToast]);
 
+  const loadPhotosForSpotRef = useRef(loadPhotosForSpot);
+  const filteredSpotsRef = useRef(filteredSpots);
+
+  useEffect(() => {
+    loadPhotosForSpotRef.current = loadPhotosForSpot;
+    filteredSpotsRef.current = filteredSpots;
+  }, [loadPhotosForSpot, filteredSpots]);
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const newVisibleIds = new Set<string>();
+
+      viewableItems.forEach((item) => {
+        if (item.item && item.isViewable) {
+          const spotId = item.item.id;
+          newVisibleIds.add(spotId);
+          loadPhotosForSpotRef.current(spotId);
+        }
+      });
+
+      setVisibleSpotIds((prev) => {
+        const updated = new Set(newVisibleIds);
+        const currentSpots = filteredSpotsRef.current;
+        if (currentSpots.length > 0) {
+          currentSpots.slice(0, 2).forEach((spot) => {
+            updated.add(spot.id);
+          });
+        }
+        return updated;
+      });
+    }
+  ).current;
+
   const renderSpot = useCallback(
-    ({ item: spot }: { item: Suggestion }) => {
+    ({ item: spot, index }: { item: Suggestion; index?: number }) => {
       const currentPhotoIndex = getCurrentPhotoIndex(spot.id);
+      const isFirstTwo = index !== undefined && index < 2;
+      const isVisible = visibleSpotIds.has(spot.id) || isFirstTwo;
       return (
         <SpotCard
           spot={spot}
@@ -88,6 +155,7 @@ function MySpots() {
           currentPhotoIndex={currentPhotoIndex}
           onRemove={handleRemoveWithToast}
           isRemoving={removingSpotId === spot.id}
+          isVisible={isVisible}
         />
       );
     },
@@ -97,6 +165,7 @@ function MySpots() {
       handlePhotoIndexChange,
       handleRemoveWithToast,
       removingSpotId,
+      visibleSpotIds,
     ]
   );
 
@@ -152,10 +221,16 @@ function MySpots() {
             ) : (
               <FlatList
                 data={filteredSpots}
-                renderItem={renderSpot}
+                renderItem={({ item, index }) => renderSpot({ item, index })}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={{ paddingTop: 0, paddingBottom: 132 }}
                 showsVerticalScrollIndicator={false}
+                viewabilityConfig={viewabilityConfig}
+                onViewableItemsChanged={onViewableItemsChanged}
+                removeClippedSubviews={true}
+                initialNumToRender={3}
+                maxToRenderPerBatch={2}
+                windowSize={5}
               />
             )}
           </View>

@@ -53,7 +53,7 @@ export default function Survey() {
 
   useEffect(() => {
     if (isComplete) {
-      router.navigate(Routes.suggestion);
+      router.navigate(Routes.suggestions);
     }
   }, [isComplete, router]);
 

@@ -43,7 +43,7 @@ const copy = {
 const SWIPE_THRESHOLD = Dimensions.width * Animation.threshold.swipeCard;
 
 interface RecommendationCardProps {
-  suggestion: Suggestion;
+  recommendation: Suggestion;
 }
 
 export interface RecommendationCardRef {
@@ -57,15 +57,15 @@ export interface RecommendationCardRef {
  * Displays recommendation photos, name, rating, distance, and opening hours.
  * Provides programmatic swipe methods via ref.
  *
- * @param suggestion - The recommendation to display in the card
+ * @param recommendation - The recommendation to display in the card
  * @param ref - Ref object with `swipeLeft` and `swipeRight` methods for programmatic swiping
  */
 export const RecommendationCard = forwardRef<
   RecommendationCardRef,
   RecommendationCardProps
->(({ suggestion }, ref) => {
+>(({ recommendation }, ref) => {
   const {
-    selectedSuggestionIds,
+    selectedRecommendationIds,
     handleSkip,
     handleSelect,
     loadPhotoByName,
@@ -89,18 +89,18 @@ export const RecommendationCard = forwardRef<
 
   const imageItems = useMemo(
     () =>
-      suggestion.photos.map((photo) => ({
+      recommendation.photos.map((photo) => ({
         name: photo,
-        uri: getPhotoUri(suggestion.id, photo),
+        uri: getPhotoUri(recommendation.id, photo),
       })),
-    [suggestion.photos, suggestion.id, getPhotoUri]
+    [recommendation.photos, recommendation.id, getPhotoUri]
   );
 
   const handlePhotoIndexChange = (index: number) => {
     setCurrentPhotoIndex(index);
     const photoName = imageItems[index].name;
     if (!imageItems[index].uri && photoName) {
-      loadPhotoByName(suggestion.id, photoName);
+      loadPhotoByName(recommendation.id, photoName);
     }
   };
 
@@ -108,7 +108,7 @@ export const RecommendationCard = forwardRef<
   const [skipFeedback] = useState(() => getRandomUnusedSkipFeedback());
   const [selectFeedback] = useState(() => getRandomUnusedSelectFeedback());
 
-  const isSelected = selectedSuggestionIds.includes(suggestion.id);
+  const isSelected = selectedRecommendationIds.includes(recommendation.id);
 
   useEffect(() => {
     scale.value = withSpring(Animation.scale.normal, Animation.dampSpring);
@@ -118,14 +118,17 @@ export const RecommendationCard = forwardRef<
   }, []);
 
   useEffect(() => {
-    if (suggestion.opensAt || suggestion.closesAt) {
+    if (recommendation.opensAt || recommendation.closesAt) {
       const updateCountdown = () => {
-        const isOpen = isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt);
+        const isOpen = isCurrentlyOpen(
+          recommendation.opensAt,
+          recommendation.closesAt
+        );
 
-        if (!isOpen && suggestion.opensAt) {
-          setCountdown(getCountdown(suggestion.opensAt));
-        } else if (suggestion.closesAt) {
-          setCountdown(getCountdown(suggestion.closesAt));
+        if (!isOpen && recommendation.opensAt) {
+          setCountdown(getCountdown(recommendation.opensAt));
+        } else if (recommendation.closesAt) {
+          setCountdown(getCountdown(recommendation.closesAt));
         }
       };
 
@@ -134,7 +137,7 @@ export const RecommendationCard = forwardRef<
 
       return () => clearInterval(interval);
     }
-  }, [suggestion.opensAt, suggestion.closesAt]);
+  }, [recommendation.opensAt, recommendation.closesAt]);
 
   const resetCard = () => {
     translateX.value = 0;
@@ -154,7 +157,7 @@ export const RecommendationCard = forwardRef<
   const performSwipeLeft = () => {
     scheduleOnRN(onSwipeSkip);
     setSelectedFeedback(
-      selectedSuggestionIds.includes(suggestion.id)
+      selectedRecommendationIds.includes(recommendation.id)
         ? getRandomSavedForLaterFeedback()
         : skipFeedback
     );
@@ -185,7 +188,7 @@ export const RecommendationCard = forwardRef<
     });
 
     setTimeout(() => {
-      handleSelect(suggestion.id);
+      handleSelect(recommendation.id);
       resetCard();
       setSelectedFeedback(null);
     }, Animation.duration.slow);
@@ -300,7 +303,7 @@ export const RecommendationCard = forwardRef<
               </View>
             )}
             <>
-              {suggestion.photos.length > 0 && (
+              {recommendation.photos.length > 0 && (
                 <ImageCarousel
                   images={imageItems}
                   currentIndex={currentPhotoIndex}
@@ -327,7 +330,7 @@ export const RecommendationCard = forwardRef<
                         className='text-5xl font-groen text-white'
                         pointerEvents='none'
                       >
-                        {suggestion.name}
+                        {recommendation.name}
                       </Text>
                       <View
                         className='flex-row items-center justify-between'
@@ -337,30 +340,33 @@ export const RecommendationCard = forwardRef<
                           className='text-xl text-white font-semibold text-left'
                           pointerEvents='none'
                         >
-                          ⭐ {suggestion.rating}
+                          ⭐ {recommendation.rating}
                         </Text>
-                        {suggestion.distanceInKm && (
+                        {recommendation.distanceInKm && (
                           <Text
                             className='text-xl text-white opacity-90 text-right'
                             pointerEvents='none'
                           >
-                            {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                            {recommendation.distanceInKm.toFixed(1)}{" "}
+                            {copy.kmAway}
                           </Text>
                         )}
                       </View>
-                      {(suggestion.openingHours ||
-                        suggestion.closesAt ||
-                        suggestion.opensAt) && (
+                      {(recommendation.openingHours ||
+                        recommendation.closesAt ||
+                        recommendation.opensAt) && (
                         <View
                           className='flex-row items-center justify-between'
                           pointerEvents='box-none'
                         >
-                          {suggestion.openingHours && (
+                          {recommendation.openingHours && (
                             <Text
                               className='text-lg text-white opacity-90 text-left'
                               pointerEvents='none'
                             >
-                              {getOpeningHoursForToday(suggestion.openingHours)}
+                              {getOpeningHoursForToday(
+                                recommendation.openingHours
+                              )}
                             </Text>
                           )}
                           {countdown && (
@@ -369,8 +375,8 @@ export const RecommendationCard = forwardRef<
                               pointerEvents='none'
                             >
                               {isCurrentlyOpen(
-                                suggestion.opensAt,
-                                suggestion.closesAt
+                                recommendation.opensAt,
+                                recommendation.closesAt
                               )
                                 ? `${copy.closingIn} ${countdown}`
                                 : `${copy.openingIn} ${countdown}`}
@@ -379,9 +385,9 @@ export const RecommendationCard = forwardRef<
                         </View>
                       )}
                       <View className='py-4 gap-3'>
-                        <GetDirectionsButton suggestion={suggestion} />
+                        <GetDirectionsButton suggestion={recommendation} />
                         <ShareButton
-                          suggestion={suggestion}
+                          suggestion={recommendation}
                           currentPhotoIndex={currentPhotoIndex}
                         />
                       </View>
@@ -393,7 +399,7 @@ export const RecommendationCard = forwardRef<
                       className='text-5xl font-groen text-white'
                       pointerEvents='none'
                     >
-                      {suggestion.name}
+                      {recommendation.name}
                     </Text>
                     <View
                       className='flex-row items-center justify-between'
@@ -403,30 +409,32 @@ export const RecommendationCard = forwardRef<
                         className='text-xl text-white font-semibold text-left'
                         pointerEvents='none'
                       >
-                        ⭐ {suggestion.rating}
+                        ⭐ {recommendation.rating}
                       </Text>
-                      {suggestion.distanceInKm && (
+                      {recommendation.distanceInKm && (
                         <Text
                           className='text-xl text-white opacity-90 text-right'
                           pointerEvents='none'
                         >
-                          {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                          {recommendation.distanceInKm.toFixed(1)} {copy.kmAway}
                         </Text>
                       )}
                     </View>
-                    {(suggestion.openingHours ||
-                      suggestion.closesAt ||
-                      suggestion.opensAt) && (
+                    {(recommendation.openingHours ||
+                      recommendation.closesAt ||
+                      recommendation.opensAt) && (
                       <View
                         className='flex-row items-center justify-between'
                         pointerEvents='box-none'
                       >
-                        {suggestion.openingHours && (
+                        {recommendation.openingHours && (
                           <Text
                             className='text-lg text-white opacity-90 text-left'
                             pointerEvents='none'
                           >
-                            {getOpeningHoursForToday(suggestion.openingHours)}
+                            {getOpeningHoursForToday(
+                              recommendation.openingHours
+                            )}
                           </Text>
                         )}
                         {countdown && (
@@ -435,8 +443,8 @@ export const RecommendationCard = forwardRef<
                             pointerEvents='none'
                           >
                             {isCurrentlyOpen(
-                              suggestion.opensAt,
-                              suggestion.closesAt
+                              recommendation.opensAt,
+                              recommendation.closesAt
                             )
                               ? `${copy.closingIn} ${countdown}`
                               : `${copy.openingIn} ${countdown}`}

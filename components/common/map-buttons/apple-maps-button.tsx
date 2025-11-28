@@ -46,3 +46,4 @@ export function AppleMapsButton({ suggestion }: AppleMapsButtonProps) {
     />
   );
 }
+

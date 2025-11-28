@@ -1,7 +1,6 @@
-import { IconButton } from "@/components/common/icon-button";
 import { GetDirectionsButton } from "@/components/common/get-directions-button";
-import { GoogleMapsButton } from "@/components/suggestion/google-maps-button";
-import { ViewReviewsButton } from "@/components/suggestion/view-reviews-button";
+import { IconButton } from "@/components/common/icon-button";
+import { GoogleMapsButton } from "@/components/common/map-buttons/google-maps-button";
 import { ButtonSize } from "@/constants/buttons";
 import {
   getCountdown,
@@ -20,33 +19,33 @@ const copy = {
   closingIn: "Closing in",
 };
 
-interface SuggestionModalProps {
+interface PlaceModalProps {
   visible: boolean;
   onClose: () => void;
-  suggestion: Suggestion | null;
+  place: Suggestion | null;
 }
 
 /**
- * Full-screen modal component for displaying suggestion details.
- * Shows suggestion information including name, description, tags, rating, distance, and opening hours.
+ * Full-screen modal component for displaying place details.
+ * Shows place information including name, description, tags, rating, distance, and opening hours.
  * Includes buttons for getting directions and opening in Google Maps.
  *
  * @param visible - Whether the modal is visible
  * @param onClose - Callback function called when modal is closed
- * @param suggestion - The suggestion to display, or null if no suggestion is available
+ * @param place - The place to display, or null if no place is available
  */
-export function SuggestionModal({ visible, onClose, suggestion }: SuggestionModalProps) {
+export function PlaceModal({ visible, onClose, place }: PlaceModalProps) {
   const [countdown, setCountdown] = useState<string>("");
 
   useEffect(() => {
-    if (suggestion?.opensAt || suggestion?.closesAt) {
+    if (place?.opensAt || place?.closesAt) {
       const updateCountdown = () => {
-        const isOpen = isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt);
+        const isOpen = isCurrentlyOpen(place.opensAt, place.closesAt);
 
-        if (!isOpen && suggestion.opensAt) {
-          setCountdown(getCountdown(suggestion.opensAt));
-        } else if (suggestion.closesAt) {
-          setCountdown(getCountdown(suggestion.closesAt));
+        if (!isOpen && place.opensAt) {
+          setCountdown(getCountdown(place.opensAt));
+        } else if (place.closesAt) {
+          setCountdown(getCountdown(place.closesAt));
         }
       };
 
@@ -55,7 +54,7 @@ export function SuggestionModal({ visible, onClose, suggestion }: SuggestionModa
 
       return () => clearInterval(interval);
     }
-  }, [suggestion?.opensAt, suggestion?.closesAt]);
+  }, [place?.opensAt, place?.closesAt]);
 
   return (
     <Modal
@@ -70,19 +69,19 @@ export function SuggestionModal({ visible, onClose, suggestion }: SuggestionModa
           <IconButton onPress={onClose} icon='close' size={ButtonSize.md} />
         </View>
         <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
-          {suggestion && (
+          {place && (
             <View className='px-8 pb-8 gap-6'>
               <Text className='text-5xl font-groen text-black'>
-                {suggestion.name}
+                {place.name}
               </Text>
 
               <Text className='text-xl text-black font-semibold opacity-90'>
-                📍 {cleanAddress(suggestion.address)}
+                📍 {cleanAddress(place.address)}
               </Text>
 
-              {suggestion.tags.length > 0 && (
+              {place.tags.length > 0 && (
                 <View className='flex-row flex-wrap gap-2'>
-                  {suggestion.tags
+                  {place.tags
                     .filter((tag: string) => tag !== "establishment")
                     .map((tag: string, idx: number) => (
                       <View
@@ -98,35 +97,33 @@ export function SuggestionModal({ visible, onClose, suggestion }: SuggestionModa
                 </View>
               )}
 
-              {suggestion.description && (
+              {place.description && (
                 <Text className='text-xl text-black font-medium opacity-80 leading-9'>
-                  {suggestion.description}
+                  {place.description}
                 </Text>
               )}
 
               <View className='flex-row items-center justify-between'>
                 <Text className='text-lg font-semibold text-black opacity-90'>
-                  ⭐ {suggestion.rating}
+                  ⭐ {place.rating}
                 </Text>
-                {suggestion.distanceInKm && (
+                {place.distanceInKm && (
                   <Text className='text-lg text-black font-medium opacity-90'>
-                    {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                    {place.distanceInKm.toFixed(1)} {copy.kmAway}
                   </Text>
                 )}
               </View>
 
-              {(suggestion.openingHours ||
-                suggestion.opensAt ||
-                suggestion.closesAt) && (
+              {(place.openingHours || place.opensAt || place.closesAt) && (
                 <View className='flex-row items-center justify-between'>
-                  {suggestion.openingHours && (
+                  {place.openingHours && (
                     <Text className='text-lg text-black font-medium opacity-90'>
-                      {getOpeningHoursForToday(suggestion.openingHours)}
+                      {getOpeningHoursForToday(place.openingHours)}
                     </Text>
                   )}
                   {countdown && (
                     <Text className='text-lg text-black font-medium opacity-90'>
-                      {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
+                      {isCurrentlyOpen(place.opensAt, place.closesAt)
                         ? `${copy.closingIn} ${countdown}`
                         : `${copy.openingIn} ${countdown}`}
                     </Text>
@@ -135,11 +132,8 @@ export function SuggestionModal({ visible, onClose, suggestion }: SuggestionModa
               )}
 
               <View className='gap-4 mt-2'>
-                <GetDirectionsButton suggestion={suggestion} />
-                {suggestion.reviewsLink && (
-                  <ViewReviewsButton suggestion={suggestion} />
-                )}
-                <GoogleMapsButton suggestion={suggestion} />
+                <GetDirectionsButton suggestion={place} />
+                <GoogleMapsButton suggestion={place} />
               </View>
             </View>
           )}

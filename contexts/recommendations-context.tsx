@@ -1,12 +1,14 @@
 import {
+  DEFAULT_MAX_DISTANCE_IN_KM,
   getClosingTimeForToday,
   getOpeningTimeForToday,
+  LAST_DISTANCE_OPTION,
   loadFirstPhotoForSuggestion,
   loadPhotoByName as loadPhotoByNameUtil,
   Suggestion,
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
-import { getPlacesByIds, getSharePlaceIds } from "@/services/supabase";
+import { getSharePlaceIds, recommendPlaces } from "@/services/supabase";
 import { useLocalSearchParams } from "expo-router";
 import {
   createContext,
@@ -21,19 +23,35 @@ import { Image } from "react-native";
 interface RecommendationsContextType {
   isLoading: boolean;
   recommendations: Suggestion[];
-  selectedSuggestionIds: string[];
+  selectedRecommendationIds: string[];
   currentIndex: number;
   hasFetched: boolean;
   error: string | null;
+  initialMaxDistance: number;
+  filterOpenNow: boolean;
+  filterCity: string | null;
+  filterMaxDistance: number | null;
   fetchRecommendations: (
     userLocation?: LocationCoordinates,
-    forceRefetch?: boolean
+    forceRefetch?: boolean,
+    openNowFilter?: boolean,
+    cityFilter?: string | null,
+    maxDistanceFilter?: number | null
   ) => Promise<void>;
+  setFilterOpenNow: (filterOpenNow: boolean) => void;
+  setFilterCity: (filterCity: string | null) => void;
+  setFilterMaxDistance: (maxDistance: number | null) => void;
   handleSkip: () => void;
-  handleSelect: (suggestionId: string) => void;
-  loadPhotoByName: (suggestionId: string, photoName: string) => Promise<void>;
-  getPhotoUris: (suggestionId: string) => string[] | undefined;
-  getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
+  handleSelect: (recommendationId: string) => void;
+  loadPhotoByName: (
+    recommendationId: string,
+    photoName: string
+  ) => Promise<void>;
+  getPhotoUris: (recommendationId: string) => string[] | undefined;
+  getPhotoUri: (
+    recommendationId: string,
+    photoName: string
+  ) => string | undefined;
 }
 
 const RecommendationsContext = createContext<
@@ -57,18 +75,29 @@ export function RecommendationsProvider({
   const [photoUrisMap, setPhotoUrisMap] = useState<
     Map<string, Map<string, string>>
   >(new Map());
-  const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<string[]>(
-    []
-  );
+  const [selectedRecommendationIds, setSelectedRecommendationIds] = useState<
+    string[]
+  >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialMaxDistance, setInitialMaxDistance] = useState<number>(
+    DEFAULT_MAX_DISTANCE_IN_KM
+  );
+  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
+  const [filterCity, setFilterCity] = useState<string | null>(null);
+  const [filterMaxDistance, setFilterMaxDistance] = useState<number | null>(
+    null
+  );
 
   const fetchRecommendations = useCallback(
     async (
       userLocation?: LocationCoordinates,
-      forceRefetch?: boolean
+      forceRefetch: boolean = false,
+      openNowFilter?: boolean,
+      cityFilter?: string | null,
+      maxDistanceFilter?: number | null
     ): Promise<void> => {
       if (!params.code) {
         setError("yikes! no share code found");
@@ -86,8 +115,15 @@ export function RecommendationsProvider({
       setError(null);
       setRecommendations([]);
       setCurrentIndex(0);
-      setSelectedSuggestionIds([]);
+      setSelectedRecommendationIds([]);
       setPhotoUrisMap(new Map());
+
+      const openNowFilterValue =
+        openNowFilter !== undefined ? openNowFilter : filterOpenNow;
+      const cityFilterValue =
+        cityFilter !== undefined ? cityFilter : filterCity;
+      const maxDistanceFilterValue =
+        maxDistanceFilter !== undefined ? maxDistanceFilter : filterMaxDistance;
 
       try {
         const sharePlaceIds = await getSharePlaceIds(params.code);
@@ -100,9 +136,15 @@ export function RecommendationsProvider({
           return;
         }
 
-        const fetchedPlaces = await getPlacesByIds({
+        const fetchedPlaces = await recommendPlaces({
           placeIds: sharePlaceIds,
+          filterOpenNow: openNowFilterValue,
+          filterCity: cityFilterValue,
           userLocation: userLocation || undefined,
+          maxDistanceKm:
+            maxDistanceFilterValue === LAST_DISTANCE_OPTION
+              ? null
+              : maxDistanceFilterValue ?? null,
         });
 
         const recommendationsWithComputedFields = fetchedPlaces.map(
@@ -141,6 +183,9 @@ export function RecommendationsProvider({
 
         setRecommendations(recommendationsWithComputedFields);
         setCurrentIndex(0);
+        setInitialMaxDistance(
+          maxDistanceFilterValue ?? DEFAULT_MAX_DISTANCE_IN_KM
+        );
       } catch (err) {
         setError("yikes! somethin' went wrong");
       } finally {
@@ -148,7 +193,14 @@ export function RecommendationsProvider({
         setHasFetched(true);
       }
     },
-    [isLoading, hasFetched, params.code]
+    [
+      isLoading,
+      hasFetched,
+      params.code,
+      filterOpenNow,
+      filterCity,
+      filterMaxDistance,
+    ]
   );
 
   const handleSkip = useCallback(async () => {
@@ -176,17 +228,19 @@ export function RecommendationsProvider({
     setCurrentIndex(nextIndex);
   }, [currentIndex, recommendations, photoUrisMap]);
 
-  const handleSelect = useCallback((suggestionId: string) => {
-    setSelectedSuggestionIds((prev) =>
-      prev.includes(suggestionId) ? prev : [...prev, suggestionId]
+  const handleSelect = useCallback((recommendationId: string) => {
+    setSelectedRecommendationIds((prev) =>
+      prev.includes(recommendationId) ? prev : [...prev, recommendationId]
     );
   }, []);
 
   const getPhotoUris = useCallback(
-    (suggestionId: string) => {
-      const photoMap = photoUrisMap.get(suggestionId);
+    (recommendationId: string) => {
+      const photoMap = photoUrisMap.get(recommendationId);
       if (!photoMap) return undefined;
-      const recommendation = recommendations.find((s) => s.id === suggestionId);
+      const recommendation = recommendations.find(
+        (s) => s.id === recommendationId
+      );
       if (!recommendation) return undefined;
       return recommendation.photos
         .map((photoName) => photoMap.get(photoName))
@@ -196,16 +250,16 @@ export function RecommendationsProvider({
   );
 
   const getPhotoUri = useCallback(
-    (suggestionId: string, photoName: string) => {
-      const photoMap = photoUrisMap.get(suggestionId);
+    (recommendationId: string, photoName: string) => {
+      const photoMap = photoUrisMap.get(recommendationId);
       return photoMap?.get(photoName);
     },
     [photoUrisMap]
   );
 
   const loadPhotoByName = useCallback(
-    async (suggestionId: string, photoName: string) => {
-      const photoMap = photoUrisMap.get(suggestionId);
+    async (recommendationId: string, photoName: string) => {
+      const photoMap = photoUrisMap.get(recommendationId);
       if (photoMap?.has(photoName)) {
         return;
       }
@@ -215,9 +269,9 @@ export function RecommendationsProvider({
         setPhotoUrisMap((prev) => {
           const updated = new Map(prev);
           const existing =
-            updated.get(suggestionId) || new Map<string, string>();
+            updated.get(recommendationId) || new Map<string, string>();
           existing.set(photoName, photoUri);
-          updated.set(suggestionId, existing);
+          updated.set(recommendationId, existing);
           return updated;
         });
         await Image.prefetch(photoUri).catch(() => {});
@@ -237,11 +291,18 @@ export function RecommendationsProvider({
       value={{
         isLoading,
         recommendations,
-        selectedSuggestionIds,
+        selectedRecommendationIds,
         currentIndex,
         hasFetched,
         error,
+        initialMaxDistance,
+        filterOpenNow,
+        filterCity,
+        filterMaxDistance,
         fetchRecommendations,
+        setFilterOpenNow,
+        setFilterCity,
+        setFilterMaxDistance,
         handleSkip,
         handleSelect,
         loadPhotoByName,

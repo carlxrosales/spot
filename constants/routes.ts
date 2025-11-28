@@ -4,9 +4,10 @@
  */
 export const Routes = {
   survey: "/",
-  suggestion: "/suggestion",
+  suggestions: "/suggestions",
   customInput: "/custom-input",
   lazyMode: "/lazy-mode",
   mySpots: "/my-spots",
-  recos: "/recos",
+  recommendations: "/recommendations/[code]",
+  recos: "/recos/[code]",
 } as const;

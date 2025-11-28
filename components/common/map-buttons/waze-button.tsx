@@ -49,3 +49,4 @@ export function WazeButton({ suggestion }: WazeButtonProps) {
     />
   );
 }
+

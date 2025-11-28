@@ -2,15 +2,15 @@ import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { IconButton } from "@/components/common/icon-button";
 import { LocationPermissionModal } from "@/components/common/location-permission-modal";
+import { PlaceModal } from "@/components/common/place-modal";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
-import { DistanceFilterModal } from "@/components/suggestion/distance-filter-modal";
-import { OpenNowFilterModal } from "@/components/suggestion/open-now-filter-modal";
+import { DistanceFilterModal } from "@/components/suggestions/distance-filter-modal";
+import { OpenNowFilterModal } from "@/components/suggestions/open-now-filter-modal";
 import {
   SuggestionCard,
   SuggestionCardRef,
-} from "@/components/suggestion/suggestion-card";
-import { SuggestionModal } from "@/components/suggestion/suggestion-modal";
+} from "@/components/suggestions/suggestion-card";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
@@ -227,10 +227,10 @@ function Suggestion() {
           </View>
         )}
       </SafeView>
-      <SuggestionModal
+      <PlaceModal
         visible={swipeModal.isVisible}
         onClose={swipeModal.handleClose}
-        suggestion={currentSuggestion}
+        place={currentSuggestion}
       />
       <DistanceFilterModal
         visible={distanceModal.isVisible}

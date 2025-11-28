@@ -3,6 +3,7 @@
  */
 export const Timeouts = {
   inputFocus: 100,
+  redirect: 300,
   swipeAction: 600,
   distanceFilter: 800,
 };

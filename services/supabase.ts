@@ -131,12 +131,15 @@ export async function suggestPlaces(
   }));
 }
 
-export interface GetPlacesByIdsOptions {
+export interface RecommendPlacesOptions {
   placeIds: string[];
+  filterOpenNow?: boolean;
+  filterCity?: string | null;
   userLocation?: LocationCoordinates;
+  maxDistanceKm?: number | null;
 }
 
-export interface GetPlacesByIdsResult {
+export interface RecommendPlacesResult {
   id: string;
   name: string;
   address: string;
@@ -150,34 +153,40 @@ export interface GetPlacesByIdsResult {
   description: string | null;
   share_link: string | null;
   reviews_link: string | null;
-  distance_in_km?: number | null;
+  distance_in_km: number | null;
 }
 
 /**
- * Gets places by their IDs from the database.
- * Queries the places table directly using the provided place IDs.
+ * Recommends places by their IDs from the database.
+ * Queries the Supabase database using the recommend_places function.
  *
- * @param options - Configuration options including place IDs and optional user location
+ * @param options - Configuration options including place IDs and optional filters
  * @returns Promise resolving to an array of places
  * @throws Error if the query fails
  */
-export async function getPlacesByIds(
-  options: GetPlacesByIdsOptions
+export async function recommendPlaces(
+  options: RecommendPlacesOptions
 ): Promise<Suggestion[]> {
-  const { placeIds, userLocation } = options;
+  const {
+    placeIds,
+    filterOpenNow = false,
+    filterCity = null,
+    userLocation,
+    maxDistanceKm,
+  } = options;
 
   if (placeIds.length === 0) {
     return [];
   }
 
-  let query = supabase
-    .from("places")
-    .select(
-      "id, name, address, rating, price_level, photos, tags, lat, lng, opening_hours, description, share_link, reviews_link"
-    )
-    .in("id", placeIds);
-
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc("recommend_places", {
+    place_ids: placeIds,
+    filter_open_now: filterOpenNow,
+    filter_city: filterCity,
+    user_lat: userLocation?.lat ?? null,
+    user_lng: userLocation?.lng ?? null,
+    max_distance_km: maxDistanceKm ?? null,
+  });
 
   if (error) {
     throw new Error(`oof! somethin' went wrong`);
@@ -188,64 +197,24 @@ export async function getPlacesByIds(
   }
 
   // Transform database results to Suggestion interface
-  const suggestions = data.map((result: GetPlacesByIdsResult) => {
-    let distanceInKm: number | undefined = undefined;
-
-    if (userLocation && result.lat && result.lng) {
-      const R = 6371;
-      const dLat = ((Number(result.lat) - userLocation.lat) * Math.PI) / 180;
-      const dLng = ((Number(result.lng) - userLocation.lng) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((userLocation.lat * Math.PI) / 180) *
-          Math.cos((Number(result.lat) * Math.PI) / 180) *
-          Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      distanceInKm = Math.round(R * c * 10) / 10;
-    }
-
-    const suggestion: Suggestion = {
-      id: result.id,
-      name: truncateName(result.name),
-      address: result.address,
-      rating: Number(result.rating),
-      photos: result.photos,
-      tags: result.tags,
-      lat: Number(result.lat),
-      lng: Number(result.lng),
-      distanceInKm,
-    };
-
-    if (result.price_level !== null) {
-      suggestion.priceLevel = result.price_level;
-    }
-
-    if (result.opening_hours) {
-      suggestion.openingHours = result.opening_hours;
-    }
-
-    if (result.description) {
-      suggestion.description = result.description;
-    }
-
-    if (result.share_link) {
-      suggestion.shareLink = result.share_link;
-    }
-
-    if (result.reviews_link) {
-      suggestion.reviewsLink = result.reviews_link;
-    }
-
-    return suggestion;
-  });
-
-  // Preserve the order of placeIds
-  const orderedSuggestions = placeIds
-    .map((id) => suggestions.find((s) => s.id === id))
-    .filter((s): s is Suggestion => s !== undefined);
-
-  return orderedSuggestions;
+  return data.map((result: RecommendPlacesResult) => ({
+    id: result.id,
+    name: truncateName(result.name),
+    address: result.address,
+    rating: Number(result.rating),
+    priceLevel: result.price_level ?? undefined,
+    photos: result.photos,
+    tags: result.tags,
+    lat: Number(result.lat),
+    lng: Number(result.lng),
+    openingHours: result.opening_hours ?? undefined,
+    description: result.description ?? undefined,
+    shareLink: result.share_link ?? undefined,
+    reviewsLink: result.reviews_link ?? undefined,
+    distanceInKm: result.distance_in_km
+      ? Number(result.distance_in_km)
+      : undefined,
+  }));
 }
 
 /**

@@ -1,0 +1,253 @@
+import { AbsoluteView } from "@/components/common/absolute-view";
+import { AnimatedBackground } from "@/components/common/animated-background";
+import { IconButton } from "@/components/common/icon-button";
+import { LocationPermissionModal } from "@/components/common/location-permission-modal";
+import { PlaceModal } from "@/components/common/place-modal";
+import { SafeView } from "@/components/common/safe-view";
+import { TextButton } from "@/components/common/text-button";
+import { DistanceFilterModal } from "@/components/recommendations/distance-filter-modal";
+import { OpenNowFilterModal } from "@/components/recommendations/open-now-filter-modal";
+import {
+  RecommendationCard,
+  RecommendationCardRef,
+} from "@/components/recommendations/recommendation-card";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
+import { Routes } from "@/constants/routes";
+import { Animation, Colors } from "@/constants/theme";
+import { useLocation } from "@/contexts/location-context";
+import {
+  RecommendationsProvider,
+  useRecommendations,
+} from "@/contexts/recommendations-context";
+import { ShareProvider } from "@/contexts/share-context";
+import { useToast } from "@/contexts/toast-context";
+import { useModal } from "@/hooks/use-modal";
+import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
+const copy = {
+  findingSpots: "Finding yo' spots...",
+  noSuggestions: "oof! no spots found",
+};
+
+/**
+ * Recommendation screen component for browsing specific places by IDs.
+ * Displays swipeable cards with places based on place IDs passed in the URL.
+ * Provides actions to skip, view details, or select places.
+ */
+function Recommendation() {
+  const router = useRouter();
+  const { location, hasPermission } = useLocation();
+  const {
+    isLoading,
+    hasFetched,
+    recommendations,
+    selectedRecommendationIds,
+    currentIndex,
+    error,
+    fetchRecommendations,
+    handleSelect,
+  } = useRecommendations();
+  const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
+  const { displayToast } = useToast();
+  const placeModal = useModal();
+  const distanceModal = useModal();
+  const openNowModal = useModal();
+
+  const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
+  const [isProceedLoading, setIsProceedLoading] = useState<boolean>(false);
+
+  const cardRef = useRef<RecommendationCardRef>(null);
+
+  useEffect(() => {
+    if (location) {
+      fetchRecommendations(location);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (error) {
+      displayToast({ message: error });
+    }
+  }, [error, displayToast]);
+
+  useEffect(() => {
+    setIsSkipLoading(false);
+    setIsProceedLoading(false);
+  }, [currentIndex]);
+
+  const currentRecommendation =
+    recommendations.length > 0 ? recommendations[currentIndex] : null;
+
+  const handleSkipPress = useCallback(() => {
+    if (isSkipLoading || isProceedLoading) return;
+    onSwipeSkip();
+    setIsSkipLoading(true);
+    cardRef.current?.swipeLeft();
+    setTimeout(() => {
+      setIsSkipLoading(false);
+    }, Animation.duration.slow);
+  }, [isSkipLoading, isProceedLoading, onSwipeSkip]);
+
+  const handleProceedPress = useCallback(() => {
+    if (isSkipLoading || isProceedLoading) return;
+    if (currentRecommendation) {
+      handleSelect(currentRecommendation.id);
+    }
+    onSwipeSelect();
+    setIsProceedLoading(true);
+    cardRef.current?.swipeRight();
+    setTimeout(() => {
+      setIsProceedLoading(false);
+    }, Animation.duration.slow);
+  }, [
+    isSkipLoading,
+    isProceedLoading,
+    onSwipeSelect,
+    currentRecommendation,
+    handleSelect,
+  ]);
+
+  const handleBack = useCallback(() => {
+    router.navigate(Routes.survey);
+  }, [router]);
+
+  return (
+    <AbsoluteView
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      className='w-full h-full bg-neonGreen'
+    >
+      <AnimatedBackground />
+      <SafeView className='h-full w-full justify-center items-center'>
+        {isLoading || !hasFetched ? (
+          <View className='items-center gap-6'>
+            <ActivityIndicator size='large' color={Colors.black} />
+            <Text className='text-4xl font-groen text-black'>
+              {copy.findingSpots}
+            </Text>
+          </View>
+        ) : (
+          <View className='h-full w-full flex-1 flex-col'>
+            <>
+              <View className='flex-row justify-between items-center gap-6 px-4 pt-4'>
+                <IconButton
+                  onPress={handleBack}
+                  size={ButtonSize.sm}
+                  icon='arrow-back'
+                />
+                <AbsoluteView top={14} left={56} right={56}>
+                  <View className='items-center justify-center'>
+                    <TextButton
+                      size={ButtonSize.sm}
+                      variant={ButtonVariant.black}
+                      label={`${
+                        recommendations.length > 0 ? currentIndex + 1 : 0
+                      } / ${recommendations.length}`}
+                    />
+                  </View>
+                </AbsoluteView>
+                <View className='flex-row gap-2'>
+                  <IconButton
+                    size={ButtonSize.sm}
+                    onPress={openNowModal.handleOpen}
+                    icon={"time-outline"}
+                    variant={ButtonVariant.white}
+                  />
+                  <IconButton
+                    size={ButtonSize.sm}
+                    onPress={distanceModal.handleOpen}
+                    icon='location-outline'
+                    variant={ButtonVariant.white}
+                  />
+                </View>
+              </View>
+              {currentRecommendation ? (
+                <View className='flex-1'>
+                  <RecommendationCard
+                    ref={cardRef}
+                    key={`recommendation-card-${currentIndex}`}
+                    recommendation={currentRecommendation}
+                  />
+                </View>
+              ) : (
+                <View className=' flex-1 items-center justify-center'>
+                  <Text className='text-5xl text-center font-groen text-black'>
+                    {copy.noSuggestions}
+                  </Text>
+                </View>
+              )}
+              <View className='flex-row justify-center items-center gap-6 px-8 pt-4 pb-8'>
+                <IconButton
+                  onPress={handleSkipPress}
+                  icon='close'
+                  variant={ButtonVariant.black}
+                  loading={isSkipLoading}
+                  disabled={
+                    !currentRecommendation || isSkipLoading || isProceedLoading
+                  }
+                />
+                <IconButton
+                  onPress={placeModal.handleOpen}
+                  icon='eye'
+                  variant={ButtonVariant.white}
+                  disabled={
+                    !currentRecommendation || isSkipLoading || isProceedLoading
+                  }
+                />
+                <IconButton
+                  onPress={handleProceedPress}
+                  icon='checkmark-sharp'
+                  variant={ButtonVariant.pink}
+                  loading={isProceedLoading}
+                  disabled={
+                    !currentRecommendation ||
+                    isSkipLoading ||
+                    isProceedLoading ||
+                    selectedRecommendationIds.includes(currentRecommendation.id)
+                  }
+                />
+              </View>
+            </>
+          </View>
+        )}
+      </SafeView>
+      <PlaceModal
+        visible={placeModal.isVisible}
+        onClose={placeModal.handleClose}
+        place={currentRecommendation}
+      />
+      <DistanceFilterModal
+        visible={distanceModal.isVisible}
+        onClose={distanceModal.handleClose}
+      />
+      <OpenNowFilterModal
+        visible={openNowModal.isVisible}
+        onClose={openNowModal.handleClose}
+      />
+      {(!hasPermission || !location) && (
+        <LocationPermissionModal onPermissionGranted={fetchRecommendations} />
+      )}
+    </AbsoluteView>
+  );
+}
+
+function RecommendationWithShareProvider() {
+  const { getPhotoUri } = useRecommendations();
+  return (
+    <ShareProvider getPhotoUri={getPhotoUri}>
+      <Recommendation />
+    </ShareProvider>
+  );
+}
+
+export default function RecommendationWithProviders() {
+  return (
+    <RecommendationsProvider>
+      <RecommendationWithShareProvider />
+    </RecommendationsProvider>
+  );
+}

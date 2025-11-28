@@ -28,7 +28,7 @@ const copy = {
 };
 
 interface SpotCardProps {
-  suggestion: Suggestion;
+  spot: Suggestion;
   getPhotoUri: (spotId: string, photoName: string) => string | undefined;
   onPhotoIndexChange: (spotId: string, index: number) => void;
   currentPhotoIndex: number;
@@ -39,10 +39,10 @@ interface SpotCardProps {
 /**
  * Spot card component for displaying saved spots in the my-spots page.
  * Matches the design of swipeable-card with selected/spotted state.
- * Displays suggestion photos, name, rating, distance, and opening hours.
+ * Displays spot photos, name, rating, distance, and opening hours.
  * Provides actions to share, get directions, and remove.
  *
- * @param suggestion - The suggestion to display
+ * @param spot - The spot to display
  * @param getPhotoUri - Function to get photo URI for a spot
  * @param onPhotoIndexChange - Callback when photo index changes
  * @param currentPhotoIndex - Current photo index
@@ -50,7 +50,7 @@ interface SpotCardProps {
  * @param isRemoving - Whether the spot is being removed
  */
 export function SpotCard({
-  suggestion,
+  spot,
   getPhotoUri,
   onPhotoIndexChange,
   currentPhotoIndex,
@@ -78,29 +78,29 @@ export function SpotCard({
 
   const imageItems = useMemo(
     () =>
-      suggestion.photos?.map((photo) => ({
+      spot.photos?.map((photo) => ({
         name: photo,
-        uri: getPhotoUri(suggestion.id, photo),
+        uri: getPhotoUri(spot.id, photo),
       })) || [],
-    [suggestion.photos, suggestion.id, getPhotoUri]
+    [spot.photos, spot.id, getPhotoUri]
   );
 
   const handlePhotoIndexChange = useCallback(
     (index: number) => {
-      onPhotoIndexChange(suggestion.id, index);
+      onPhotoIndexChange(spot.id, index);
     },
-    [suggestion.id, onPhotoIndexChange]
+    [spot.id, onPhotoIndexChange]
   );
 
   useEffect(() => {
-    if (suggestion.opensAt || suggestion.closesAt) {
+    if (spot.opensAt || spot.closesAt) {
       const updateCountdown = () => {
-        const isOpen = isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt);
+        const isOpen = isCurrentlyOpen(spot.opensAt, spot.closesAt);
 
-        if (!isOpen && suggestion.opensAt) {
-          setCountdown(getCountdown(suggestion.opensAt));
-        } else if (suggestion.closesAt) {
-          setCountdown(getCountdown(suggestion.closesAt));
+        if (!isOpen && spot.opensAt) {
+          setCountdown(getCountdown(spot.opensAt));
+        } else if (spot.closesAt) {
+          setCountdown(getCountdown(spot.closesAt));
         }
       };
 
@@ -109,7 +109,7 @@ export function SpotCard({
 
       return () => clearInterval(interval);
     }
-  }, [suggestion.opensAt, suggestion.closesAt]);
+  }, [spot.opensAt, spot.closesAt]);
 
   return (
     <Animated.View style={cardStyle}>
@@ -130,11 +130,11 @@ export function SpotCard({
             icon='trash-outline'
             variant={ButtonVariant.black}
             size={ButtonSize.sm}
-            onPress={() => onRemove(suggestion.id)}
+            onPress={() => onRemove(spot.id)}
             loading={isRemoving}
           />
         </View>
-        {suggestion.photos && suggestion.photos.length > 0 && (
+        {spot.photos && spot.photos.length > 0 && (
           <ImageCarousel
             images={imageItems}
             currentIndex={currentPhotoIndex}
@@ -155,7 +155,7 @@ export function SpotCard({
                 className='text-5xl font-groen text-white'
                 pointerEvents='none'
               >
-                {suggestion.name}
+                {spot.name}
               </Text>
               <View
                 className='flex-row items-center justify-between'
@@ -165,30 +165,28 @@ export function SpotCard({
                   className='text-xl text-white font-semibold text-left'
                   pointerEvents='none'
                 >
-                  ⭐ {suggestion.rating}
+                  ⭐ {spot.rating}
                 </Text>
-                {suggestion.distanceInKm && (
+                {spot.distanceInKm && (
                   <Text
                     className='text-xl text-white opacity-90 text-right'
                     pointerEvents='none'
                   >
-                    {suggestion.distanceInKm.toFixed(1)} {copy.kmAway}
+                    {spot.distanceInKm.toFixed(1)} {copy.kmAway}
                   </Text>
                 )}
               </View>
-              {(suggestion.openingHours ||
-                suggestion.closesAt ||
-                suggestion.opensAt) && (
+              {(spot.openingHours || spot.closesAt || spot.opensAt) && (
                 <View
                   className='flex-row items-center justify-between'
                   pointerEvents='box-none'
                 >
-                  {suggestion.openingHours && (
+                  {spot.openingHours && (
                     <Text
                       className='text-lg text-white opacity-90 text-left'
                       pointerEvents='none'
                     >
-                      {getOpeningHoursForToday(suggestion.openingHours)}
+                      {getOpeningHoursForToday(spot.openingHours)}
                     </Text>
                   )}
                   {countdown && (
@@ -196,7 +194,7 @@ export function SpotCard({
                       className='text-lg text-white opacity-90 text-right'
                       pointerEvents='none'
                     >
-                      {isCurrentlyOpen(suggestion.opensAt, suggestion.closesAt)
+                      {isCurrentlyOpen(spot.opensAt, spot.closesAt)
                         ? `${copy.closingIn} ${countdown}`
                         : `${copy.openingIn} ${countdown}`}
                     </Text>
@@ -204,9 +202,9 @@ export function SpotCard({
                 </View>
               )}
               <View className='py-4 gap-3'>
-                <GetDirectionsButton suggestion={suggestion} />
+                <GetDirectionsButton suggestion={spot} />
                 <ShareButton
-                  suggestion={suggestion}
+                  suggestion={spot}
                   currentPhotoIndex={currentPhotoIndex}
                 />
               </View>

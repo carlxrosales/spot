@@ -7,18 +7,13 @@ import { SearchBar } from "@/components/my-spots/search-bar";
 import { SpotCard } from "@/components/my-spots/spot-card";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
+import { MySpotsProvider, useMySpots } from "@/contexts/my-spots-context";
 import { ShareProvider } from "@/contexts/share-context";
 import { useToast } from "@/contexts/toast-context";
-import {
-  loadPhotoByName as loadPhotoByNameUtil,
-  Suggestion,
-} from "@/data/suggestions";
-import { loadSpots, removeSpot } from "@/services/storage";
-import { createShare } from "@/services/supabase";
-import { getRecommendationUrl } from "@/utils/urls";
+import { Suggestion } from "@/data/suggestions";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Share, Text, View } from "react-native";
+import { useCallback, useEffect } from "react";
+import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 const copy = {
   noSpots: "no spots here",
@@ -29,168 +24,78 @@ const copy = {
  * My Spots screen component.
  * Displays all saved spots with options to share, open in maps, get directions, and remove.
  */
-export default function MySpots() {
+function MySpots() {
   const router = useRouter();
   const { displayToast } = useToast();
-  const [spots, setSpots] = useState<Suggestion[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [removingSpotId, setRemovingSpotId] = useState<string | null>(null);
-  const [isSharing, setIsSharing] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [currentPhotoIndices, setCurrentPhotoIndices] = useState<
-    Map<string, number>
-  >(new Map());
-  const [photoUris, setPhotoUris] = useState<Map<string, Map<string, string>>>(
-    new Map()
-  );
-
-  const filteredSpots = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return spots;
-    }
-    const query = searchQuery.toLowerCase().trim();
-    return spots.filter((spot) => spot.name.toLowerCase().includes(query));
-  }, [spots, searchQuery]);
+  const {
+    filteredSpots,
+    isLoading,
+    error,
+    removingSpotId,
+    isSharing,
+    searchQuery,
+    handleRemove,
+    handlePhotoIndexChange,
+    getPhotoUri,
+    handleShare,
+    setSearchQuery,
+    getCurrentPhotoIndex,
+  } = useMySpots();
 
   useEffect(() => {
-    loadSavedSpots();
-  }, []);
-
-  const loadSavedSpots = async () => {
-    try {
-      setIsLoading(true);
-      const savedSpots = await loadSpots();
-      setSpots(savedSpots);
-
-      const updatedPhotoUris = new Map<string, Map<string, string>>();
-      for (const spot of savedSpots) {
-        if (spot.photos && spot.photos.length > 0) {
-          const firstPhotoName = spot.photos[0];
-          try {
-            const photoUri = await loadPhotoByNameUtil(firstPhotoName);
-            if (photoUri) {
-              const photoMap = new Map<string, string>();
-              photoMap.set(firstPhotoName, photoUri);
-              updatedPhotoUris.set(spot.id, photoMap);
-            }
-          } catch {}
-        }
-      }
-      setPhotoUris(updatedPhotoUris);
-    } catch {
-      displayToast({ message: "yikes! failed to load your spots" });
-    } finally {
-      setIsLoading(false);
+    if (error) {
+      displayToast({ message: error });
     }
-  };
-
-  const handleRemove = useCallback(
-    async (spotId: string) => {
-      try {
-        setRemovingSpotId(spotId);
-        await removeSpot(spotId);
-        setSpots((prev) => prev.filter((s) => s.id !== spotId));
-        displayToast({ message: "Spot removed!" });
-      } catch {
-        displayToast({ message: "yikes! failed to remove spot" });
-      } finally {
-        setRemovingSpotId(null);
-      }
-    },
-    [displayToast]
-  );
-
-  const handlePhotoIndexChange = useCallback(
-    async (spotId: string, index: number) => {
-      setCurrentPhotoIndices((prev) => {
-        const updated = new Map(prev);
-        updated.set(spotId, index);
-        return updated;
-      });
-
-      const spot = spots.find((s) => s.id === spotId);
-      if (spot && spot.photos && spot.photos[index]) {
-        const photoName = spot.photos[index];
-        const photoMap = photoUris.get(spotId);
-        if (!photoMap || !photoMap.has(photoName)) {
-          try {
-            const photoUri = await loadPhotoByNameUtil(photoName);
-            if (photoUri) {
-              setPhotoUris((prev) => {
-                const updated = new Map(prev);
-                const existing =
-                  updated.get(spotId) || new Map<string, string>();
-                existing.set(photoName, photoUri);
-                updated.set(spotId, existing);
-                return updated;
-              });
-            }
-          } catch {}
-        }
-      }
-    },
-    [spots, photoUris]
-  );
-
-  const getPhotoUri = useCallback(
-    (spotId: string, photoName: string): string | undefined => {
-      const photoMap = photoUris.get(spotId);
-      return photoMap?.get(photoName);
-    },
-    [photoUris]
-  );
+  }, [error, displayToast]);
 
   const handleBack = useCallback(() => {
     router.navigate(Routes.survey);
   }, [router]);
 
-  const handleShare = useCallback(async () => {
-    if (spots.length < 2) {
-      displayToast({ message: "yikes! you need at least 2 spots to share" });
-      return;
-    }
-
-    try {
-      setIsSharing(true);
-      const placeIds = spots.map((spot) => spot.id);
-      const code = await createShare(placeIds);
-      const recommendationUrl = getRecommendationUrl(code);
-
-      const result = await Share.share({
-        message: `Check out my spots!\n\n👉 ${recommendationUrl}`,
-      });
-
-      if (result.action === Share.sharedAction) {
-        displayToast({ message: "Shared" });
-      } else {
-        displayToast({ message: "u cancelled" });
+  const handleRemoveWithToast = useCallback(
+    async (spotId: string) => {
+      try {
+        await handleRemove(spotId);
+        displayToast({ message: "Spot removed!" });
+      } catch {
+        displayToast({
+          message: "yikes! failed to remove spot",
+        });
       }
+    },
+    [handleRemove, displayToast]
+  );
+
+  const handleShareWithToast = useCallback(async () => {
+    try {
+      await handleShare();
+      displayToast({ message: "Shared" });
     } catch {
-      displayToast({ message: "oof! share failed" });
-    } finally {
-      setIsSharing(false);
+      displayToast({
+        message: "oof! share failed",
+      });
     }
-  }, [spots, displayToast]);
+  }, [handleShare, displayToast]);
 
   const renderSpot = useCallback(
     ({ item: spot }: { item: Suggestion }) => {
-      const currentPhotoIndex = currentPhotoIndices.get(spot.id) || 0;
+      const currentPhotoIndex = getCurrentPhotoIndex(spot.id);
       return (
         <SpotCard
-          suggestion={spot}
+          spot={spot}
           getPhotoUri={getPhotoUri}
           onPhotoIndexChange={handlePhotoIndexChange}
           currentPhotoIndex={currentPhotoIndex}
-          onRemove={handleRemove}
+          onRemove={handleRemoveWithToast}
           isRemoving={removingSpotId === spot.id}
         />
       );
     },
     [
-      currentPhotoIndices,
+      getCurrentPhotoIndex,
       getPhotoUri,
       handlePhotoIndexChange,
-      handleRemove,
+      handleRemoveWithToast,
       removingSpotId,
     ]
   );
@@ -226,7 +131,7 @@ export default function MySpots() {
                 </View>
               </AbsoluteView>
               <IconButton
-                onPress={handleShare}
+                onPress={handleShareWithToast}
                 size={ButtonSize.sm}
                 icon='share-outline'
                 variant={ButtonVariant.white}
@@ -258,5 +163,13 @@ export default function MySpots() {
         <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       </>
     </ShareProvider>
+  );
+}
+
+export default function MySpotsWithProvider() {
+  return (
+    <MySpotsProvider>
+      <MySpots />
+    </MySpotsProvider>
   );
 }

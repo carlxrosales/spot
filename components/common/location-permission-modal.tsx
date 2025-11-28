@@ -9,7 +9,7 @@ import { Platform } from "react-native";
 const copy = {
   title: "FBI wants to know your location",
   description:
-    "Just kidding! We need your location to find the best spots near you.",
+    "Just kidding! We need your location to find the best spots near you",
   enableLocation: {
     default: "Enable Location",
     ios: "Continue",

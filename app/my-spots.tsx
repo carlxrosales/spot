@@ -56,7 +56,7 @@ function MySpots() {
     async (spotId: string) => {
       try {
         await handleRemove(spotId);
-        displayToast({ message: "Spot removed!" });
+        displayToast({ message: "Removed" });
       } catch {
         displayToast({
           message: "yikes! failed to remove spot",

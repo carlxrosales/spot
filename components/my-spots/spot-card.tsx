@@ -1,3 +1,5 @@
+import { BottomModal } from "@/components/common/bottom-modal";
+import { Button } from "@/components/common/button";
 import { GetDirectionsButton } from "@/components/common/get-directions-button";
 import { IconButton } from "@/components/common/icon-button";
 import { ImageCarousel } from "@/components/common/image-carousel";
@@ -10,6 +12,7 @@ import {
   isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
+import { useModal } from "@/hooks/use-modal";
 import { getShadow } from "@/utils/shadows";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
@@ -25,6 +28,11 @@ const copy = {
   closingIn: "Closing in",
   openingIn: "Opening in",
   spotted: "spotted",
+  deleteModal: {
+    title: "Is this goodbye?",
+    description: "This action cannot be undone",
+    button: "Delete spot",
+  },
 };
 
 interface SpotCardProps {
@@ -32,7 +40,7 @@ interface SpotCardProps {
   getPhotoUri: (spotId: string, photoName: string) => string | undefined;
   onPhotoIndexChange: (spotId: string, index: number) => void;
   currentPhotoIndex: number;
-  onRemove: (spotId: string) => void;
+  onRemove: (spotId: string) => Promise<void>;
   isRemoving: boolean;
 }
 
@@ -58,6 +66,7 @@ export function SpotCard({
   isRemoving,
 }: SpotCardProps) {
   const [countdown, setCountdown] = useState<string>("");
+  const deleteModal = useModal();
 
   const scale = useSharedValue<number>(Animation.scale.hidden);
   const opacity = useSharedValue<number>(Animation.opacity.hidden);
@@ -91,6 +100,15 @@ export function SpotCard({
     },
     [spot.id, onPhotoIndexChange]
   );
+
+  const handleDeletePress = useCallback(() => {
+    deleteModal.handleOpen();
+  }, [deleteModal]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    deleteModal.handleClose();
+    await onRemove(spot.id);
+  }, [deleteModal, onRemove, spot.id]);
 
   useEffect(() => {
     if (spot.opensAt || spot.closesAt) {
@@ -130,7 +148,7 @@ export function SpotCard({
             icon='trash-outline'
             variant={ButtonVariant.black}
             size={ButtonSize.sm}
-            onPress={() => onRemove(spot.id)}
+            onPress={handleDeletePress}
             loading={isRemoving}
           />
         </View>
@@ -212,6 +230,23 @@ export function SpotCard({
           </View>
         </View>
       </View>
+      <BottomModal
+        visible={deleteModal.isVisible}
+        onClose={deleteModal.handleClose}
+        title={copy.deleteModal.title}
+        description={copy.deleteModal.description}
+        showCancelButton={true}
+      >
+        <Button
+          icon='trash-outline'
+          label={copy.deleteModal.button}
+          variant={ButtonVariant.black}
+          size={ButtonSize.lg}
+          fullWidth={true}
+          onPress={handleConfirmDelete}
+          loading={isRemoving}
+        />
+      </BottomModal>
     </Animated.View>
   );
 }

@@ -16,7 +16,7 @@ const copy = {
   chooseApp: "Pick your bias",
   googleMaps: "Google Maps",
   waze: "Waze",
-  description: "Choose your preferred navigation app to get directions.",
+  description: "Choose your preferred navigation app to get directions",
 };
 
 /**

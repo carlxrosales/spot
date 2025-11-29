@@ -9,6 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "build:android": "eas build --platform android --profile production",
+    "build:ios": "eas build --platform ios --profile production",
     "deploy:android": "eas build --platform android --auto-submit",
     "deploy:ios": "eas build --platform ios --auto-submit"
   },

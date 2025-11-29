@@ -31,7 +31,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "linkto.share",
+              "host": "linkto.spot",
               "pathPrefix": "/recos"
             }
           ],
@@ -42,7 +42,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.carlrosales.spot",
-      "associatedDomains": ["applinks:linkto.share"],
+      "associatedDomains": ["applinks:linkto.spot"],
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to find the best spots near you.",
         "ITSAppUsesNonExemptEncryption": false

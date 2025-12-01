@@ -4,8 +4,7 @@ import { Inputs } from "@/constants/inputs";
 import { getShadow } from "@/utils/shadows";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
-import { Keyboard, Platform, TextInput, View } from "react-native";
+import { Keyboard, TextInput, View } from "react-native";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -21,31 +20,16 @@ interface SearchBarProps {
  * @param onSearchChange - Callback function when search query changes
  */
 export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-      }
-    );
-
-    const hideSubscription = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => {
-        setKeyboardHeight(0);
-      }
-    );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
+  const handleTextChange = (text: string) => {
+    const textWithoutNewlines = text.replace(/\n/g, "");
+    if (textWithoutNewlines !== text) {
+      Keyboard.dismiss();
+    }
+    onSearchChange(textWithoutNewlines);
+  };
 
   return (
-    <AbsoluteView bottom={keyboardHeight} left={0} right={0}>
+    <AbsoluteView bottom={0} left={0} right={0} avoidKeyboard>
       <LinearGradient
         colors={["rgba(0, 0, 0, 0.3)", "rgba(0, 0, 0, 0)"]}
         start={{ x: 0, y: 1 }}
@@ -68,7 +52,7 @@ export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
               textAlign='left'
               textAlignVertical='top'
               value={searchQuery}
-              onChangeText={onSearchChange}
+              onChangeText={handleTextChange}
               placeholder={Inputs.search.placeholder}
               placeholderTextColor={Inputs.search.style.placeholderColor}
               autoCapitalize='none'

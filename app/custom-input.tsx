@@ -8,6 +8,7 @@ import { getShadow } from "@/utils/shadows";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -48,6 +49,14 @@ export default function CustomInputScreen() {
   const handleCancel = useCallback(() => {
     router.back();
   }, [router]);
+
+  const handleTextChange = useCallback((text: string) => {
+    const textWithoutNewlines = text.replace(/\n/g, "");
+    if (textWithoutNewlines !== text) {
+      Keyboard.dismiss();
+    }
+    setValue(textWithoutNewlines);
+  }, []);
 
   const handleSubmit = useCallback(() => {
     const trimmedInput = value.trim();
@@ -99,7 +108,7 @@ export default function CustomInputScreen() {
             ref={inputRef}
             className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black text-center'
             value={value}
-            onChangeText={setValue}
+            onChangeText={handleTextChange}
             textAlign='center'
             textAlignVertical='top'
             placeholder={Inputs.answer.placeholder}

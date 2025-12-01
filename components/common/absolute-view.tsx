@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { StyleProp, View, ViewStyle } from "react-native";
+import { ReactNode, useEffect, useState } from "react";
+import { Keyboard, Platform, StyleProp, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface AbsoluteViewProps {
@@ -11,6 +11,7 @@ interface AbsoluteViewProps {
   right?: number;
   style?: StyleProp<ViewStyle>;
   withSafeAreaInsets?: boolean;
+  avoidKeyboard?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ interface AbsoluteViewProps {
  * @param right - Distance from right in pixels
  * @param style - Optional inline styles
  * @param withSafeAreaInsets - Whether to add safe area insets to positioning (default: false)
+ * @param avoidKeyboard - Whether to automatically adjust position when keyboard is shown (default: false)
  */
 export function AbsoluteView({
   children,
@@ -35,16 +37,46 @@ export function AbsoluteView({
   right,
   style,
   withSafeAreaInsets = false,
+  avoidKeyboard = false,
 }: AbsoluteViewProps) {
   const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (!avoidKeyboard) return;
+
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [avoidKeyboard]);
+
+  const adjustedBottom =
+    bottom !== undefined
+      ? bottom + keyboardHeight
+      : keyboardHeight || undefined;
 
   const positionStyle: ViewStyle = {
     position: "absolute",
     ...(top !== undefined && {
       top,
     }),
-    ...(bottom !== undefined && {
-      bottom,
+    ...(adjustedBottom !== undefined && {
+      bottom: adjustedBottom,
     }),
     ...(left !== undefined && {
       left,
@@ -54,7 +86,7 @@ export function AbsoluteView({
     }),
     ...(withSafeAreaInsets && {
       paddingTop: top ? insets.top : 0,
-      paddingBottom: bottom ? insets.bottom : 0,
+      paddingBottom: adjustedBottom ? insets.bottom : 0,
       paddingLeft: left ? insets.left : 0,
       paddingRight: right ? insets.right : 0,
     }),

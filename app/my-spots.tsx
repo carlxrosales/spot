@@ -16,6 +16,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   View,
   ViewToken,
@@ -171,14 +173,11 @@ function MySpots() {
 
   return (
     <ShareProvider getPhotoUri={getPhotoUri}>
-      <>
-        <AbsoluteView
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          className='w-full h-full bg-neonGreen'
-        >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className='flex-1 bg-neonGreen'
+      >
+        <AbsoluteView top={0} left={0} right={0} bottom={0}>
           <AnimatedBackground />
           <View className='h-full w-full'>
             <SafeView edges={["top"]}>
@@ -209,15 +208,29 @@ function MySpots() {
               />
             </View>
             {isLoading ? (
-              <View className='flex-1 items-center justify-center'>
+              <AbsoluteView
+                top={0}
+                bottom={0}
+                left={0}
+                right={0}
+                className='flex-1 items-center justify-center'
+                avoidKeyboard
+              >
                 <ActivityIndicator size='large' color='black' />
-              </View>
+              </AbsoluteView>
             ) : filteredSpots.length === 0 ? (
-              <View className='flex-1 items-center justify-center px-8'>
+              <AbsoluteView
+                top={0}
+                bottom={0}
+                left={0}
+                right={0}
+                className='flex-1 items-center justify-center px-8'
+                avoidKeyboard
+              >
                 <Text className='text-4xl font-groen text-black text-center'>
                   {searchQuery.trim() ? copy.noResults : copy.noSpots}
                 </Text>
-              </View>
+              </AbsoluteView>
             ) : (
               <FlatList
                 data={filteredSpots}
@@ -236,7 +249,7 @@ function MySpots() {
           </View>
         </AbsoluteView>
         <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-      </>
+      </KeyboardAvoidingView>
     </ShareProvider>
   );
 }

@@ -26,6 +26,7 @@ export function useSwipeFeedback() {
   const skipSoundRef = useRef<AudioPlayer | null>(null);
   const selectSoundRef = useRef<AudioPlayer | null>(null);
   const thresholdSoundRef = useRef<AudioPlayer | null>(null);
+  const soundsReadyRef = useRef(false);
 
   useEffect(() => {
     const loadSounds = async () => {
@@ -61,6 +62,8 @@ export function useSwipeFeedback() {
           thresholdSound.volume = 0.3;
           thresholdSoundRef.current = thresholdSound;
         } catch {}
+
+        soundsReadyRef.current = true;
       } catch {}
     };
 
@@ -70,6 +73,7 @@ export function useSwipeFeedback() {
       skipSoundRef.current?.remove();
       selectSoundRef.current?.remove();
       thresholdSoundRef.current?.remove();
+      soundsReadyRef.current = false;
     };
   }, []);
 
@@ -96,11 +100,22 @@ export function useSwipeFeedback() {
   };
 
   const playSound = async (soundRef: React.RefObject<AudioPlayer | null>) => {
+    if (!soundsReadyRef.current || !soundRef.current) {
+      return;
+    }
+
     try {
-      if (soundRef.current) {
-        await soundRef.current.seekTo(0);
-        soundRef.current.play();
+      const player = soundRef.current;
+
+      if (player.playing) {
+        player.pause();
       }
+
+      try {
+        await player.seekTo(0);
+      } catch {}
+
+      player.play();
     } catch {}
   };
 

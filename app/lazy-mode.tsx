@@ -19,16 +19,11 @@ import {
 const copy = {
   question: "What you lookin' for?",
   placeholder: "Just dump your thoughts and we'll find you the best spots",
-  minCharacters: "Minimum 5 characters",
 };
-
-const MIN_LENGTH = 5;
 
 /**
  * Lazy mode screen component.
  * Allows users to input free-form text describing what they're looking for.
- * Uses AI to extract tags from the input and automatically completes the survey.
- * Navigates back to previous screen after processing.
  */
 export default function LazyModeScreen() {
   const router = useRouter();
@@ -47,7 +42,7 @@ export default function LazyModeScreen() {
     }, Timeouts.inputFocus);
   }, []);
 
-  const isValid = value.trim().length >= MIN_LENGTH;
+  const isValid = value.trim().length > 0;
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -60,7 +55,6 @@ export default function LazyModeScreen() {
     try {
       setAnswers([value.trim()]);
       setIsComplete(true);
-      router.back();
     } catch {
       displayToast({
         message: "oof! somethin' went wrong, let's start over",
@@ -134,10 +128,6 @@ export default function LazyModeScreen() {
             editable={!isLoading}
           />
         </View>
-
-        <Text className='mt-8 text-base text-black opacity-50'>
-          {copy.minCharacters}
-        </Text>
       </View>
     </KeyboardAvoidingView>
   );

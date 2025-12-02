@@ -23,8 +23,6 @@ const copy = {
 /**
  * Custom input screen component.
  * Modal screen that allows users to type a custom answer to a survey question.
- * Validates input length and submits the answer when valid.
- * Displays the current question and character limit requirements.
  */
 export default function CustomInputScreen() {
   const router = useRouter();

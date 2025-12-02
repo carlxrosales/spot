@@ -1,4 +1,14 @@
 /**
+ * Truncates a name to 28 characters, adding "..." if it exceeds the limit.
+ */
+export function truncateName(name: string): string {
+  if (name.length > 31) {
+    return name.substring(0, 28) + "...";
+  }
+  return name;
+}
+
+/**
  * Cleans the address string by removing:
  * - "philippines" (case-insensitive)
  * - Google Maps Plus Codes (e.g., "GXPJ+3QW,")

@@ -6,7 +6,7 @@ import {
   isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
-import { cleanAddress } from "@/utils/address";
+import { cleanAddress } from "@/utils/formatter";
 import { getShadow } from "@/utils/shadows";
 import { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";

@@ -1,5 +1,6 @@
 import { Suggestion } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
+import { truncateName } from "@/utils/formatter";
 import { createClient } from "@supabase/supabase-js";
 
 // ============================================================================
@@ -29,16 +30,6 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  * Default maximum number of places to return from similarity search.
  */
 export const DEFAULT_LIMIT_COUNT = 80;
-
-/**
- * Truncates a name to 28 characters, adding "..." if it exceeds the limit.
- */
-function truncateName(name: string): string {
-  if (name.length > 28) {
-    return name.substring(0, 28) + "...";
-  }
-  return name;
-}
 
 // ============================================================================
 // FUNCTIONS

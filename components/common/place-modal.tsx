@@ -8,7 +8,7 @@ import {
   isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
-import { cleanAddress } from "@/utils/address";
+import { cleanAddress } from "@/utils/formatter";
 import { getShadow } from "@/utils/shadows";
 import { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";

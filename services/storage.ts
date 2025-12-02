@@ -39,7 +39,7 @@ export async function loadSpots(): Promise<Suggestion[]> {
     if (!data) {
       return [];
     }
-    return JSON.parse(data) as Suggestion[];
+    return (JSON.parse(data) as Suggestion[]).reverse();
   } catch {
     return [];
   }

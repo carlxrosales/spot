@@ -14,6 +14,7 @@ import { useEffect, useRef } from "react";
  */
 export function useChoiceFeedback() {
   const choiceSoundRef = useRef<AudioPlayer | null>(null);
+  const soundReadyRef = useRef(false);
 
   useEffect(() => {
     const loadSounds = async () => {
@@ -30,6 +31,7 @@ export function useChoiceFeedback() {
           );
           choiceSound.volume = 0.1;
           choiceSoundRef.current = choiceSound;
+          soundReadyRef.current = true;
         } catch {}
       } catch {}
     };
@@ -38,6 +40,7 @@ export function useChoiceFeedback() {
 
     return () => {
       choiceSoundRef.current?.remove();
+      soundReadyRef.current = false;
     };
   }, []);
 
@@ -48,12 +51,22 @@ export function useChoiceFeedback() {
   };
 
   const playSound = async () => {
+    if (!soundReadyRef.current || !choiceSoundRef.current) {
+      return;
+    }
+
     try {
-      if (choiceSoundRef.current) {
-        await choiceSoundRef.current.seekTo(0);
-        choiceSoundRef.current.play();
-        await choiceSoundRef.current.seekTo(0);
+      const player = choiceSoundRef.current;
+
+      if (player.playing) {
+        player.pause();
       }
+
+      try {
+        await player.seekTo(0);
+      } catch {}
+
+      player.play();
     } catch {}
   };
 

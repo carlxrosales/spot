@@ -12,27 +12,27 @@ spot uses vector embeddings and similarity search to match your preferences with
 
 ```mermaid
 flowchart TD
-    Start([User Starts]) --> Survey[AI Survey<br/>6-10 questions<br/>Gemini-generated]
-    Survey --> Query[Generate Query<br/>Natural description]
-    Query --> Embedding[Generate Embeddings<br/>Gemini text-embedding-004]
+    Start([User Starts]) --> Q&A[Q&A Survey<br/>Capture 5-8 preference tags<br/>via AI-generated questions]
 
-    Places[Google Places API<br/>Place data & photos] --> DB[(Supabase<br/>Vector Database)]
-    Embedding --> Similarity[Similarity Search<br/>pgvector]
-    DB --> Similarity
+    Q&A --> ConvertQuery[Convert to query<br/>Single sentence or paragraph]
+    ConvertQuery --> UserVectors[Generate vector<br/>embeddings]
 
-    Similarity --> Suggestions[Suggestions Screen<br/>Swipeable cards]
-    Suggestions --> SwipeLeft[Swipe Left<br/>Skip]
-    Suggestions --> SwipeRight[Swipe Right<br/>Save to My Spots]
-    SwipeRight --> Share[Share via code<br/>linkto.spot/recos/CODE]
-    SwipeRight --> Maps[Open in Maps/Waze]
+    Scrape[Scrape places from Google<br/>One-time initial + monthly updates] --> Filter[Filter places:<br/>• Minimum 10 reviews<br/>• 3.8+ star rating]
+    Filter --> GetReviews[Extract reviews<br/>and descriptions]
+    GetReviews --> ConvertDocs[Convert to<br/>searchable documents]
+    ConvertDocs --> PlaceVectors[Generate vector<br/>embeddings]
 
-    Suggestions --> Filters[Filters<br/>Distance, Open Now]
-    MySpots[My Spots<br/>Saved places] --> Share
-    Recommendations[Recommendations<br/>Shared via code] --> SwipeRight
+    UserVectors --> Similarity[Similarity Search]
+    PlaceVectors --> Similarity
+
+    Similarity --> UI[Tinder-like UI/UX]
+    UI --> SwipeLeft[Swipe Left<br/>Skip place]
+    UI --> SwipeRight[Swipe Right<br/>Save, Share, or<br/>Open in Maps/Waze]
+    SwipeRight --> Share[Share with branding<br/>for virality]
 
     style Start fill:#e1ff5b,color:#1e1e1e
     style Similarity fill:#ff2d9b,color:#f8f8f8
-    style Suggestions fill:#e1ff5b,color:#1e1e1e
+    style UI fill:#e1ff5b,color:#1e1e1e
 ```
 
 ## How It Works

@@ -210,7 +210,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       const suggestion = suggestions.find((s) => s.id === suggestionId);
       if (suggestion) {
         try {
-          await saveSpot(suggestion);
+          await saveSpot(suggestion.id);
         } catch {}
       }
     },

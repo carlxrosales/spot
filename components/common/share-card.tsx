@@ -1,11 +1,11 @@
 import { ImageCarousel } from "@/components/common/image-carousel";
 import { Overlay } from "@/constants/theme";
+import { Suggestion } from "@/data/suggestions";
 import {
   getCountdown,
   getOpeningHoursForToday,
   isCurrentlyOpen,
-  Suggestion,
-} from "@/data/suggestions";
+} from "@/utils/places";
 import { cleanAddress } from "@/utils/formatter";
 import { getShadow } from "@/utils/shadows";
 import { useEffect, useMemo, useState } from "react";

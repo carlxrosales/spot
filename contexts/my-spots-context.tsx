@@ -3,7 +3,8 @@ import {
   Suggestion,
 } from "@/data/suggestions";
 import { loadSpots, removeSpot } from "@/services/storage";
-import { createShare } from "@/services/supabase";
+import { createShare, recommendPlaces } from "@/services/supabase";
+import { getClosingTimeForToday, getOpeningTimeForToday } from "@/utils/places";
 import { getRecommendationUrl } from "@/utils/urls";
 import {
   createContext,
@@ -66,8 +67,33 @@ export function MySpotsProvider({ children }: MySpotsProviderProps) {
     try {
       setIsLoading(true);
       setError(null);
-      const savedSpots = await loadSpots();
-      setSpots(savedSpots);
+      const savedSpotIds = await loadSpots();
+
+      if (savedSpotIds.length === 0) {
+        setSpots([]);
+        return;
+      }
+
+      // Reuse recommendPlaces to get fresh data from Supabase
+      const freshSpots = await recommendPlaces({
+        placeIds: savedSpotIds,
+      });
+
+      // Compute opensAt and closesAt from openingHours
+      const spotsWithComputedFields = freshSpots.map((spot: Suggestion) => {
+        if (spot.openingHours) {
+          const opensAt = getOpeningTimeForToday(spot.openingHours);
+          const closesAt = getClosingTimeForToday(spot.openingHours);
+          return {
+            ...spot,
+            opensAt,
+            closesAt,
+          };
+        }
+        return spot;
+      });
+
+      setSpots(spotsWithComputedFields);
     } catch {
       setError("yikes! failed to load your spots");
     } finally {

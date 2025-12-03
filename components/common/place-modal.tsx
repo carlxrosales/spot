@@ -2,12 +2,12 @@ import { GetDirectionsButton } from "@/components/common/get-directions-button";
 import { IconButton } from "@/components/common/icon-button";
 import { GoogleMapsButton } from "@/components/common/map-buttons/google-maps-button";
 import { ButtonSize } from "@/constants/buttons";
+import { Suggestion } from "@/data/suggestions";
 import {
   getCountdown,
   getOpeningHoursForToday,
   isCurrentlyOpen,
-  Suggestion,
-} from "@/data/suggestions";
+} from "@/utils/places";
 import { cleanAddress } from "@/utils/formatter";
 import { getShadow } from "@/utils/shadows";
 import { useEffect, useState } from "react";

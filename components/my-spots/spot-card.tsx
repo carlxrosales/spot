@@ -1,18 +1,18 @@
 import { BottomModal } from "@/components/common/bottom-modal";
 import { Button } from "@/components/common/button";
-import { GetDirectionsButton } from "@/components/common/get-directions-button";
 import { IconButton } from "@/components/common/icon-button";
 import { ImageCarousel } from "@/components/common/image-carousel";
+import { GoogleMapsButton } from "@/components/common/map-buttons/google-maps-button";
 import { ShareButton } from "@/components/common/share-button";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Animation, Overlay } from "@/constants/theme";
+import { Suggestion } from "@/data/suggestions";
+import { useModal } from "@/hooks/use-modal";
 import {
   getCountdown,
   getOpeningHoursForToday,
   isCurrentlyOpen,
-  Suggestion,
-} from "@/data/suggestions";
-import { useModal } from "@/hooks/use-modal";
+} from "@/utils/places";
 import { getShadow } from "@/utils/shadows";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Text, View } from "react-native";
@@ -228,7 +228,10 @@ export function SpotCard({
                 </View>
               )}
               <View className='py-4 gap-3'>
-                <GetDirectionsButton suggestion={spot} />
+                <GoogleMapsButton
+                  suggestion={spot}
+                  variant={ButtonVariant.white}
+                />
                 <ShareButton
                   suggestion={spot}
                   currentPhotoIndex={currentPhotoIndex}

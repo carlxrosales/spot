@@ -1,7 +1,5 @@
 import {
   DEFAULT_MAX_DISTANCE_IN_KM,
-  getClosingTimeForToday,
-  getOpeningTimeForToday,
   LAST_DISTANCE_OPTION,
   loadFirstPhotoForSuggestion,
   loadPhotoByName as loadPhotoByNameUtil,
@@ -9,6 +7,7 @@ import {
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
 import { getSharePlaceIds, recommendPlaces } from "@/services/supabase";
+import { getClosingTimeForToday, getOpeningTimeForToday } from "@/utils/places";
 import { useLocalSearchParams } from "expo-router";
 import {
   createContext,

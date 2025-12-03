@@ -6,15 +6,17 @@ import { Dimensions } from "@/constants/dimensions";
 import { Animation, Overlay } from "@/constants/theme";
 import { useRecommendations } from "@/contexts/recommendations-context";
 import {
-  getCountdown,
-  getOpeningHoursForToday,
   getRandomSavedForLaterFeedback,
   getRandomUnusedSelectFeedback,
   getRandomUnusedSkipFeedback,
-  isCurrentlyOpen,
   Suggestion,
 } from "@/data/suggestions";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
+import {
+  getCountdown,
+  getOpeningHoursForToday,
+  isCurrentlyOpen,
+} from "@/utils/places";
 import { getShadow } from "@/utils/shadows";
 import {
   forwardRef,

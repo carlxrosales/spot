@@ -4,6 +4,7 @@ import { Inputs } from "@/constants/inputs";
 import { getShadow } from "@/utils/shadows";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Keyboard, TextInput, View } from "react-native";
 
 interface SearchBarProps {
@@ -11,22 +12,52 @@ interface SearchBarProps {
   onSearchChange: (query: string) => void;
 }
 
+const DEBOUNCE_DELAY = 300;
+
 /**
  * Search bar component for the my-spots page.
  * Fixed at the bottom with a gradient background and search functionality.
  * Automatically adjusts position when keyboard is open.
+ * Debounces search input to reduce unnecessary filtering operations.
  *
  * @param searchQuery - Current search query value
  * @param onSearchChange - Callback function when search query changes
  */
 export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
-  const handleTextChange = (text: string) => {
-    const textWithoutNewlines = text.replace(/\n/g, "");
-    if (textWithoutNewlines !== text) {
-      Keyboard.dismiss();
-    }
-    onSearchChange(textWithoutNewlines);
-  };
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleTextChange = useCallback(
+    (text: string) => {
+      const textWithoutNewlines = text.replace(/\n/g, "");
+      if (textWithoutNewlines !== text) {
+        Keyboard.dismiss();
+      }
+
+      setLocalQuery(textWithoutNewlines);
+
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        onSearchChange(textWithoutNewlines);
+      }, DEBOUNCE_DELAY);
+    },
+    [onSearchChange]
+  );
 
   return (
     <AbsoluteView bottom={0} left={0} right={0} avoidKeyboard>
@@ -51,7 +82,7 @@ export function SearchBar({ searchQuery, onSearchChange }: SearchBarProps) {
               className={`flex-1 text-xl text-white pt-3 pb-4`}
               textAlign='left'
               textAlignVertical='top'
-              value={searchQuery}
+              value={localQuery}
               onChangeText={handleTextChange}
               placeholder={Inputs.search.placeholder}
               placeholderTextColor={Inputs.search.style.placeholderColor}

@@ -54,14 +54,15 @@ export default function LazyModeScreen() {
     setIsLoading(true);
     try {
       setAnswers([value.trim()]);
-      setIsComplete(true);
     } catch {
       displayToast({
         message: "oof! somethin' went wrong, let's start over",
       });
     } finally {
+      router.back();
       setValue("");
       setIsLoading(false);
+      setIsComplete(true);
     }
   }, [
     isValid,

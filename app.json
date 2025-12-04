@@ -62,20 +62,7 @@
           "imageWidth": 200
         }
       ],
-      "expo-audio",
-      [
-        "react-native-share",
-        {
-          "ios": ["fb", "instagram", "twitter", "tiktoksharesdk"],
-          "android": [
-            "com.facebook.katana",
-            "com.instagram.android",
-            "com.twitter.android",
-            "com.zhiliaoapp.musically"
-          ],
-          "enableBase64ShareAndroid": true
-        }
-      ]
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

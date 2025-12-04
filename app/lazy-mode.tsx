@@ -2,9 +2,10 @@ import { IconButton } from "@/components/common/icon-button";
 import { SafeView } from "@/components/common/safe-view";
 import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Inputs } from "@/constants/inputs";
+import { Animation } from "@/constants/theme";
 import { Timeouts } from "@/constants/timeouts";
 import { useSurvey } from "@/contexts/survey-context";
-import { useToast } from "@/contexts/toast-context";
+import { ensureMinimumDelay } from "@/utils/delay";
 import { getShadow } from "@/utils/shadows";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,8 +29,11 @@ const copy = {
 export default function LazyModeScreen() {
   const router = useRouter();
 
-  const { setAnswers, setIsComplete } = useSurvey();
-  const { displayToast } = useToast();
+  const {
+    setAnswers,
+    setIsComplete,
+    setIsLoading: setIsLoadingSurvey,
+  } = useSurvey();
 
   const [value, setValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -51,27 +55,26 @@ export default function LazyModeScreen() {
   const handleSubmit = useCallback(async () => {
     if (!isValid || isLoading) return;
 
-    setIsLoading(true);
-    try {
-      setAnswers([value.trim()]);
-    } catch {
-      displayToast({
-        message: "oof! somethin' went wrong, let's start over",
-      });
-    } finally {
+    await ensureMinimumDelay(Animation.duration.slow)(async () => {
+      setIsLoading(true);
+      setIsLoadingSurvey(true);
+    });
+
+    await ensureMinimumDelay(Animation.duration.verySlow)(async () => {
       router.back();
-      setValue("");
       setIsLoading(false);
-      setIsComplete(true);
-    }
+    });
+
+    setAnswers([value.trim()]);
+    setIsLoadingSurvey(false);
+    setIsComplete(true);
   }, [
     isValid,
     isLoading,
     value,
     setAnswers,
     setIsComplete,
-    router,
-    displayToast,
+    setIsLoadingSurvey,
   ]);
 
   return (

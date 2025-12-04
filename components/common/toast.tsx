@@ -95,9 +95,13 @@ export function Toast({
         positionStyle,
         animatedStyle,
       ]}
+      pointerEvents='none'
     >
-      <View className='bg-black px-4 py-4 rounded-2xl'>
-        <Text className='text-white text-lg text-center font-semibold'>
+      <View className='bg-black px-4 py-4 rounded-2xl' pointerEvents='none'>
+        <Text
+          className='text-white text-lg text-center font-semibold'
+          pointerEvents='none'
+        >
           {message}
         </Text>
       </View>

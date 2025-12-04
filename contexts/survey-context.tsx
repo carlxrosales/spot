@@ -17,6 +17,7 @@ interface SurveyContextType {
   currentQuestion: Question | undefined;
   questions: Question[];
   isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
   error: string | null;
   isComplete: boolean;
   setIsComplete: (isComplete: boolean) => void;
@@ -96,6 +97,7 @@ export function SurveyProvider({ children }: SurveyProviderProps) {
         currentQuestion,
         questions,
         isLoading,
+        setIsLoading,
         error,
         isComplete,
         setIsComplete,

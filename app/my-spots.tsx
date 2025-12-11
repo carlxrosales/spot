@@ -171,8 +171,15 @@ function MySpots() {
     ]
   );
 
+  const loadPhotoForShare = useCallback(
+    async (suggestionId: string, photoIndex: number) => {
+      await handlePhotoIndexChange(suggestionId, photoIndex);
+    },
+    [handlePhotoIndexChange]
+  );
+
   return (
-    <ShareProvider getPhotoUri={getPhotoUri}>
+    <ShareProvider getPhotoUri={getPhotoUri} loadPhoto={loadPhotoForShare}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className='flex-1 bg-neonGreen'

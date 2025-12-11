@@ -236,9 +236,9 @@ function Recommendation() {
 }
 
 function RecommendationWithShareProvider() {
-  const { getPhotoUri } = useRecommendations();
+  const { getPhotoUri, loadPhotoByName } = useRecommendations();
   return (
-    <ShareProvider getPhotoUri={getPhotoUri}>
+    <ShareProvider getPhotoUri={getPhotoUri} loadPhotoByName={loadPhotoByName}>
       <Recommendation />
     </ShareProvider>
   );

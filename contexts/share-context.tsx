@@ -16,7 +16,10 @@ import {
 import { Platform, Share } from "react-native";
 
 interface ShareContextType {
-  shareSuggestion: (suggestion: Suggestion, currentPhotoIndex: number) => void;
+  shareSuggestion: (
+    suggestion: Suggestion,
+    currentPhotoIndex: number
+  ) => Promise<void>;
   getPhotoIndex: (suggestionId: string) => number;
   isSharing: boolean;
 }
@@ -26,9 +29,16 @@ const ShareContext = createContext<ShareContextType | undefined>(undefined);
 interface ShareProviderProps {
   children: ReactNode;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
+  loadPhoto?: (suggestionId: string, photoIndex: number) => Promise<void>;
+  loadPhotoByName?: (suggestionId: string, photoName: string) => Promise<void>;
 }
 
-export function ShareProvider({ children, getPhotoUri }: ShareProviderProps) {
+export function ShareProvider({
+  children,
+  getPhotoUri,
+  loadPhoto,
+  loadPhotoByName,
+}: ShareProviderProps) {
   const { displayToast } = useToast();
   const [isSharing, setIsSharing] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -145,15 +155,28 @@ export function ShareProvider({ children, getPhotoUri }: ShareProviderProps) {
   }, [currentSuggestion, displayToast]);
 
   const shareSuggestion = useCallback(
-    (suggestion: Suggestion, currentPhotoIndex: number) => {
+    async (suggestion: Suggestion, currentPhotoIndex: number) => {
       setPhotoIndices((prev) => ({
         ...prev,
         [suggestion.id]: currentPhotoIndex,
       }));
+
+      const currentPhoto = suggestion.photos[currentPhotoIndex];
+      if (currentPhoto) {
+        const currentUri = getPhotoUri(suggestion.id, currentPhoto);
+        if (!currentUri) {
+          if (loadPhotoByName) {
+            await loadPhotoByName(suggestion.id, currentPhoto);
+          } else if (loadPhoto) {
+            await loadPhoto(suggestion.id, currentPhotoIndex);
+          }
+        }
+      }
+
       setCurrentSuggestion(suggestion);
       setIsModalVisible(true);
     },
-    []
+    [loadPhoto, loadPhotoByName, getPhotoUri]
   );
 
   const getPhotoIndex = useCallback((suggestionId: string) => {
@@ -184,6 +207,8 @@ export function ShareProvider({ children, getPhotoUri }: ShareProviderProps) {
         suggestion={currentSuggestion}
         currentPhotoIndex={currentPhotoIndex}
         getPhotoUri={getPhotoUri}
+        loadPhoto={loadPhoto}
+        loadPhotoByName={loadPhotoByName}
       />
     </ShareContext.Provider>
   );

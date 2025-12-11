@@ -12,7 +12,7 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 interface ButtonProps {
   onPress?: () => void | Promise<void> | null | undefined;
-  icon: ButtonIcon;
+  icon?: ButtonIcon;
   label: string;
   variant?: ButtonVariantType;
   size?: ButtonSizeType;
@@ -22,11 +22,11 @@ interface ButtonProps {
 }
 
 /**
- * Button component with icon and text label.
- * Displays an icon on the left and text label on the right in a rounded button.
+ * Button component with optional icon and text label.
+ * Displays an optional icon on the left and text label on the right in a rounded button.
  *
  * @param onPress - Callback function called when button is pressed
- * @param icon - Icon name from Ionicons
+ * @param icon - Optional icon name from Ionicons
  * @param label - Button text label
  * @param variant - Button color variant (default: "white")
  * @param size - Button size (default: "lg")
@@ -131,9 +131,15 @@ export function Button({
         <ActivityIndicator size='small' color={getTextColor()} />
       ) : (
         <>
-          <View className={getIconSpacing()}>
-            <Ionicons name={icon} size={getIconSize()} color={getTextColor()} />
-          </View>
+          {icon && (
+            <View className={getIconSpacing()}>
+              <Ionicons
+                name={icon}
+                size={getIconSize()}
+                color={getTextColor()}
+              />
+            </View>
+          )}
           <Text
             className={`${getTextSize()} font-semibold`}
             style={{ color: getTextColor() }}

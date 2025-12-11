@@ -25,9 +25,9 @@ export function ShareButton({
 }: ShareButtonProps) {
   const { shareSuggestion, isSharing } = useShare();
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!suggestion || isSharing) return;
-    shareSuggestion(suggestion, currentPhotoIndex);
+    await shareSuggestion(suggestion, currentPhotoIndex);
   };
 
   return (

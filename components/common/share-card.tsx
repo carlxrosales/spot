@@ -1,12 +1,12 @@
 import { ImageCarousel } from "@/components/common/image-carousel";
 import { Overlay } from "@/constants/theme";
 import { Suggestion } from "@/data/suggestions";
+import { cleanAddress } from "@/utils/formatter";
 import {
   getCountdown,
   getOpeningHoursForToday,
   isCurrentlyOpen,
 } from "@/utils/places";
-import { cleanAddress } from "@/utils/formatter";
 import { getShadow } from "@/utils/shadows";
 import { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
@@ -22,6 +22,8 @@ interface ShareCardProps {
   suggestion: Suggestion;
   currentPhotoIndex: number;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
+  loadPhoto?: (suggestionId: string, photoIndex: number) => Promise<void>;
+  loadPhotoByName?: (suggestionId: string, photoName: string) => Promise<void>;
 }
 
 /**
@@ -32,21 +34,16 @@ interface ShareCardProps {
  * @param suggestion - The suggestion to display in the share card
  * @param currentPhotoIndex - The initial photo index to display in the carousel
  * @param getPhotoUri - Function to get photo URI for a suggestion
+ * @param loadPhoto - Optional function to load a photo by index
+ * @param loadPhotoByName - Optional function to load a photo by name
  */
 export function ShareCard({
   suggestion,
   currentPhotoIndex: initialPhotoIndex,
   getPhotoUri,
+  loadPhoto,
+  loadPhotoByName,
 }: ShareCardProps) {
-  const imageItems = useMemo(
-    () =>
-      suggestion.photos.map((photo) => ({
-        name: photo,
-        uri: getPhotoUri(suggestion.id, photo),
-      })),
-    [suggestion.photos, suggestion.id, getPhotoUri]
-  );
-
   const photoCount = suggestion.photos.length;
   const safeInitialIndex =
     photoCount > 0
@@ -57,10 +54,40 @@ export function ShareCard({
     useState<number>(safeInitialIndex);
   const [countdown, setCountdown] = useState<string>("");
 
+  const imageItems = useMemo(
+    () =>
+      suggestion.photos.map((photo) => ({
+        name: photo,
+        uri: getPhotoUri(suggestion.id, photo),
+      })),
+    [suggestion.photos, suggestion.id, getPhotoUri]
+  );
+
   useEffect(() => {
     const safeIndex = Math.max(0, Math.min(initialPhotoIndex, photoCount - 1));
     setCurrentPhotoIndex(safeIndex);
   }, [initialPhotoIndex, photoCount]);
+
+  useEffect(() => {
+    const currentPhoto = suggestion.photos[currentPhotoIndex];
+    if (currentPhoto && (loadPhoto || loadPhotoByName)) {
+      const currentUri = getPhotoUri(suggestion.id, currentPhoto);
+      if (!currentUri) {
+        if (loadPhotoByName) {
+          loadPhotoByName(suggestion.id, currentPhoto).catch(() => {});
+        } else if (loadPhoto) {
+          loadPhoto(suggestion.id, currentPhotoIndex).catch(() => {});
+        }
+      }
+    }
+  }, [
+    currentPhotoIndex,
+    suggestion.id,
+    suggestion.photos,
+    getPhotoUri,
+    loadPhoto,
+    loadPhotoByName,
+  ]);
 
   useEffect(() => {
     if (suggestion.opensAt || suggestion.closesAt) {

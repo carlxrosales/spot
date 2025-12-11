@@ -1,7 +1,8 @@
 import { Animation } from "@/constants/theme";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -34,6 +35,7 @@ export function Toast({
   position = "top",
 }: ToastProps) {
   const insets = useSafeAreaInsets();
+  const [shouldRender, setShouldRender] = useState(false);
   const translateY = useSharedValue<number>(
     position === "top"
       ? Animation.translate.toast.top
@@ -43,6 +45,7 @@ export function Toast({
 
   useEffect(() => {
     if (visible) {
+      setShouldRender(true);
       translateY.value = withSpring(0, Animation.spring);
       opacity.value = withTiming(Animation.opacity.visible, {
         duration: Animation.duration.fast,
@@ -52,19 +55,38 @@ export function Toast({
           position === "top"
             ? Animation.translate.toast.top
             : Animation.translate.toast.bottom,
-          { duration: Animation.duration.fast }
+          {
+            duration: Animation.duration.normal,
+            easing: Easing.out(Easing.ease),
+          }
         );
         opacity.value = withTiming(Animation.opacity.hidden, {
-          duration: Animation.duration.fast,
+          duration: Animation.duration.normal,
+          easing: Easing.out(Easing.ease),
         });
+        setTimeout(() => {
+          setShouldRender(false);
+        }, Animation.duration.normal);
       }, duration);
       return () => clearTimeout(timer);
     } else {
-      translateY.value =
+      translateY.value = withTiming(
         position === "top"
           ? Animation.translate.toast.top
-          : Animation.translate.toast.bottom;
-      opacity.value = Animation.opacity.hidden;
+          : Animation.translate.toast.bottom,
+        {
+          duration: Animation.duration.normal,
+          easing: Easing.out(Easing.ease),
+        }
+      );
+      opacity.value = withTiming(Animation.opacity.hidden, {
+        duration: Animation.duration.normal,
+        easing: Easing.out(Easing.ease),
+      });
+      const timer = setTimeout(() => {
+        setShouldRender(false);
+      }, Animation.duration.normal);
+      return () => clearTimeout(timer);
     }
   }, [visible, duration, position]);
 
@@ -75,7 +97,7 @@ export function Toast({
     };
   });
 
-  if (!visible) return null;
+  if (!shouldRender) return null;
 
   const positionStyle =
     position === "top"

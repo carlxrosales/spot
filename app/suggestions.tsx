@@ -245,10 +245,10 @@ function Suggestion() {
 }
 
 function SuggestionWithShareProvider() {
-  const { getPhotoUri, fetchSuggestions } = useSuggestions();
+  const { getPhotoUri, loadPhotoByName, fetchSuggestions } = useSuggestions();
   const { hasPermission, location } = useLocation();
   return (
-    <ShareProvider getPhotoUri={getPhotoUri}>
+    <ShareProvider getPhotoUri={getPhotoUri} loadPhotoByName={loadPhotoByName}>
       <Suggestion />
       {(!hasPermission || !location) && (
         <LocationPermissionModal onPermissionGranted={fetchSuggestions} />

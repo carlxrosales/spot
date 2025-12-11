@@ -249,7 +249,6 @@ export function SpotCard({
         showCancelButton={true}
       >
         <Button
-          icon='trash-outline'
           label={copy.deleteModal.button}
           variant={ButtonVariant.black}
           size={ButtonSize.lg}

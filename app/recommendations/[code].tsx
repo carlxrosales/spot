@@ -236,9 +236,21 @@ function Recommendation() {
 }
 
 function RecommendationWithShareProvider() {
-  const { getPhotoUri, loadPhotoByName } = useRecommendations();
+  const { getPhotoUri, loadPhotoByName, recommendations } =
+    useRecommendations();
+
+  const loadPhoto = useCallback(
+    async (recommendationId: string, photoIndex: number) => {
+      const recommendation = recommendations.find((r) => r.id === recommendationId);
+      if (recommendation && recommendation.photos[photoIndex]) {
+        await loadPhotoByName(recommendationId, recommendation.photos[photoIndex]);
+      }
+    },
+    [recommendations, loadPhotoByName]
+  );
+
   return (
-    <ShareProvider getPhotoUri={getPhotoUri} loadPhotoByName={loadPhotoByName}>
+    <ShareProvider getPhotoUri={getPhotoUri} loadPhoto={loadPhoto}>
       <Recommendation />
     </ShareProvider>
   );

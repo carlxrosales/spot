@@ -30,14 +30,12 @@ interface ShareProviderProps {
   children: ReactNode;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
   loadPhoto?: (suggestionId: string, photoIndex: number) => Promise<void>;
-  loadPhotoByName?: (suggestionId: string, photoName: string) => Promise<void>;
 }
 
 export function ShareProvider({
   children,
   getPhotoUri,
   loadPhoto,
-  loadPhotoByName,
 }: ShareProviderProps) {
   const { displayToast } = useToast();
   const [isSharing, setIsSharing] = useState<boolean>(false);
@@ -162,21 +160,17 @@ export function ShareProvider({
       }));
 
       const currentPhoto = suggestion.photos[currentPhotoIndex];
-      if (currentPhoto) {
+      if (currentPhoto && loadPhoto) {
         const currentUri = getPhotoUri(suggestion.id, currentPhoto);
         if (!currentUri) {
-          if (loadPhotoByName) {
-            await loadPhotoByName(suggestion.id, currentPhoto);
-          } else if (loadPhoto) {
-            await loadPhoto(suggestion.id, currentPhotoIndex);
-          }
+          await loadPhoto(suggestion.id, currentPhotoIndex);
         }
       }
 
       setCurrentSuggestion(suggestion);
       setIsModalVisible(true);
     },
-    [loadPhoto, loadPhotoByName, getPhotoUri]
+    [loadPhoto, getPhotoUri]
   );
 
   const getPhotoIndex = useCallback((suggestionId: string) => {
@@ -208,7 +202,6 @@ export function ShareProvider({
         currentPhotoIndex={currentPhotoIndex}
         getPhotoUri={getPhotoUri}
         loadPhoto={loadPhoto}
-        loadPhotoByName={loadPhotoByName}
       />
     </ShareContext.Provider>
   );

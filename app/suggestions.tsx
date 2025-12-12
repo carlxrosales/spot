@@ -44,7 +44,7 @@ function Suggestion() {
   const router = useRouter();
   const navigation = useNavigation();
 
-  const { hasPermission, location } = useLocation();
+  const { location } = useLocation();
   const { answers, handleStartOver } = useSurvey();
   const {
     isLoading,
@@ -54,7 +54,6 @@ function Suggestion() {
     fetchSuggestions,
     currentIndex,
     error,
-    getPhotoUri,
   } = useSuggestions();
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const { displayToast } = useToast();
@@ -245,10 +244,22 @@ function Suggestion() {
 }
 
 function SuggestionWithShareProvider() {
-  const { getPhotoUri, loadPhotoByName, fetchSuggestions } = useSuggestions();
+  const { getPhotoUri, loadPhotoByName, fetchSuggestions, suggestions } =
+    useSuggestions();
   const { hasPermission, location } = useLocation();
+
+  const loadPhoto = useCallback(
+    async (suggestionId: string, photoIndex: number) => {
+      const suggestion = suggestions.find((s) => s.id === suggestionId);
+      if (suggestion && suggestion.photos[photoIndex]) {
+        await loadPhotoByName(suggestionId, suggestion.photos[photoIndex]);
+      }
+    },
+    [suggestions, loadPhotoByName]
+  );
+
   return (
-    <ShareProvider getPhotoUri={getPhotoUri} loadPhotoByName={loadPhotoByName}>
+    <ShareProvider getPhotoUri={getPhotoUri} loadPhoto={loadPhoto}>
       <Suggestion />
       {(!hasPermission || !location) && (
         <LocationPermissionModal onPermissionGranted={fetchSuggestions} />

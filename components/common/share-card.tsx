@@ -23,7 +23,6 @@ interface ShareCardProps {
   currentPhotoIndex: number;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
   loadPhoto?: (suggestionId: string, photoIndex: number) => Promise<void>;
-  loadPhotoByName?: (suggestionId: string, photoName: string) => Promise<void>;
 }
 
 /**
@@ -35,14 +34,12 @@ interface ShareCardProps {
  * @param currentPhotoIndex - The initial photo index to display in the carousel
  * @param getPhotoUri - Function to get photo URI for a suggestion
  * @param loadPhoto - Optional function to load a photo by index
- * @param loadPhotoByName - Optional function to load a photo by name
  */
 export function ShareCard({
   suggestion,
   currentPhotoIndex: initialPhotoIndex,
   getPhotoUri,
   loadPhoto,
-  loadPhotoByName,
 }: ShareCardProps) {
   const photoCount = suggestion.photos.length;
   const safeInitialIndex =
@@ -70,14 +67,10 @@ export function ShareCard({
 
   useEffect(() => {
     const currentPhoto = suggestion.photos[currentPhotoIndex];
-    if (currentPhoto && (loadPhoto || loadPhotoByName)) {
+    if (currentPhoto && loadPhoto) {
       const currentUri = getPhotoUri(suggestion.id, currentPhoto);
       if (!currentUri) {
-        if (loadPhotoByName) {
-          loadPhotoByName(suggestion.id, currentPhoto).catch(() => {});
-        } else if (loadPhoto) {
-          loadPhoto(suggestion.id, currentPhotoIndex).catch(() => {});
-        }
+        loadPhoto(suggestion.id, currentPhotoIndex).catch(() => {});
       }
     }
   }, [
@@ -86,7 +79,6 @@ export function ShareCard({
     suggestion.photos,
     getPhotoUri,
     loadPhoto,
-    loadPhotoByName,
   ]);
 
   useEffect(() => {

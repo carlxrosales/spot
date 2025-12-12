@@ -25,7 +25,6 @@ interface ShareModalProps {
   currentPhotoIndex: number;
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
   loadPhoto?: (suggestionId: string, photoIndex: number) => Promise<void>;
-  loadPhotoByName?: (suggestionId: string, photoName: string) => Promise<void>;
 }
 
 export interface ShareModalRef {
@@ -45,7 +44,6 @@ export interface ShareModalRef {
  * @param currentPhotoIndex - The initial photo index to display in the share card carousel
  * @param getPhotoUri - Function to get photo URI for a suggestion
  * @param loadPhoto - Optional function to load a photo by index
- * @param loadPhotoByName - Optional function to load a photo by name
  * @param ref - Ref object with `capture` method to capture the card as an image
  */
 export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
@@ -59,7 +57,6 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
       currentPhotoIndex,
       getPhotoUri,
       loadPhoto,
-      loadPhotoByName,
     },
     ref
   ) => {
@@ -111,7 +108,6 @@ export const ShareModal = forwardRef<ShareModalRef, ShareModalProps>(
                       currentPhotoIndex={currentPhotoIndex}
                       getPhotoUri={getPhotoUri}
                       loadPhoto={loadPhoto}
-                      loadPhotoByName={loadPhotoByName}
                     />
                   )}
                 </View>

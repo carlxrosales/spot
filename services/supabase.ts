@@ -285,3 +285,88 @@ export async function getSharePlaceIds(code: string): Promise<string[]> {
 
   return data.place_ids;
 }
+
+export interface SearchPlacesByAddressOptions {
+  searchTerm: string;
+  limitCount?: number;
+  filterOpenNow?: boolean;
+  filterCity?: string | null;
+  userLocation?: LocationCoordinates;
+  maxDistanceKm?: number | null;
+}
+
+export interface SearchPlacesByAddressResult {
+  id: string;
+  name: string;
+  address: string;
+  rating: number;
+  price_level: number | null;
+  photos: string[];
+  tags: string[];
+  lat: number;
+  lng: number;
+  opening_hours: string[] | null;
+  description: string | null;
+  share_link: string | null;
+  reviews_link: string | null;
+  distance_in_km: number | null;
+}
+
+/**
+ * Searches places by address using text search.
+ * Queries the Supabase database using the search_places_by_address function.
+ *
+ * @param options - Configuration options for the address search
+ * @returns Promise resolving to an array of places matching the address search
+ * @throws Error if the query fails
+ */
+export async function searchPlacesByAddress(
+  options: SearchPlacesByAddressOptions
+): Promise<Suggestion[]> {
+  const {
+    searchTerm,
+    limitCount = DEFAULT_LIMIT_COUNT,
+    filterOpenNow = false,
+    filterCity = null,
+    userLocation,
+    maxDistanceKm,
+  } = options;
+
+  const { data, error } = await supabase.rpc("search_places_by_address", {
+    search_term: searchTerm,
+    limit_count: limitCount,
+    filter_open_now: filterOpenNow,
+    filter_city: filterCity,
+    user_lat: userLocation?.lat ?? null,
+    user_lng: userLocation?.lng ?? null,
+    max_distance_km: maxDistanceKm ?? null,
+  });
+
+  if (error) {
+    throw new Error(`oof! somethin' went wrong`);
+  }
+
+  if (!data) {
+    return [];
+  }
+
+  // Transform database results to Suggestion interface
+  return data.map((result: SearchPlacesByAddressResult) => ({
+    id: result.id,
+    name: truncateName(result.name),
+    address: result.address,
+    rating: Number(result.rating),
+    priceLevel: result.price_level ?? undefined,
+    photos: result.photos,
+    tags: result.tags,
+    lat: Number(result.lat),
+    lng: Number(result.lng),
+    openingHours: result.opening_hours ?? undefined,
+    description: result.description ?? undefined,
+    shareLink: result.share_link ?? undefined,
+    reviewsLink: result.reviews_link ?? undefined,
+    distanceInKm: result.distance_in_km
+      ? Number(result.distance_in_km)
+      : undefined,
+  }));
+}

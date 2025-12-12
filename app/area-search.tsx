@@ -1,0 +1,128 @@
+import { IconButton } from "@/components/common/icon-button";
+import { SafeView } from "@/components/common/safe-view";
+import { ButtonSize, ButtonVariant } from "@/constants/buttons";
+import { Inputs } from "@/constants/inputs";
+import { Routes } from "@/constants/routes";
+import { Animation } from "@/constants/theme";
+import { Timeouts } from "@/constants/timeouts";
+import { ensureMinimumDelay } from "@/utils/delay";
+import { getShadow } from "@/utils/shadows";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+
+const copy = {
+  question: "Where you tryna go?",
+  placeholder: "Drop a location like banawe, newport, bgc... we gotchu",
+};
+
+/**
+ * Place search screen component.
+ * Allows users to search for places by location name in the address.
+ */
+export default function AreaSearchScreen() {
+  const router = useRouter();
+
+  const [value, setValue] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, Timeouts.inputFocus);
+  }, []);
+
+  const isValid = value.trim().length > 0;
+
+  const handleCancel = useCallback(() => {
+    router.back();
+  }, [router]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!isValid || isLoading) return;
+
+    await ensureMinimumDelay(Animation.duration.slow)(async () => {
+      setIsLoading(true);
+    });
+
+    try {
+      const area = value.trim().toLowerCase();
+      await ensureMinimumDelay(Animation.duration.verySlow)(async () => {
+        router.replace({
+          pathname: Routes.area,
+          params: { area },
+        });
+      });
+    } catch (error) {
+      setIsLoading(false);
+      router.back();
+    }
+  }, [isValid, isLoading, value, router]);
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className='flex-1 bg-neonGreen'
+    >
+      <SafeView edges={Platform.OS === "android" ? ["top"] : []}>
+        <View></View>
+      </SafeView>
+
+      <View className='flex-row justify-between items-center p-8'>
+        <IconButton onPress={handleCancel} icon='close' size={ButtonSize.md} />
+        <IconButton
+          onPress={handleSubmit}
+          icon='checkmark-sharp'
+          variant={ButtonVariant.black}
+          size={ButtonSize.md}
+          disabled={!isValid}
+          loading={isLoading}
+        />
+      </View>
+
+      <View className='flex-1 px-8 pt-8 items-center'>
+        <Text className='font-groen text-5xl text-black text-center mb-8 px-4'>
+          {copy.question}
+        </Text>
+
+        <View
+          className='w-full rounded-[24px]'
+          style={[
+            {
+              maxWidth: Inputs.lazyMode.style.maxWidth,
+            },
+            getShadow("neonPink"),
+          ]}
+        >
+          <TextInput
+            ref={inputRef}
+            className='w-full py-4 px-8 rounded-[24px] bg-white text-xl font-medium text-black'
+            style={{
+              minHeight: Inputs.lazyMode.style.minHeight,
+            }}
+            value={value}
+            textAlign='left'
+            textAlignVertical='top'
+            onChangeText={setValue}
+            placeholder={copy.placeholder}
+            placeholderTextColor='rgb(100, 100, 100)'
+            multiline={true}
+            numberOfLines={5}
+            returnKeyType='default'
+            autoFocus={true}
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}

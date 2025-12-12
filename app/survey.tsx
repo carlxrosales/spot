@@ -89,6 +89,10 @@ export default function Survey() {
     router.navigate(Routes.lazyMode);
   }, [router]);
 
+  const handleAreaSearchPress = useCallback(() => {
+    router.navigate(Routes.areaSearch);
+  }, [router]);
+
   const handleMySpotsPress = useCallback(() => {
     router.navigate(Routes.mySpots);
   }, [router]);
@@ -114,14 +118,24 @@ export default function Survey() {
             style={{ zIndex: 1 }}
           >
             <Logo isAnimated />
-            <AnimatedButton
-              label='My spots'
-              variant={ButtonVariant.black}
-              size={ButtonSize.sm}
-              onPress={handleMySpotsPress}
-              index={0}
-              isAnimatingOut={isLoading}
-            />
+            <View className='flex-row items-center gap-3'>
+              <AnimatedButton
+                label='My spots'
+                variant={ButtonVariant.black}
+                size={ButtonSize.sm}
+                onPress={handleMySpotsPress}
+                index={0}
+                isAnimatingOut={isLoading}
+              />
+              <AnimatedButton
+                icon='search'
+                variant={ButtonVariant.white}
+                size={ButtonSize.sm}
+                onPress={handleAreaSearchPress}
+                index={1}
+                isAnimatingOut={isLoading}
+              />
+            </View>
           </AbsoluteView>
         )}
         <View className='flex-1 justify-center items-start gap-8'>

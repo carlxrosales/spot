@@ -1,14 +1,12 @@
-import { useSurvey } from "@/contexts/survey-context";
 import {
   DEFAULT_MAX_DISTANCE_IN_KM,
-  generateSuggestions,
-  LAST_DISTANCE_OPTION,
   loadFirstPhotoForSuggestion,
   loadPhotoByName as loadPhotoByNameUtil,
   Suggestion,
 } from "@/data/suggestions";
 import { LocationCoordinates } from "@/data/types";
 import { saveSpot } from "@/services/storage";
+import { searchPlacesByAddress } from "@/services/supabase";
 import {
   createContext,
   ReactNode,
@@ -19,7 +17,7 @@ import {
 } from "react";
 import { Image } from "react-native";
 
-interface SuggestionsContextType {
+interface AreaContextType {
   isLoading: boolean;
   suggestions: Suggestion[];
   selectedSuggestionIds: string[];
@@ -29,10 +27,11 @@ interface SuggestionsContextType {
   filterOpenNow: boolean;
   filterCity: string | null;
   filterMaxDistance: number | null;
+  area: string | null;
   setHasFetched: (hasFetched: boolean) => void;
-  fetchSuggestions: (
+  fetchSuggestionsByArea: (
     location: LocationCoordinates,
-    forceRefetch?: boolean,
+    area: string,
     openNowFilter?: boolean,
     cityFilter?: string | null,
     maxDistanceFilter?: number | null
@@ -48,16 +47,13 @@ interface SuggestionsContextType {
   getPhotoUri: (suggestionId: string, photoName: string) => string | undefined;
 }
 
-const SuggestionsContext = createContext<SuggestionsContextType | undefined>(
-  undefined
-);
+const AreaContext = createContext<AreaContextType | undefined>(undefined);
 
-interface SuggestionsProviderProps {
+interface AreaProviderProps {
   children: ReactNode;
 }
 
-export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
-  const { questions, answers } = useSurvey();
+export function AreaProvider({ children }: AreaProviderProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [photoUrisMap, setPhotoUrisMap] = useState<
     Map<string, Map<string, string>>
@@ -77,11 +73,12 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
   const [filterMaxDistance, setFilterMaxDistance] = useState<number | null>(
     null
   );
+  const [area, setArea] = useState<string | null>(null);
 
-  const fetchSuggestions = useCallback(
+  const fetchSuggestionsByArea = useCallback(
     async (
       location: LocationCoordinates,
-      forceRefetch: boolean = false,
+      areaTerm: string,
       openNowFilter?: boolean,
       cityFilter?: string | null,
       maxDistanceFilter?: number | null
@@ -90,18 +87,21 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         !location?.lat ||
         !location?.lng ||
         isLoading ||
-        (hasFetched && !forceRefetch) ||
-        answers.length === 0
+        (hasFetched &&
+          area === areaTerm &&
+          !openNowFilter &&
+          !cityFilter &&
+          !maxDistanceFilter)
       ) {
         return;
       }
 
       setIsLoading(true);
-      setHasFetched(false);
       setError(null);
       setSuggestions([]);
       setCurrentIndex(0);
       setSelectedSuggestionIds([]);
+      setArea(areaTerm);
 
       const openNowFilterValue =
         openNowFilter !== undefined ? openNowFilter : filterOpenNow;
@@ -111,30 +111,14 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         maxDistanceFilter !== undefined ? maxDistanceFilter : filterMaxDistance;
 
       try {
-        let newSuggestions: Suggestion[] = [];
-
-        if (maxDistanceFilterValue === null) {
-          newSuggestions = await generateSuggestions(
-            questions,
-            answers,
-            location,
-            openNowFilterValue,
-            cityFilterValue,
-            DEFAULT_MAX_DISTANCE_IN_KM
-          );
-          setInitialMaxDistance(DEFAULT_MAX_DISTANCE_IN_KM);
-        } else {
-          newSuggestions = await generateSuggestions(
-            questions,
-            answers,
-            location,
-            openNowFilterValue,
-            cityFilterValue,
-            maxDistanceFilterValue === LAST_DISTANCE_OPTION
-              ? null
-              : maxDistanceFilterValue
-          );
-        }
+        const newSuggestions = await searchPlacesByAddress({
+          searchTerm: areaTerm.toLowerCase(),
+          userLocation: location,
+          limitCount: 80,
+          filterOpenNow: openNowFilterValue,
+          filterCity: cityFilterValue,
+          maxDistanceKm: maxDistanceFilterValue,
+        });
 
         if (newSuggestions.length > 0) {
           const firstSuggestion = newSuggestions[0];
@@ -164,15 +148,7 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         setHasFetched(true);
       }
     },
-    [
-      questions,
-      answers,
-      isLoading,
-      hasFetched,
-      filterOpenNow,
-      filterCity,
-      filterMaxDistance,
-    ]
+    [isLoading, hasFetched, area, filterOpenNow, filterCity, filterMaxDistance]
   );
 
   const handleSkip = useCallback(async () => {
@@ -272,24 +248,8 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
     }
   }, [suggestions.length, isLoading, hasFetched]);
 
-  useEffect(() => {
-    if (answers.length === 0) {
-      setInitialMaxDistance(DEFAULT_MAX_DISTANCE_IN_KM);
-      setSuggestions([]);
-      setPhotoUrisMap(new Map<string, Map<string, string>>());
-      setCurrentIndex(0);
-      setSelectedSuggestionIds([]);
-      setIsLoading(false);
-      setHasFetched(false);
-      setError(null);
-      setFilterOpenNow(false);
-      setFilterCity(null);
-      setFilterMaxDistance(null);
-    }
-  }, [answers.length]);
-
   return (
-    <SuggestionsContext.Provider
+    <AreaContext.Provider
       value={{
         isLoading,
         suggestions,
@@ -300,8 +260,9 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
         filterOpenNow,
         filterCity,
         filterMaxDistance,
+        area,
         setHasFetched,
-        fetchSuggestions,
+        fetchSuggestionsByArea,
         setFilterOpenNow,
         setFilterCity,
         setFilterMaxDistance,
@@ -314,16 +275,14 @@ export function SuggestionsProvider({ children }: SuggestionsProviderProps) {
       }}
     >
       {children}
-    </SuggestionsContext.Provider>
+    </AreaContext.Provider>
   );
 }
 
-export function useSuggestions() {
-  const context = useContext(SuggestionsContext);
+export function useArea() {
+  const context = useContext(AreaContext);
   if (context === undefined) {
-    throw new Error(
-      "useSuggestionsContext must be used within a SuggestionsProvider"
-    );
+    throw new Error("useArea must be used within an AreaProvider");
   }
   return context;
 }

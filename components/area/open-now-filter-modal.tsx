@@ -1,7 +1,6 @@
 import { BottomModal } from "@/components/common/bottom-modal";
 import { TextButton } from "@/components/common/text-button";
 import { useArea } from "@/contexts/area-context";
-import { useLocation } from "@/contexts/location-context";
 import { useCallback, useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -33,7 +32,6 @@ export function OpenNowFilterModal({
 }: OpenNowFilterModalProps) {
   const { filterOpenNow, setFilterOpenNow, fetchSuggestionsByArea, area } =
     useArea();
-  const { location } = useLocation();
 
   const [selectedFilter, setSelectedFilter] = useState<boolean>(filterOpenNow);
 
@@ -45,18 +43,11 @@ export function OpenNowFilterModal({
 
   const handleSave = useCallback(async () => {
     setFilterOpenNow(selectedFilter);
-    if (location && area) {
-      await fetchSuggestionsByArea(location, area, selectedFilter);
+    if (area) {
+      await fetchSuggestionsByArea(area, selectedFilter);
     }
     onClose();
-  }, [
-    selectedFilter,
-    setFilterOpenNow,
-    location,
-    area,
-    fetchSuggestionsByArea,
-    onClose,
-  ]);
+  }, [selectedFilter, setFilterOpenNow, area, fetchSuggestionsByArea, onClose]);
 
   return (
     <BottomModal

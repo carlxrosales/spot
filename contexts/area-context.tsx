@@ -4,7 +4,6 @@ import {
   loadPhotoByName as loadPhotoByNameUtil,
   Suggestion,
 } from "@/data/suggestions";
-import { LocationCoordinates } from "@/data/types";
 import { saveSpot } from "@/services/storage";
 import { searchPlacesByAddress } from "@/services/supabase";
 import {
@@ -25,20 +24,15 @@ interface AreaContextType {
   currentIndex: number;
   hasFetched: boolean;
   filterOpenNow: boolean;
-  filterCity: string | null;
-  filterMaxDistance: number | null;
   area: string | null;
   setHasFetched: (hasFetched: boolean) => void;
   fetchSuggestionsByArea: (
-    location: LocationCoordinates,
     area: string,
     openNowFilter?: boolean,
     cityFilter?: string | null,
     maxDistanceFilter?: number | null
   ) => Promise<void>;
   setFilterOpenNow: (filterOpenNow: boolean) => void;
-  setFilterCity: (filterCity: string | null) => void;
-  setFilterMaxDistance: (maxDistance: number | null) => void;
   error: string | null;
   handleSkip: () => void;
   handleSelect: (suggestionId: string) => void;
@@ -69,23 +63,16 @@ export function AreaProvider({ children }: AreaProviderProps) {
   const [hasFetched, setHasFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
-  const [filterCity, setFilterCity] = useState<string | null>(null);
-  const [filterMaxDistance, setFilterMaxDistance] = useState<number | null>(
-    null
-  );
   const [area, setArea] = useState<string | null>(null);
 
   const fetchSuggestionsByArea = useCallback(
     async (
-      location: LocationCoordinates,
       areaTerm: string,
       openNowFilter?: boolean,
       cityFilter?: string | null,
       maxDistanceFilter?: number | null
     ) => {
       if (
-        !location?.lat ||
-        !location?.lng ||
         isLoading ||
         (hasFetched &&
           area === areaTerm &&
@@ -105,10 +92,6 @@ export function AreaProvider({ children }: AreaProviderProps) {
 
       const openNowFilterValue =
         openNowFilter !== undefined ? openNowFilter : filterOpenNow;
-      const cityFilterValue =
-        cityFilter !== undefined ? cityFilter : filterCity;
-      const maxDistanceFilterValue =
-        maxDistanceFilter !== undefined ? maxDistanceFilter : filterMaxDistance;
 
       try {
         const newSuggestions = await searchPlacesByAddress({
@@ -145,7 +128,7 @@ export function AreaProvider({ children }: AreaProviderProps) {
         setHasFetched(true);
       }
     },
-    [isLoading, hasFetched, area, filterOpenNow, filterCity, filterMaxDistance]
+    [isLoading, hasFetched, area, filterOpenNow]
   );
 
   const handleSkip = useCallback(async () => {
@@ -255,14 +238,10 @@ export function AreaProvider({ children }: AreaProviderProps) {
         currentIndex,
         hasFetched,
         filterOpenNow,
-        filterCity,
-        filterMaxDistance,
         area,
         setHasFetched,
         fetchSuggestionsByArea,
         setFilterOpenNow,
-        setFilterCity,
-        setFilterMaxDistance,
         error,
         handleSkip,
         handleSelect,

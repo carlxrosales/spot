@@ -3,7 +3,6 @@ import { OpenNowFilterModal } from "@/components/area/open-now-filter-modal";
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
 import { IconButton } from "@/components/common/icon-button";
-import { LocationPermissionModal } from "@/components/common/location-permission-modal";
 import { PlaceModal } from "@/components/common/place-modal";
 import { SafeView } from "@/components/common/safe-view";
 import { TextButton } from "@/components/common/text-button";
@@ -11,7 +10,6 @@ import { ButtonSize, ButtonVariant } from "@/constants/buttons";
 import { Routes } from "@/constants/routes";
 import { Animation, Colors } from "@/constants/theme";
 import { AreaProvider, useArea } from "@/contexts/area-context";
-import { useLocation } from "@/contexts/location-context";
 import { ShareProvider } from "@/contexts/share-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
@@ -29,14 +27,13 @@ const copy = {
  * Area screen component for browsing place suggestions by area.
  * Displays swipeable cards with place suggestions based on area search.
  * Provides actions to skip, view details, or select suggestions.
- * Includes distance filtering and location permission handling.
+ * Includes open now filtering.
  */
 function AreaScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ area?: string }>();
   const area = Array.isArray(params.area) ? params.area[0] : params.area;
 
-  const { location } = useLocation();
   const {
     isLoading,
     hasFetched,
@@ -62,11 +59,9 @@ function AreaScreen() {
       return;
     }
 
-    if (location) {
-      fetchSuggestionsByArea(location, area);
-    }
+    fetchSuggestionsByArea(area);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, area, router]);
+  }, [area, router]);
 
   useEffect(() => {
     if (error) {
@@ -215,10 +210,6 @@ function AreaScreen() {
 
 function AreaWithShareProvider() {
   const { getPhotoUri, loadPhotoByName, suggestions } = useArea();
-  const { hasPermission, location } = useLocation();
-  const params = useLocalSearchParams<{ area?: string }>();
-  const area = Array.isArray(params.area) ? params.area[0] : params.area;
-  const { fetchSuggestionsByArea } = useArea();
 
   const loadPhoto = useCallback(
     async (suggestionId: string, photoIndex: number) => {
@@ -230,20 +221,9 @@ function AreaWithShareProvider() {
     [suggestions, loadPhotoByName]
   );
 
-  const handlePermissionGranted = useCallback(() => {
-    if (location && area) {
-      fetchSuggestionsByArea(location, area);
-    }
-  }, [location, area, fetchSuggestionsByArea]);
-
   return (
     <ShareProvider getPhotoUri={getPhotoUri} loadPhoto={loadPhoto}>
       <AreaScreen />
-      {(!hasPermission || !location) && (
-        <LocationPermissionModal
-          onPermissionGranted={handlePermissionGranted}
-        />
-      )}
     </ShareProvider>
   );
 }

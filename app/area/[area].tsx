@@ -1,5 +1,4 @@
 import { AreaCard, AreaCardRef } from "@/components/area/area-card";
-import { DistanceFilterModal } from "@/components/area/distance-filter-modal";
 import { OpenNowFilterModal } from "@/components/area/open-now-filter-modal";
 import { AbsoluteView } from "@/components/common/absolute-view";
 import { AnimatedBackground } from "@/components/common/animated-background";
@@ -17,7 +16,6 @@ import { ShareProvider } from "@/contexts/share-context";
 import { useToast } from "@/contexts/toast-context";
 import { useModal } from "@/hooks/use-modal";
 import { useSwipeFeedback } from "@/hooks/use-swipe-feedback";
-import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -35,7 +33,6 @@ const copy = {
  */
 function AreaScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
   const params = useLocalSearchParams<{ area?: string }>();
   const area = Array.isArray(params.area) ? params.area[0] : params.area;
 
@@ -52,7 +49,6 @@ function AreaScreen() {
   const { onSwipeSkip, onSwipeSelect } = useSwipeFeedback();
   const { displayToast } = useToast();
   const swipeModal = useModal();
-  const distanceModal = useModal();
   const openNowModal = useModal();
 
   const [isSkipLoading, setIsSkipLoading] = useState<boolean>(false);
@@ -147,20 +143,12 @@ function AreaScreen() {
                     />
                   </View>
                 </AbsoluteView>
-                <View className='flex-row gap-2'>
-                  <IconButton
-                    size={ButtonSize.sm}
-                    onPress={openNowModal.handleOpen}
-                    icon={"time-outline"}
-                    variant={ButtonVariant.white}
-                  />
-                  <IconButton
-                    size={ButtonSize.sm}
-                    onPress={distanceModal.handleOpen}
-                    icon='location-outline'
-                    variant={ButtonVariant.white}
-                  />
-                </View>
+                <IconButton
+                  size={ButtonSize.sm}
+                  onPress={openNowModal.handleOpen}
+                  icon={"time-outline"}
+                  variant={ButtonVariant.white}
+                />
               </View>
               {currentSuggestion ? (
                 <View className='flex-1'>
@@ -216,10 +204,6 @@ function AreaScreen() {
         visible={swipeModal.isVisible}
         onClose={swipeModal.handleClose}
         place={currentSuggestion}
-      />
-      <DistanceFilterModal
-        visible={distanceModal.isVisible}
-        onClose={distanceModal.handleClose}
       />
       <OpenNowFilterModal
         visible={openNowModal.isVisible}

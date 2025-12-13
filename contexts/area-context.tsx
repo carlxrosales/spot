@@ -113,11 +113,8 @@ export function AreaProvider({ children }: AreaProviderProps) {
       try {
         const newSuggestions = await searchPlacesByAddress({
           searchTerm: areaTerm.toLowerCase(),
-          userLocation: location,
           limitCount: 80,
           filterOpenNow: openNowFilterValue,
-          filterCity: cityFilterValue,
-          maxDistanceKm: maxDistanceFilterValue,
         });
 
         if (newSuggestions.length > 0) {

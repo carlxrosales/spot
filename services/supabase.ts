@@ -290,9 +290,6 @@ export interface SearchPlacesByAddressOptions {
   searchTerm: string;
   limitCount?: number;
   filterOpenNow?: boolean;
-  filterCity?: string | null;
-  userLocation?: LocationCoordinates;
-  maxDistanceKm?: number | null;
 }
 
 export interface SearchPlacesByAddressResult {
@@ -309,7 +306,6 @@ export interface SearchPlacesByAddressResult {
   description: string | null;
   share_link: string | null;
   reviews_link: string | null;
-  distance_in_km: number | null;
 }
 
 /**
@@ -327,19 +323,12 @@ export async function searchPlacesByAddress(
     searchTerm,
     limitCount = DEFAULT_LIMIT_COUNT,
     filterOpenNow = false,
-    filterCity = null,
-    userLocation,
-    maxDistanceKm,
   } = options;
 
   const { data, error } = await supabase.rpc("search_places_by_address", {
     search_term: searchTerm,
     limit_count: limitCount,
     filter_open_now: filterOpenNow,
-    filter_city: filterCity,
-    user_lat: userLocation?.lat ?? null,
-    user_lng: userLocation?.lng ?? null,
-    max_distance_km: maxDistanceKm ?? null,
   });
 
   if (error) {
@@ -365,8 +354,5 @@ export async function searchPlacesByAddress(
     description: result.description ?? undefined,
     shareLink: result.share_link ?? undefined,
     reviewsLink: result.reviews_link ?? undefined,
-    distanceInKm: result.distance_in_km
-      ? Number(result.distance_in_km)
-      : undefined,
   }));
 }

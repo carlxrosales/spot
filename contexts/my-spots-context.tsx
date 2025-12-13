@@ -93,7 +93,18 @@ export function MySpotsProvider({ children }: MySpotsProviderProps) {
         return spot;
       });
 
-      setSpots(spotsWithComputedFields);
+      // Sort by date saved (newest first) - savedSpotIds is already reversed (newest first)
+      const sortedSpots = spotsWithComputedFields.sort((a, b) => {
+        const indexA = savedSpotIds.indexOf(a.id);
+        const indexB = savedSpotIds.indexOf(b.id);
+        // If not found, put at end
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        // Lower index = newer (since array is reversed)
+        return indexA - indexB;
+      });
+
+      setSpots(sortedSpots);
     } catch {
       setError("yikes! failed to load your spots");
     } finally {

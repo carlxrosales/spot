@@ -29,7 +29,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /**
  * Default maximum number of places to return from similarity search.
  */
-export const DEFAULT_LIMIT_COUNT = 80;
+export const DEFAULT_LIMIT_COUNT = 30;
 
 // ============================================================================
 // FUNCTIONS
